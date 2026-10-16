@@ -1,0 +1,78 @@
+# com.dan.ocean – Meer und Wellen
+
+Das Paket rechnet eine offene See: Windsee aus einem Wellenspektrum, lange Dünung, Schaumköpfe, Schaumstraßen, Brandungsringe um Hindernisse und Ringwellen nach Einschlägen. Der Kern braucht nur Java 21 und beantwortet für jeden Ort, wie hoch das Wasser steht, wie es geneigt ist, wie schnell es sich bewegt und wie viel Schaum dort liegt. Der Ordner `gl/` zeichnet dieselbe See mit JOGL und Compute-Shadern (OpenGL 4.3). Das Paket kennt weder den Leuchtturm noch andere Pakete.
+
+Zum Herauskopieren reicht `src/com/dan/ocean/`. Nur `demo/OceanDemo` braucht zusätzlich `FStyle.jar`.
+
+## Was es kann
+
+- **Seegang nach Beaufort und Douglas:** `beaufort(n)` stellt Wind und Dünung ein. Die signifikante Wellenhöhe folgt der Tabelle in `SeaState` genau, von 0,2 m bei Bft 2 bis 14 m bei Bft 12.
+- **Windsee als FFT-Ozean:** JONSWAP-Spektrum mit Spitzenperiode aus Wind und Streichlänge, Richtungsverteilung nach Donelan-Banner, verteilt auf drei oder vier Kacheln verschiedener Größe (Seitenverhältnis 6,85). So wiederholt sich nichts sichtbar. Die Kämme werden spitz, die Täler breit (horizontale Verschiebung).
+- **Dünung:** vier Gerstner-Züge, getrennt vom Wind regelbar (Höhe, Periode, Richtung). Sie läuft auch bei Windstille.
+- **Schaumköpfe:** Schaum entsteht, wo die Welle sich überschlägt (Jacobi-Determinante). Die Schwelle wird so bestimmt, dass die Bedeckung der Tabelle folgt, bei Bft 10 also die Hälfte der Fläche. Schaum klingt in rund 2,5 s nach.
+- **Schaumstraßen** in Windrichtung ab Bft 7.
+- **Brandungsring** um jedes Hindernis (`Obstacle`, senkrechter Zylinder). Er wird mit dem Seegang breiter und dichter.
+- **Ringwellen:** `addImpulse(x, z, stärke)` setzt ein Wellenpaket, das nach außen läuft und in vier Sekunden abklingt.
+- **Abfragen ohne Grafikkarte:** `heightAt`, `normalAt`, `velocityAt`, `verticalVelocityAt` (seit Phase 13, so billig wie die Höhe), `foamAt` und `sample` für alles, was schwimmt, spritzt oder fliegt. Sie rechnen mit denselben Startamplituden wie die Grafikkarte und liegen weniger als 1 % von H<sub>s</sub> neben der genauen Summe aller Wellen.
+- **Optik (gl):** Fresnel mit Spiegelung eines Himmelspanoramas, Streulicht in Nordsee-Grün, Licht im durchscheinenden Wellenkamm gegen die Sonne, Sonnen- und Mondglitzer, Dunst zur Kimm, Erdkrümmung (die Kimm liegt richtig).
+- **Schatten von oben (gl, optional):** zwei Schattenkarten als Draufsicht, jede mit ihrem Rechteck: eine für Wolken (`Light.shadowTexture`), eine für den Schatten eines Körpers, etwa eines Turms oder Schiffs (`Light.bodyShadowTexture`, seit Phase 5). Sie dämpfen nur Sonne und Mond, nicht den Himmel. Das Paket weiß nicht, wer den Schatten wirft.
+- **Feine Störung (gl, optional):** eine kachelbare Steigungstextur (`Light.detailTexture`, dh/dx und dh/dz in RG) mit Kachelgröße, Stärke und Reichweite, die auf die Normale gelegt wird, etwa die Ringkarte des Regens (seit Phase 7). Das Paket weiß nicht, woher sie kommt.
+- **Einfache Punktlichter (gl, optional, seit Phase 10):** bis zu acht Lichter ohne Lichtverteilung (`Light.flashPos`, `flashRgb`, `flashCount`: Ort, Größe der Quelle, Lichtstärke), etwa Blitze. Sie beleuchten Wasserkörper und Schaum; den Glanz der Quelle selbst zeigt die Spiegelung, wenn sie im Himmelspanorama steht. Das Paket weiß nicht, was leuchtet.
+- **Reproduzierbar:** gleicher `seed`, gleiche See. Die See läuft nach 1 000 s ohne Sprung in Schleife.
+
+## Benutzung
+
+```java
+Ocean ocean = Ocean.beaufort(6);           // Wind 12,3 m/s, H_s 3 m
+ocean.windFromDeg = 240;                    // aus Westsüdwest
+ocean.swellHeight = 1.2;                    // Dünung 1,2 m …
+ocean.swellPeriod = 10;                     // … mit 10 s …
+ocean.swellFromDeg = 300;                   // … aus Westnordwest
+ocean.addObstacle(new Obstacle(0, 0, 4.5)); // Sockel mit 4,5 m Radius
+
+// je Bild
+ocean.step(dt);
+double h = ocean.heightAt(x, z);            // Wasserstand an (x, z) in m
+Ocean.Sample s = ocean.sample(x, z);        // dazu Normale, Geschwindigkeit, Schaum
+ocean.addImpulse(x, z, 0.8);                // ein Brecher fällt zurück
+
+// zeichnen (im GL-Faden)
+OceanGl gl = new OceanGl();
+gl.init(gl4);
+gl.update(gl4, ocean);
+OceanGl.View view = new OceanGl.View();     // Projektion·Blick, Auge, Tiefenkonvention
+OceanGl.Light light = new OceanGl.Light();  // Sonne, Mond, Himmelspanorama, Dunst
+gl.draw(gl4, ocean, view, light);
+```
+
+Alle Felder sind öffentlich und zur Laufzeit änderbar. Ändert sich etwas am Spektrum (Wind, Streichlänge, Tiefe, Qualität, seed), baut der Kern es im Hintergrund neu und übernimmt es ohne Ruck. `rebuildNow()` baut sofort, etwa für Standbilder.
+
+## Aufbau
+
+| Klasse | Aufgabe |
+|---|---|
+| `Ocean` | Eingänge, Presets, Zustand, Abfragen, Schaumkalibrierung |
+| `SeaState` | Beaufort- und Douglas-Tabelle: Wind, H<sub>s</sub>, Schaumbedeckung |
+| `Spectrum` | JONSWAP, Richtungsverteilung, Kaskaden mit Startamplituden h₀ |
+| `Swell` | Dünung als Gerstner-Wellen |
+| `Ripples` | Ringwellen nach Einschlägen |
+| `Obstacle` | Hindernis (senkrechter Zylinder) |
+| `CpuField`, `Fft` | die See auf dem Prozessor (Kaskade 0 auf 128², Kaskade 1 auf 64²) |
+| `gl/OceanGl` | Compute-Shader `spectrum`, `fft`, `assemble` und die Oberfläche `surface.vert/frag` |
+| `gl/RingMesh` | Ringgitter um die Kamera, von 12 cm bis 60 km |
+| `gl/Backdrop` | einfaches Himmelspanorama und Bild ins Fenster für Szenen ohne eigenen Himmel |
+
+## Demo und Selbsttest
+
+- `com.dan.ocean.demo.OceanDemo` zeigt die See mit Reglern für Beaufort, Windrichtung, Dünung, Sonne und Qualität. „Brecher“ setzt eine Ringwelle. Ziehen dreht die Kamera, das Rad zoomt.
+- Ohne Fenster rechnet `OceanDemo --bild datei.png [breite] [höhe]` Bft 2, 6 und 10 nebeneinander und vergleicht dabei die Auslenkung auf der Grafikkarte mit der genauen Rechnung des Kerns.
+- `com.dan.ocean.demo.OceanCheck` prüft FFT, Wellenhöhen gegen die Tabelle, Abfragen gegen die genaue Summe, Geschwindigkeit, Schaumbedeckung, Dünung, Ringwellen, Brandungsring und Gitter und endet mit „Alles in Ordnung.“.
+- `OceanGl.selfCheck` liest auf der Grafikkarte einige Texel jeder Kaskade zurück und meldet die größte Abweichung zur Rechnung des Kerns.
+
+## Grenzen
+
+- Tiefwasser ist die Vorgabe. Mit `depth` ändert sich die Dispersion, aber Wellen laufen nicht auf, brechen nicht am Ufer und werden nicht gebeugt.
+- Hindernisse werfen keine Wellen zurück und schatten nichts ab. Sie bekommen nur den Brandungsring, die Gischt kommt aus dem Package `spray`.
+- Schaum aus Überschlag hängt an den zwei größten Kacheln. `foamAt` ist eine Näherung (nur Kachel 0, ohne Nachleuchten).
+- Ringwellen sind auf 32 gleichzeitig begrenzt und für einzelne große Ereignisse gedacht. Regen bringt seine eigenen Ringe als feine Störung mit.
+- Die Phase läuft in doppelter Genauigkeit (`GL_ARB_gpu_shader_fp64`, ab OpenGL 4.0 in jedem Kernprofil).

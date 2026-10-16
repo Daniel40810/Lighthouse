@@ -1,0 +1,9 @@
+# Lighthouse
+build/
+dist/
+nbproject/private/
+db/db.properties
+/bilder/
+# nur der Fotoordner der App; docs/bilder (README) bleibt im Git
+*.log
+daten/

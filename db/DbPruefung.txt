@@ -1,0 +1,67 @@
+run:
+Lighthouse � Pr�fung der Datenbank (Phase 15)
+Verbindung Lighthouse@localhost:1521/PDBORCL
+Datenbank LIGHTHOUSE auf PDBORCL
+Einrichter
+    alles in Ordnung
+  ok     Erster Lauf: alles in Ordnung (942 ausgef�hrt, 33 schon da)
+  ok     Zweiter Lauf geht ohne Fehler durch (wiederholbar): alles in Ordnung
+    ok 13 Tabellen
+    ok 162 Spalten mit passendem Typ
+    ok 12 Sequenzen
+    ok 11 Trigger eingeschaltet und g�ltig
+    ok 8 Indizes, der r�umliche g�ltig
+    ok Spatial-Metadaten mit SRID 8307
+    ok 3 Sichten g�ltig
+    ok Ausbaustufe 1
+    ok 9 T�rme
+    ok 62 Sektoren
+    ok 10 Wetterlagen
+    ok 3 Regieb�cher
+    ok 2 Kamerafahrten
+    ok 40 Presets der Packages
+    ok 588 Felder der Presets
+    ok Nachbarn im Umkreis von 40 km: 16 Paare (r�umlich gerechnet)
+    alles in Ordnung
+  ok     Einrichter meldet �alles in Ordnung�
+  ok     Ausbaustufe 1
+Trigger und Spatial
+  ok     Trigger setzt ID, ANGELEGT und GEAENDERT
+  ok     LH_LIGHTHOUSE_V liest Breite und L�nge aus SDO_GEOMETRY
+  ok     R�umliche Abfrage �ber den Index: bis 5 km um den Roten Sand: Alte Weser, Roter Sand
+  ok     Roter Sand: 3 Nachbarn bis 40 km in der Datenbank, 3 in Java
+  ok     Alte Weser: 3 Nachbarn bis 40 km in der Datenbank, 3 in Java
+  ok     Hohe Weg: 3 Nachbarn bis 40 km in der Datenbank, 3 in Java
+  ok     Westerheversand: 0 Nachbarn bis 40 km in der Datenbank, 0 in Java
+  ok     Kiel: 1 Nachbarn bis 40 km in der Datenbank, 1 in Java
+  ok     B�lk: 1 Nachbarn bis 40 km in der Datenbank, 1 in Java
+  ok     Fl�gge: 1 Nachbarn bis 40 km in der Datenbank, 1 in Java
+  ok     Dahmesh�ved: 1 Nachbarn bis 40 km in der Datenbank, 1 in Java
+  ok     Tegeler Plate: 3 Nachbarn bis 40 km in der Datenbank, 3 in Java
+  ok     Abst�nde SDO_GEOM (Ellipsoid) gegen Haversine (Kugel): 16 Paare, gr��te Abweichung 0,30 %
+Gelesen gleich den Startdaten
+  ok     T�rme: 9
+  ok     Alle neun T�rme mit Lage, Kennung, Feuerh�he und Sektoren wie in den Startdaten
+  ok     Zehn Wetterlagen mit allen 14 Gr��en (die Wolkenart als Name hin und zur�ck)
+  ok     Drei Regieb�cher: Text aus der Datenbank gleich Scenario.toText
+  ok     Zwei Kamerafahrten mit allen St�tzpunkten
+  ok     40 Presets mit allen Feldern
+Speichern und Laden
+  ok     Wetterlage: gespeichert, gelesen, leere Gr��e bleibt leer
+  ok     Gleicher Name ersetzt den eigenen Eintrag
+  ok     Mitgelieferte Wetterlage wird nicht �berschrieben
+  ok     Regiebuch mit neun Schritten: Text gleich
+  ok     Kamerafahrt mit 102 St�tzpunkten gleich
+  ok     Ansicht: Zustand (CLOB, 40 kB), Vorschau (BLOB), Turm und Szenenzeit gleich
+  ok     Preset mit 14 Feldern gleich
+  ok     Abgebrochene Sitzung: �Weiter wie zuletzt� findet ihren Zustand
+  ok     Beendete Sitzung ist als sauber vermerkt
+  ok     Protokoll geschrieben und gelesen
+Dateien �bernehmen
+  ok     Aus daten/ �bernommen: 1 Wetterlagen, 0 Regieb�cher, 0 Kamerafahrten, 0 Presets und 0 Ansichten �bernommen
+Aufr�umen
+  ok     Alle Pr�fzeilen wieder entfernt
+
+35 Pr�fungen, 0 Fehler, 14,9 s
+Alles in Ordnung.
+BUILD SUCCESSFUL (total time: 16 seconds)
