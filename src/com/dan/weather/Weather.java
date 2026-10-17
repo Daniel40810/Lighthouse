@@ -101,6 +101,17 @@ public final class Weather {
     public volatile double transitionH = 1.5;
     /** Zeitkonstante der Böen in Sekunden (Echtzeit). */
     public volatile double gustTau = 6;
+    /**
+     * Seit Haithabu Phase 12: die Regie kennt die Jahreszeit. Monatsmittel der Lufttemperatur (12 Werte, °C, etwa aus
+     * {@code com.dan.season.Climate}); die Lagen liegen dann um das Mittel des Tags statt um {@link #TARGET_MEAN}, der
+     * Tagesgang ist im Winter flacher, Gewitter kommen fast nur im Sommer, Seenebel öfter im Herbst, Stürme öfter im
+     * Winter. null: wie bisher (Lagen wie Mitte Oktober).
+     */
+    public volatile double[] climate;
+    /** Abweichung des Tags vom Monatsmittel (K), etwa aus einem gewürfelten Jahr (nur mit {@link #climate}). */
+    public volatile double anomaly;
+    /** Mittel der Temperaturen in {@link #TARGET} (°C), um das die Lagen ohne Jahreszeit liegen. */
+    public static final double TARGET_MEAN = 11.5;
 
     // ------------------------------------------------------------------ Zustand
     private final List<Segment> timeline = new ArrayList<>();
@@ -280,7 +291,7 @@ public final class Weather {
     private void extend(double until) {
         while (timeline.get(timeline.size() - 1).t1() < until) {
             Segment last = timeline.get(timeline.size() - 1);
-            double[] row = MARKOV[last.phase().ordinal()];
+            double[] row = seasonal(MARKOV[last.phase().ordinal()], last.t1());
             double u = rnd.nextDouble(), acc = 0;
             int next = 0;
             for (int j = 0; j < row.length; j++) { acc += row[j]; if (u < acc) { next = j; break; } }
@@ -328,8 +339,67 @@ public final class Weather {
             double f = smooth(s.t1() - wn / 2, s.t1() + wn / 2, t);
             val = mix(v, val, base(n, v), f);
         }
-        if (v == Var.TEMPERATURE) val += diurnal(t, base(s, Var.COVER));
+        if (v == Var.TEMPERATURE) val += diurnal(t, base(s, Var.COVER)) + seasonShift(t, s.phase());
         return val;
+    }
+
+    // ------------------------------------------------------------------ Jahreszeit (seit Haithabu Phase 12)
+
+    private static final int[] MONTH_DAYS = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+    /** Tag im Jahr (1..365) zur Zeit t in der Zone der Regie. */
+    int dayOfYear(double t) {
+        int d = Instant.ofEpochMilli((long) (t * 1000)).atZone(zone).getDayOfYear();
+        return Math.min(365, d);
+    }
+
+    /** Monatsmittel am Tag doy, zwischen den Monatsmitten glatt verbunden (wie com.dan.season.Climate). */
+    static double climateAt(double[] c, double doy) {
+        double[] mid = new double[12];
+        double acc = 0;
+        for (int m = 0; m < 12; m++) { mid[m] = acc + MONTH_DAYS[m] / 2.0 + 0.5; acc += MONTH_DAYS[m]; }
+        int a = 11;
+        for (int m = 0; m < 12; m++) if (mid[m] <= doy) a = m;
+        int b = (a + 1) % 12;
+        double da = mid[a], db = mid[b] + (b < a ? 365 : 0), x = doy < da ? doy + 365 : doy;
+        double f = Math.max(0, Math.min(1, (x - da) / (db - da)));
+        f = 0.5 - 0.5 * Math.cos(Math.PI * f);
+        return c[a] + (c[b] - c[a]) * f;
+    }
+
+    /**
+     * Verschiebung der Temperatur gegenüber den Lagen (K): Klima des Tags − {@link #TARGET_MEAN} + Abweichung. Im
+     * Winter dreht sich der Unterschied der Lagen um: klare Hochdrucklagen sind kalt (Ausstrahlung), Fronten und Stürme
+     * bringen milde Meeresluft [G].
+     */
+    double seasonShift(double t, Phase p) {
+        double[] c = climate;
+        if (c == null || c.length != 12) return 0;
+        double doy = dayOfYear(t), win = 1 - summerness(doy);
+        double flip = switch (p) {
+            case KLAR, AUFKLAREND, NEBEL -> -2.5;
+            case FRONT, STURM, ABKLINGEND -> 1.5;
+            default -> 0;
+        };
+        return climateAt(c, doy) - TARGET_MEAN + anomaly + flip * win * win;
+    }
+
+    /** 1 Mitte Juli … 0 Mitte Januar. */
+    static double summerness(double doy) { return 0.5 + 0.5 * Math.cos(2 * Math.PI * (doy - 196) / 365); }
+
+    /** Übergänge der freien Regie nach der Jahreszeit gewichtet (ohne {@link #climate} unverändert). */
+    double[] seasonal(double[] row, double t) {
+        if (climate == null) return row;
+        double doy = dayOfYear(t), su = summerness(doy), au = 0.5 + 0.5 * Math.cos(2 * Math.PI * (doy - 305) / 365);
+        double[] w = row.clone();
+        w[Phase.GEWITTER.ordinal()] *= 0.04 + 0.96 * su * su;
+        w[Phase.NEBEL.ordinal()] *= 0.6 + 1.2 * au;
+        w[Phase.STURM.ordinal()] *= 0.7 + 0.6 * (1 - su);
+        double sum = 0;
+        for (double x : w) sum += x;
+        if (sum <= 0) return row;
+        for (int i = 0; i < w.length; i++) w[i] /= sum;
+        return w;
     }
 
     private int indexAt(double t) {
@@ -344,11 +414,12 @@ public final class Weather {
         return a + (b - a) * f;
     }
 
-    /** Tagesgang der Temperatur: ±3 °C um 15 Uhr am wärmsten, unter Wolken schwächer. */
+    /** Tagesgang der Temperatur: ±3 °C um 15 Uhr am wärmsten, unter Wolken schwächer; mit {@link #climate} je nach Jahreszeit. */
     double diurnal(double t, double oktas) {
         var lt = Instant.ofEpochMilli((long) (t * 1000)).atZone(zone);
         double h = lt.getHour() + lt.getMinute() / 60.0;
-        return 3 * Math.cos(2 * Math.PI * (h - 15) / 24) * (1 - 0.7 * Math.min(1, oktas / 8));
+        double amp = climate == null ? 3 : 3 * (0.55 + 0.75 * summerness(dayOfYear(t)));    // Januar ±1,7, Juli ±3,9 °C
+        return amp * Math.cos(2 * Math.PI * (h - 15) / 24) * (1 - 0.7 * Math.min(1, oktas / 8));
     }
 
     // ------------------------------------------------------------------ Ausgang

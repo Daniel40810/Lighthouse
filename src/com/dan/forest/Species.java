@@ -322,11 +322,32 @@ public final class Species {
         return s;
     }
 
-    /** Alle fertigen Arten: erst die drei aus Yellowstone, dann Eiche, Buche, Birke, Fichte, dann die weiteren Nadelbäume. */
+    /**
+     * Schwarzerle (Alnus glutinosa): Baum der Bruchwälder und Bachufer, 15 bis 25 m, kegelig-eiförmige Krone mit
+     * waagerechten Ästen, dunkle rissige Rinde; Blätter rundlich und vorn eingekerbt, dunkelgrün und glänzend. Sie
+     * färben sich im Herbst kaum und fallen spät noch fast grün (seit Haithabu Phase 2b).
+     */
+    public static Species alder() {
+        Species s = new Species("Schwarzerle", "Alnus glutinosa");
+        s.deciduous = true; s.heightMin = 14; s.heightMax = 24; s.trunkRatio = 0.02f; s.trunkEnd = 0.9f; s.crownBase = 0.3f;
+        s.crown = Crown.CONICAL; s.trunkWobble = 0.05f; s.levels = 3;
+        s.count = new float[]{0, 18, 7, 5}; s.angle = new float[]{0, 70, 45, 40}; s.angleVar = new float[]{0, 14, 15, 15};
+        s.lengthRatio = new float[]{0, 0.30f, 0.5f, 0.45f}; s.start = new float[]{0, 0, 0.2f, 0.25f};
+        s.tropism = new float[]{0, 0.0f, -0.01f, 0.02f}; s.radiusRatio = new float[]{0, 0.5f, 0.5f, 0.5f};
+        s.leafLevel = 3; s.leafDensity = 14; s.leaf = Leaf.ROUND; s.leafSize = 0.08f; s.leafAspect = 0.9f; s.cluster = 0.6f;
+        s.flexTrunk = 0.7f; s.flexBranch = 0.9f; s.flutter = 0.9f;
+        s.bark = new float[]{0.055f, 0.048f, 0.042f};
+        s.spring = new float[]{0.10f, 0.26f, 0.05f}; s.summer = new float[]{0.030f, 0.095f, 0.025f};
+        s.autumn = new float[][]{{0.06f, 0.10f, 0.03f}, {0.10f, 0.11f, 0.035f}, {0.14f, 0.11f, 0.04f}};
+        s.leafOut = 110; s.colorStart = 290; s.colorFull = 312; s.bare = 322;
+        return s;
+    }
+
+    /** Alle fertigen Arten: erst die drei aus Yellowstone, dann Eiche, Buche, Birke, Fichte, dann die weiteren Nadelbäume, zuletzt die Schwarzerle. */
     public static final List<java.util.function.Supplier<Species>> ALL = List.of(Species::lodgepolePine, Species::aspen, Species::douglasFir,
             Species::oak, Species::beech, Species::birch, Species::spruce,
             Species::engelmannSpruce, Species::subalpineFir, Species::whitebarkPine,
-            Species::silverFir, Species::scotsPine, Species::larch, Species::stonePine);
+            Species::silverFir, Species::scotsPine, Species::larch, Species::stonePine, Species::alder);
 
     /** Die Art mit diesem deutschen oder lateinischen Namen (oder null). */
     public static Species byName(String n) {

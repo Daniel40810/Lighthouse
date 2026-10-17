@@ -8,6 +8,7 @@ out vec2 vRest;
 out vec3 vWorld;
 out float vHeight;
 out float vDist;
+out float vDepth;
 
 void main() {
     vec2 rest = uCenter + aPos;
@@ -21,6 +22,9 @@ void main() {
     vec3 sd, ss;
     swell(rest, sd, ss);
     d += sd;
+    // seit Haithabu: zum Ufer hin flacher (unter 1,5 m Tiefe), auf dem Trockenen ganz still
+    float depth = bedDepth(rest);
+    d *= smoothstep(0.0, 1.5, depth);
     vec2 flatPos = rest + d.xz;
     float dist = length(flatPos - uCam.xz);
     vec3 world = vec3(flatPos.x, uLevel + d.y - dist * dist / (2.0 * EARTH_R), flatPos.y);
@@ -28,5 +32,6 @@ void main() {
     vWorld = world;
     vHeight = d.y;
     vDist = dist;
+    vDepth = depth;
     gl_Position = uVP * vec4(world, 1.0);
 }

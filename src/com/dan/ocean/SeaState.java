@@ -53,6 +53,16 @@ public final class SeaState {
     public static double significantHeight(double windMs) { return lerp(HS, beaufortSmooth(windMs)); }
     public static double foamCoverage(double windMs) { return lerp(FOAM, beaufortSmooth(windMs)); }
 
+    /**
+     * Seit Haithabu (Phase 2): signifikante Höhe einer nicht ausgereiften Windsee nach JONSWAP (Hasselmann u. a. 1973):
+     * H_s = 0,0016 · U · √(F/g), in flachem Wasser höchstens 0,6 · Tiefe (Brechen). Bei 1,5 km Streichlänge und Bft 6
+     * rund 0,25 m.
+     */
+    public static double fetchLimitedHeight(double windMs, double fetchM, double depthM) {
+        double hs = 0.0016 * Math.max(0, windMs) * Math.sqrt(Math.max(0, fetchM) / 9.81);
+        return Math.min(hs, 0.6 * Math.max(0.1, depthM));
+    }
+
     /** „Bft 6 · Starker Wind · Douglas 5 grob“ */
     public static String describe(double windMs) {
         int b = beaufort(windMs);

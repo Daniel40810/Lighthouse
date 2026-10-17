@@ -1,7 +1,9 @@
 package com.dan.flock.gl;
 
 import com.dan.flock.Flock;
+import com.dan.flock.BirdMesh;
 import com.dan.flock.GullMesh;
+import com.dan.flock.Species;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL4;
@@ -35,6 +37,10 @@ public final class FlockGl {
 
     static final int INST = 13;
     private int prog, checkProg, vao, vbo, ivbo, emptyVao, count, capacity;
+    /** Seit Haithabu Phase 13: ein Netz je Art und Spielart (Index wie {@link #meshIndex}); das der Möwe ist vao. */
+    private final java.util.List<int[]> meshes = new java.util.ArrayList<>();     // vao, vbo, count
+    private final java.util.List<double[]> joints = new java.util.ArrayList<>();  // Schulter x, y, z, Handgelenk x
+    private final java.util.Map<Integer, Integer> meshOf = new java.util.HashMap<>();
     private boolean ready;
     private String info = "";
     private int drawn;
@@ -87,40 +93,125 @@ public final class FlockGl {
         gl.glVertexAttribDivisor(7, 1);
         gl.glBindVertexArray(0);
         gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
+        meshes.add(new int[]{vao, vbo, count});
+        joints.add(new double[]{GullMesh.SHOULDER_X, GullMesh.SHOULDER_Y, GullMesh.SHOULDER_Z, GullMesh.WRIST_X});
+        meshOf.put(key(Species.MOEWE, 0), 0);
+        int tris = count / 3;
+        for (Species sp : Species.values()) {
+            if (sp == Species.MOEWE) continue;
+            for (int k = 0; k < BirdMesh.variants(sp); k++) {
+                BirdMesh bm = BirdMesh.build(sp, k);
+                meshOf.put(key(sp, k), meshes.size());
+                meshes.add(upload(gl, bm.vertices(), bm.count()));
+                joints.add(new double[]{bm.shoulder[0], bm.shoulder[1], bm.shoulder[2], bm.wrist});
+                tris += bm.count() / 3;
+            }
+        }
         ready = true;
-        info = String.format(Locale.GERMAN, "Möwe %d Dreiecke, je Möwe eine Instanz", count / 3);
+        info = String.format(Locale.GERMAN, "%d Netze (%d Arten), %d Dreiecke, je Vogel eine Instanz", meshes.size(), Species.values().length, tris);
+    }
+
+    static int key(Species sp, int variant) { return sp.ordinal() * 4 + variant; }
+
+    /** Netz eines Vogels: Art und Spielart (bei der Stockente nach der Nummer: Erpel und Weibchen). */
+    int meshIndex(Flock.Gull g) {
+        int v = BirdMesh.variantOf(g);
+        Integer i = meshOf.get(key(g.species, v));
+        return i == null ? 0 : i;
+    }
+
+    /** Ein Netz mit derselben Belegung wie das der Möwe; die Instanzen kommen aus demselben Puffer. */
+    private int[] upload(GL4 gl, float[] v, int n) {
+        int[] t = new int[1];
+        gl.glGenVertexArrays(1, t, 0);
+        int a = t[0];
+        gl.glGenBuffers(1, t, 0);
+        int b = t[0];
+        gl.glBindVertexArray(a);
+        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, b);
+        gl.glBufferData(GL.GL_ARRAY_BUFFER, v.length * 4L, Buffers.newDirectFloatBuffer(v), GL.GL_STATIC_DRAW);
+        int stride = GullMesh.FLOATS * 4;
+        gl.glEnableVertexAttribArray(0);
+        gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, stride, 0);
+        gl.glEnableVertexAttribArray(1);
+        gl.glVertexAttribPointer(1, 3, GL.GL_FLOAT, false, stride, 12);
+        gl.glEnableVertexAttribArray(2);
+        gl.glVertexAttribPointer(2, 3, GL.GL_FLOAT, false, stride, 24);
+        gl.glEnableVertexAttribArray(3);
+        gl.glVertexAttribPointer(3, 1, GL.GL_FLOAT, false, stride, 36);
+        bindInstances(gl);
+        gl.glBindVertexArray(0);
+        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
+        return new int[]{a, b, n};
+    }
+
+    private void bindInstances(GL4 gl) {
+        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, ivbo);
+        int is = INST * 4;
+        gl.glEnableVertexAttribArray(4);
+        gl.glVertexAttribPointer(4, 4, GL.GL_FLOAT, false, is, 0);
+        gl.glVertexAttribDivisor(4, 1);
+        gl.glEnableVertexAttribArray(5);
+        gl.glVertexAttribPointer(5, 4, GL.GL_FLOAT, false, is, 16);
+        gl.glVertexAttribDivisor(5, 1);
+        gl.glEnableVertexAttribArray(6);
+        gl.glVertexAttribPointer(6, 4, GL.GL_FLOAT, false, is, 32);
+        gl.glVertexAttribDivisor(6, 1);
+        gl.glEnableVertexAttribArray(7);
+        gl.glVertexAttribPointer(7, 1, GL.GL_FLOAT, false, is, 48);
+        gl.glVertexAttribDivisor(7, 1);
+    }
+
+    /** Instanzdaten eines Vogels (13 Zahlen, auch für Vorschau und Prüfung). */
+    public static float[] instance(Flock.Gull g) {
+        float[] d = new float[INST];
+        put(d, 0, g);
+        return d;
     }
 
     /** Instanzdaten einer Möwe: Ort, Größe, Richtung, Querneigung, Flügel, Beine. */
     static void put(float[] d, int o, Flock.Gull g) {
         double vx = g.vel[0], vy = g.vel[1], vz = g.vel[2], l = Math.sqrt(vx * vx + vy * vy + vz * vz);
         double fx, fy, fz;
-        if (g.state == Flock.State.PERCH || l < 0.5) {
+        if (g.state == Flock.State.SWIM || g.state == Flock.State.WALK) {
+            // schwimmend oder gehend: waagerecht; Gründeln und Picken neigen den Kopf nach unten
+            double a = Math.toRadians(g.facing), dip = g.dabble * (g.state == Flock.State.SWIM ? 1.15 : 0.6);
+            fx = Math.sin(a) * Math.cos(dip); fy = -Math.sin(dip); fz = -Math.cos(a) * Math.cos(dip);
+        } else if (g.state == Flock.State.PERCH || l < 0.5) {
             double a = Math.toRadians(g.facing);
-            fx = Math.sin(a); fy = 0; fz = -Math.cos(a);
+            // der Kormoran sitzt aufrecht
+            double up = g.species == com.dan.flock.Species.KORMORAN ? 0.7 : 0;
+            fx = Math.sin(a) * Math.cos(up); fy = Math.sin(up); fz = -Math.cos(a) * Math.cos(up);
         } else if (g.state == Flock.State.SOAR) {
             // im Aufwind schaut sie in den Wind, auch wenn sie kaum vorankommt (Richtung aus der Geschwindigkeit gegen die Luft genähert)
             double a = Math.toRadians(g.facing);
             fx = Math.sin(a); fy = 0.05; fz = -Math.cos(a);
         } else { fx = vx / l; fy = Math.max(-0.5, Math.min(0.5, vy / l)); fz = vz / l; }
-        double[] w = GullMesh.wing(g);
+        double[] w = g.species == com.dan.flock.Species.MOEWE ? GullMesh.wing(g) : BirdMesh.wing(g);
+        boolean legs = g.state == Flock.State.PERCH || g.state == Flock.State.WALK;
         float[] v = {(float) g.pos[0], (float) g.pos[1], (float) g.pos[2], 1f, (float) fx, (float) fy, (float) fz, (float) g.bank,
-                (float) w[0], (float) w[1], (float) w[2], (float) w[3], g.state == Flock.State.PERCH ? 1f : 0f};
+                (float) w[0], (float) w[1], (float) w[2], (float) w[3], legs ? 1f : 0f};
         System.arraycopy(v, 0, d, o, INST);
     }
 
-    /** Alle sichtbaren Möwen zeichnen. */
+    /** Alle sichtbaren Vögel zeichnen (nach Netz geordnet, ein Aufruf je Netz). */
     public void draw(GL4 gl, Flock f, View view, Light light) {
         List<Flock.Gull> gs = f.gulls();
         float[] d = new float[Math.max(1, gs.size()) * INST];
-        int n = 0;
+        int nm = meshes.size();
+        int[] per = new int[nm], start = new int[nm];
+        java.util.List<Flock.Gull> vis = new java.util.ArrayList<>();
         for (Flock.Gull g : gs) {
-            if (g.state == Flock.State.AWAY || g.id == view.hide) continue;
+            if (g.state == Flock.State.AWAY || g.state == Flock.State.DIVE || g.id == view.hide) continue;
             double dx = g.pos[0] - view.eye[0], dz = g.pos[2] - view.eye[2];
             if (dx * dx + dz * dz > 4000.0 * 4000.0) continue;
-            put(d, n * INST, g);
-            n++;
+            vis.add(g);
+            per[meshIndex(g)]++;
         }
+        for (int i = 1; i < nm; i++) start[i] = start[i - 1] + per[i - 1];
+        int[] fill = start.clone();
+        for (Flock.Gull g : vis) put(d, fill[meshIndex(g)]++ * INST, g);
+        int n = vis.size();
         drawn = n;
         if (n == 0) return;
         gl.glBindBuffer(GL.GL_ARRAY_BUFFER, ivbo);
@@ -147,8 +238,16 @@ public final class FlockGl {
         gl.glDepthMask(true);
         gl.glDisable(GL.GL_CULL_FACE);
         gl.glDisable(GL.GL_BLEND);
-        gl.glBindVertexArray(vao);
-        gl.glDrawArraysInstanced(GL.GL_TRIANGLES, 0, count, n);
+        int sh = gl.glGetUniformLocation(prog, "uShoulder"), wr = gl.glGetUniformLocation(prog, "uWrist");
+        for (int i = 0; i < nm; i++) {
+            if (per[i] == 0) continue;
+            double[] j = joints.get(i);
+            gl.glUniform3f(sh, (float) j[0], (float) j[1], (float) j[2]);
+            gl.glUniform1f(wr, (float) j[3]);
+            int[] m = meshes.get(i);
+            gl.glBindVertexArray(m[0]);
+            gl.glDrawArraysInstancedBaseInstance(GL.GL_TRIANGLES, 0, m[2], per[i], start[i]);
+        }
         gl.glBindVertexArray(0);
         gl.glUseProgram(0);
     }
@@ -225,6 +324,13 @@ public final class FlockGl {
     public void dispose(GL4 gl) {
         if (prog != 0) gl.glDeleteProgram(prog);
         if (checkProg != 0) gl.glDeleteProgram(checkProg);
+        for (int i = 1; i < meshes.size(); i++) {
+            gl.glDeleteBuffers(1, new int[]{meshes.get(i)[1]}, 0);
+            gl.glDeleteVertexArrays(1, new int[]{meshes.get(i)[0]}, 0);
+        }
+        meshes.clear();
+        joints.clear();
+        meshOf.clear();
         gl.glDeleteBuffers(2, new int[]{vbo, ivbo}, 0);
         gl.glDeleteVertexArrays(2, new int[]{vao, emptyVao}, 0);
         prog = checkProg = vbo = ivbo = vao = emptyVao = 0;

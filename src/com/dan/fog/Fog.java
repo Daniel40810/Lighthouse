@@ -43,6 +43,12 @@ public final class Fog {
     public volatile double coverage = 0.6;
     /** Mittlere Obergrenze der Schicht über dem Wasser in m. */
     public volatile double top = 60;
+    /**
+     * Untergrenze der Schicht über dem Wasser in m (0 = der Nebel liegt auf dem Wasser). Hebt sich die Untergrenze, wird
+     * der Nebel zur abgehobenen Schicht (Hochnebel), wie Strahlungsnebel am Morgen, wenn die Sonne den Boden wärmt.
+     * Der Übergang darunter ist 2 · max(1,5 m, 0,3 · base) weich. Seit Haithabu Phase 3.
+     */
+    public volatile double base = 0;
     /** Weichheit der Obergrenze als Anteil der Höhe. */
     public volatile double softness = 0.35;
     /** Typische Größe der Bänke in m (Zellgröße der untersten Oktave). */
@@ -145,7 +151,7 @@ public final class Fog {
 
     /** Unveränderliche Werte für Grafikkarte und Abfragen. */
     public record Snapshot(double sigma, double threshold, double top, double softness, double bankSize, double wisps, double offX, double offZ,
-                           double waterLevel, int seed, Quality quality, double coverage, double time) {
+                           double waterLevel, int seed, Quality quality, double coverage, double time, double base) {
         /** Gibt es überhaupt Nebel? */
         public boolean any() { return sigma > 1e-7 && coverage > 1e-3; }
     }
@@ -155,7 +161,7 @@ public final class Fog {
     private Snapshot build() {
         double sig = Math.max(0, amount) * SIGMA_PER_VIS / Math.max(1, visibilityM);
         return new Snapshot(sig, thresholdFor(coverage), Math.max(0.5, top), clamp(softness, 0.02, 1.5), Math.max(10, bankSize), clamp(wisps, 0, 1),
-                offX, offZ, waterLevel, (int) (seed * 0x9E3779B1L), quality, clamp(coverage, 0, 1), time);
+                offX, offZ, waterLevel, (int) (seed * 0x9E3779B1L), quality, clamp(coverage, 0, 1), time, Math.max(0, base));
     }
 
     /** Koschmieder mit 5 % Kontrast: σ · V = 3,0. */
@@ -218,6 +224,7 @@ public final class Fog {
         if (b[0] <= 0) return 0;
         double tl = b[1], soft = tl * s.softness;
         double hv = smooth(tl + soft * 0.5, tl - soft * 0.5, h);
+        if (s.base > 0) hv *= smooth(s.base - 2 * Math.max(1.5, 0.3 * s.base), s.base, h);
         if (hv <= 0) return 0;
         double w = 1;
         if (s.wisps > 0) {
@@ -274,7 +281,7 @@ public final class Fog {
      */
     public static synchronized double thresholdFor(double c) {
         if (quantiles == null) {
-            Snapshot s = new Snapshot(1, 0, 50, 0.3, 1, 0, 0, 0, 0, 12345, Quality.HIGH, 0.5, 0);
+            Snapshot s = new Snapshot(1, 0, 50, 0.3, 1, 0, 0, 0, 0, 12345, Quality.HIGH, 0.5, 0, 0);
             int n = 256;
             double[] v = new double[n * n];
             for (int i = 0; i < n; i++)

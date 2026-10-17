@@ -104,6 +104,17 @@ public final class FogCheck {
         sh.step(0);
         check(sh.density(0, 3, 0) > 0 && sh.density(0, 28.3, 0) == 0,
                 f("flacher Seenebel bis %.0f m: am Fuß eines Turms dicht (Sicht %.0f m), an der Laterne in 28 m klar", sh.topAt(0, 0), sh.visibilityAt(0, 3, 0)));
+        // Untergrenze (seit Haithabu Phase 3): der Nebel hebt ab, unten wird es klar, oben bleibt die Schicht
+        Fog lift = Fog.dense();
+        lift.coverage = 1;
+        lift.wisps = 0;
+        lift.step(0);
+        double dense0 = lift.density(0, 1, 0), mid0 = lift.density(0, 40, 0);
+        lift.base = 30;
+        lift.step(0);
+        check(dense0 > 0 && lift.density(0, 1, 0) == 0 && Math.abs(lift.density(0, 40, 0) - mid0) < 1e-12 && lift.density(0, 25, 0) > 0
+                        && lift.density(0, 25, 0) < mid0,
+                f("Untergrenze 30 m: am Wasser klar (vorher Sicht %.0f m), in 40 m unverändert, weicher Übergang darunter", lift.visibilityAt(0, 40, 0)));
 
         // ------------------------------------------------ Nebelsignale
         Signal r = new Signal("Roter Sand", "Horn Mo(R) 30s", 0, 28, 0);

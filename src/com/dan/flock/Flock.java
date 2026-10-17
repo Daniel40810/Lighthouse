@@ -35,8 +35,8 @@ public final class Flock {
         Quality(int b) { birds = b; }
     }
 
-    /** Was eine Möwe gerade tut. */
-    public enum State { FLY, SOAR, LAND, PERCH, TAKEOFF, LEAVE, AWAY }
+    /** Was ein Vogel gerade tut; SWIM, DIVE und WALK seit Haithabu Phase 13 (schwimmt, taucht, geht am Boden). */
+    public enum State { FLY, SOAR, LAND, PERCH, TAKEOFF, LEAVE, AWAY, SWIM, DIVE, WALK }
 
     /** Ein Ruf: Ort, Stärke 0..1, die Möwe. */
     @FunctionalInterface public interface Call { void call(double x, double y, double z, double strength, Gull g); }
@@ -50,22 +50,40 @@ public final class Flock {
         default boolean usable() { return true; }
     }
 
-    /** Ein Sitzplatz mit Namen. */
+    /** Ein Sitzplatz mit Namen; seit Haithabu Phase 13 mit einer Maske der Arten, die ihn nehmen ({@link Species#bit}). */
     public static final class Perch {
         public final String name;
         public final Spot spot;
+        public volatile int mask = -1;
+        /** Seit Haithabu Phase 14: wie gern Vögel hier sitzen (1 üblich; ein Pfahl mitten im Hafen 3 bis 4). */
+        public volatile double appeal = 1;
         volatile Gull by;
         public Perch(String name, Spot spot) { this.name = name; this.spot = spot; }
         public Perch(String name, double x, double y, double z) { this(name, () -> new double[]{x, y, z}); }
         public boolean taken() { return by != null; }
+        /** Nur für diese Arten. */
+        public Perch only(Species... sp) { int m = 0; for (Species x : sp) m |= x.bit(); mask = m; return this; }
+        /** Beliebtheit setzen (siehe {@link #appeal}). */
+        public Perch appeal(double a) { appeal = Math.max(0.05, a); return this; }
     }
+
+    /** Seit Haithabu Phase 13: Wasser am Ort (Höhe der Oberfläche) oder NaN, wo kein offenes Wasser ist (Land, Eis, zu flach). */
+    @FunctionalInterface public interface Water { double surface(double x, double z); }
+
+    /** Ein Kreis (Mitte, Halbmesser): Futterplatz am Boden für Krähen, Wasserfläche für Enten und Schwäne. */
+    public record Area(double x, double z, double r) { }
 
     /** Ein senkrechter Zylinder (Turm, Pfahl): Mitte, Halbmesser, Unter- und Oberkante. */
     public record Obstacle(double x, double z, double r, double y0, double y1) { }
 
-    /** Eine Möwe. */
+    /** Ein Vogel (der Name kommt von den Möwen; seit Haithabu Phase 13 jede {@link Species}). */
     public static final class Gull {
         public final int id;
+        public final Species species;
+        /** Gründeln 0..1 (Kopf unter Wasser, Schwanz hoch), Flügel zum Trocknen gespreizt 0..1 (Kormoran), Schritt beim Gehen. */
+        public double dabble, spread, walkPhase;
+        double homeX, homeZ;
+        int area = -1;
         public final double[] pos = new double[3], vel = new double[3];
         public volatile State state = State.FLY;
         /** Flügel: Phase des Schlags (rad), wie stark sie schlägt 0..1, Querneigung (rad), Faltung beim Sitzen 0..1. */
@@ -74,12 +92,13 @@ public final class Flock {
         public double airspeed;
         /** Blickrichtung (Grad von Nord) beim Sitzen. */
         public double facing;
-        double timer, nextCall, wanderX, wanderY, wanderZ, slotSide, slotDist, slotUp;
+        double timer, nextCall, wanderX, wanderY, wanderZ, slotSide, slotDist, slotUp, homeR = 150, fleeX, fleeZ;
         /** Anflug: 0 = zum Punkt im Lee des Platzes, 1 = Endanflug gegen den Wind. */
         int approach;
         Perch perch;
         final Random rnd;
-        Gull(int id, long seed) { this.id = id; rnd = new Random(seed * 7919 + id * 104729L); }
+        Gull(int id, long seed) { this(id, seed, Species.MOEWE); }
+        Gull(int id, long seed, Species sp) { this.id = id; this.species = sp; rnd = new Random(seed * 7919 + id * 104729L + sp.ordinal() * 15485863L); }
         public Perch perch() { return perch; }
         /** Geschwindigkeit über Grund (m/s). */
         public double groundSpeed() { return Math.sqrt(vel[0] * vel[0] + vel[1] * vel[1] + vel[2] * vel[2]); }
@@ -99,6 +118,19 @@ public final class Flock {
     public final List<Perch> perches = new CopyOnWriteArrayList<>();
     public volatile Quality quality = Quality.HIGH;
     public volatile Call onCall;
+    /**
+     * Seit Haithabu Phase 13: wie viele Vögel der übrigen Arten (Reihenfolge wie {@link Species}, der Wert für MOEWE
+     * zählt nicht, die Möwen kommen aus {@link #quality}). Alle 0: nur Möwen wie bisher.
+     */
+    public volatile int[] mix = new int[Species.values().length];
+    /** Offenes Wasser (null: überall Wasser auf Höhe von {@link #ground}). */
+    public volatile Water water;
+    /** Futterplätze der Krähen am Boden und Wasserflächen der Enten, Schwäne und Kormorane. */
+    public final List<Area> feeding = new CopyOnWriteArrayList<>(), waters = new CopyOnWriteArrayList<>();
+    /** Wer stört (Auge, Hund, Boote): Orte x, y, z; Vögel näher als ihre Fluchtdistanz weichen aus oder fliegen auf. */
+    public final List<double[]> disturbers = new CopyOnWriteArrayList<>();
+    /** Tag im Jahr (Schwalben nur im Sommer). */
+    public volatile int dayOfYear = 200;
 
     // ------------------------------------------------------------------ Zustand
     private final List<Gull> gulls = new CopyOnWriteArrayList<>();
@@ -201,14 +233,18 @@ public final class Flock {
             pickWander(g);
             gulls.add(g);
         }
+        int[] m = mix;
+        for (Species sp : Species.values()) if (sp != Species.MOEWE) for (int i = 0; i < count(m, sp); i++) gulls.add(spawn(sp, gulls.size()));
         started = true;
     }
+
+    static int count(int[] m, Species sp) { return m == null || sp.ordinal() >= m.length ? 0 : Math.max(0, m[sp.ordinal()]); }
 
     /** Um dt Sekunden weiter (Szenenzeit; große Schritte werden in Stücke von 1/30 s geteilt, höchstens 3 s je Aufruf). */
     public void step(double dt) {
         if (!started) populate();
         if (dt <= 0) return;
-        if (gulls.size() != quality.birds) adjustCount();
+        adjustCount();
         double left = Math.min(dt, 3);
         while (left > 1e-9) {
             double h = Math.min(1 / 30.0, left);
@@ -219,21 +255,38 @@ public final class Flock {
     }
 
     private void adjustCount() {
-        while (gulls.size() > quality.birds) {
-            Gull g = gulls.remove(gulls.size() - 1);
-            if (g.perch != null) g.perch.by = null;
-        }
-        while (gulls.size() < quality.birds) {
-            Gull g = new Gull(gulls.size(), seed);
-            g.state = State.AWAY;
-            g.timer = 5 + g.rnd.nextDouble() * 60;
-            gulls.add(g);
+        int[] m = mix;
+        for (Species sp : Species.values()) {
+            int want = sp == Species.MOEWE ? quality.birds : count(m, sp), have = 0;
+            for (Gull g : gulls) if (g.species == sp) have++;
+            if (have == want) continue;
+            for (int i = gulls.size() - 1; i >= 0 && have > want; i--) {
+                Gull g = gulls.get(i);
+                if (g.species != sp) continue;
+                gulls.remove(i);
+                if (g.perch != null) g.perch.by = null;
+                have--;
+            }
+            int next = 0;
+            for (Gull g : gulls) next = Math.max(next, g.id + 1);
+            while (have < want) {
+                Gull g = sp == Species.MOEWE ? new Gull(next, seed) : spawn(sp, next);
+                if (sp == Species.MOEWE) { g.state = State.AWAY; g.timer = 5 + g.rnd.nextDouble() * 60; }
+                gulls.add(g);
+                next++;
+                have++;
+            }
         }
     }
 
     private void stepGull(Gull g, double h) {
+        if (g.species != Species.MOEWE) { stepOther(g, h); return; }
         boolean night = night(), lee = windSpeed >= LEE_WIND, away = windSpeed >= AWAY_WIND;
         g.timer -= h;
+        // seit Haithabu Phase 13: Möwen schwimmen auch, und ein Störer scheucht sie vom Platz
+        if (g.state == State.SWIM) { swim(g, h, 0.4); if (g.timer <= 0 || disturbed(g)) takeoffWater(g); return; }
+        if (g.state == State.LAND && g.perch == null) { stepOther(g, h); return; }
+        if (g.state == State.PERCH && disturbed(g)) { takeoff(g); return; }
         switch (g.state) {
             case AWAY -> {
                 // draußen bei der Küste; kommt am Tag bei mäßigem Wind zurück
@@ -284,6 +337,8 @@ public final class Flock {
                 if (g.rnd.nextDouble() < h / 25 && !lee) {
                     Perch p = freePerch(g, false);
                     if (p != null) { g.state = State.LAND; g.perch = p; p.by = g; g.timer = 60; g.approach = 0; }
+                } else if (water != null && !waters.isEmpty() && g.rnd.nextDouble() < h / 35 && !lee) {
+                    landOnWater(g);
                 } else if (windSpeed >= SOAR_WIND && !lee && !obstacles.isEmpty() && g.rnd.nextDouble() < h / 40 && census()[State.SOAR.ordinal()] < MAX_SOAR) {
                     g.state = State.SOAR;
                     g.timer = 25 + g.rnd.nextDouble() * 50;
@@ -309,6 +364,7 @@ public final class Flock {
                 wantY = o.y1 + g.slotUp + Math.sin(time * 0.7 + g.id) * 1.5;
             }
         }
+        if (g.state == State.LAND && g.perch == null) { stepOther(g, h); return; }
         if (g.state == State.LAND) {
             double[] p = g.perch.spot.position();
             double dd0 = dist(g, p);
@@ -318,7 +374,7 @@ public final class Flock {
                 double sp = Math.min(1.8, dd0 * 2 + 0.3), step = Math.min(dd0, sp * h);
                 for (int k = 0; k < 3; k++) { g.vel[k] = (p[k] - g.pos[k]) / Math.max(1e-6, dd0) * sp; g.pos[k] += (p[k] - g.pos[k]) / Math.max(1e-6, dd0) * step; }
                 g.flap += (1 - g.flap) * Math.min(1, h * 4);
-                g.wingPhase = (g.wingPhase + 2 * Math.PI * FLAP_HZ * h) % (2 * Math.PI);
+                g.wingPhase = (g.wingPhase + 2 * Math.PI * g.species.flapHz * h) % (2 * Math.PI);
                 g.bank *= 0.9;
                 if (dd0 - step < 0.05) {
                     g.state = State.PERCH;
@@ -375,7 +431,7 @@ public final class Flock {
         double ax = 0, az = 0, cx = 0, cz = 0, sx = 0, sz = 0, sy = 0;
         int n = 0;
         for (Gull o : gulls) {
-            if (o == g || o.state == State.AWAY || o.state == State.PERCH) continue;
+            if (o == g || o.species != g.species || o.state == State.AWAY || o.state == State.PERCH || o.state == State.SWIM || o.state == State.DIVE || o.state == State.WALK) continue;
             double dx = o.pos[0] - g.pos[0], dy = o.pos[1] - g.pos[1], dz = o.pos[2] - g.pos[2], d = Math.sqrt(dx * dx + dy * dy + dz * dz);
             if (d < 4 && d > 1e-6) { sx -= dx / d * (4 - d); sz -= dz / d * (4 - d); sy -= dy / d * (4 - d); }
             if (d < 25) { ax += o.vel[0]; az += o.vel[2]; cx += o.pos[0]; cz += o.pos[2]; n++; }
@@ -399,9 +455,10 @@ public final class Flock {
             }
         }
         // Ins Revier zurück
-        double hx = g.pos[0] - homeX, hz = g.pos[2] - homeZ, hd = Math.hypot(hx, hz);
-        if (g.state == State.FLY && hd > homeRadius) { steer[0] -= hx / hd * (hd - homeRadius) * 0.05; steer[2] -= hz / hd * (hd - homeRadius) * 0.05; }
-        double maxA = g.state == State.LAND || g.state == State.SOAR ? 6 : 4;
+        double hX = g.species == Species.MOEWE ? homeX : g.homeX, hZ = g.species == Species.MOEWE ? homeZ : g.homeZ, hR = g.species == Species.MOEWE ? homeRadius : g.homeR;
+        double hx = g.pos[0] - hX, hz = g.pos[2] - hZ, hd = Math.hypot(hx, hz);
+        if (g.state == State.FLY && hd > hR && hd > 1e-6) { steer[0] -= hx / hd * (hd - hR) * 0.05; steer[2] -= hz / hd * (hd - hR) * 0.05; }
+        double maxA = g.state == State.LAND || g.state == State.SOAR ? 6 : g.species == Species.SCHWALBE ? 14 : 4;
         double sl = Math.hypot(steer[0], steer[2]);
         if (sl > maxA) { steer[0] *= maxA / sl; steer[2] *= maxA / sl; }
         double ox = g.vel[0], oz = g.vel[2];
@@ -409,34 +466,39 @@ public final class Flock {
         g.vel[2] += steer[2] * h;
         // gegen die Luft zwischen V_MIN und V_MAX (beim Landen und Stehen darf sie langsamer werden: sie hängt im Wind)
         double vx = g.vel[0] - wind[0], vz = g.vel[2] - wind[2], va = Math.hypot(vx, vz);
-        double vmin = g.state == State.LAND || g.state == State.TAKEOFF ? 2 : g.state == State.SOAR ? Math.min(V_MIN, windSpeed * 0.9) : V_MIN;
+        Species sp = g.species;
+        double vmin = g.state == State.LAND || g.state == State.TAKEOFF ? 2 : g.state == State.SOAR ? Math.min(sp.vMin, windSpeed * 0.9) : sp.vMin;
         if (va < vmin) {
             double k = va < 1e-6 ? 0 : vmin / va;
             if (va < 1e-6) { vx = -wind[0]; vz = -wind[2]; va = Math.hypot(vx, vz); k = va < 1e-6 ? 0 : vmin / va; if (va < 1e-6) { vx = vmin; vz = 0; k = 1; } }
             g.vel[0] = wind[0] + vx * k;
             g.vel[2] = wind[2] + vz * k;
-        } else if (va > V_MAX) {
-            g.vel[0] = wind[0] + vx * V_MAX / va;
-            g.vel[2] = wind[2] + vz * V_MAX / va;
+        } else if (va > sp.vMax) {
+            g.vel[0] = wind[0] + vx * sp.vMax / va;
+            g.vel[2] = wind[2] + vz * sp.vMax / va;
         }
         g.airspeed = Math.hypot(g.vel[0] - wind[0], g.vel[2] - wind[2]);
         // senkrecht: Aufwind und Sinken, Flügelschlag nach Bedarf
         double up = updraft(g.pos[0], g.pos[1], g.pos[2]);
         double ground = groundAt(g);
-        wantY = Math.max(wantY, ground + (g.state == State.LAND ? -10 : 2.5));
+        wantY = Math.max(wantY, ground + (g.state == State.LAND ? -10 : sp == Species.SCHWALBE ? 0.5 : 2.5));
         double needVy = Math.max(-3, Math.min(3, (wantY - g.pos[1]) * 0.6));
-        double free = up - SINK * (g.state == State.SOAR ? 0.8 : 1);
-        double flapNeed = (needVy - free) / CLIMB;
+        double free = up - sp.sink * (g.state == State.SOAR ? 0.8 : 1);
+        double flapNeed = (needVy - free) / sp.climb;
         double flap = Math.max(0, Math.min(1, flapNeed));
         if (g.state == State.TAKEOFF || g.state == State.LAND && Math.hypot(g.vel[0], g.vel[2]) < 4) flap = Math.max(flap, 0.8);
+        // Arten, die kaum gleiten (Enten, Schwäne, Kormorane, Krähen), schlagen fast immer
+        flap = Math.max(flap, 1 - sp.glide - (sp.glide < 0.5 ? 0 : 1));
+        if (sp == Species.SCHWALBE) flap = 0.5 + 0.5 * Math.signum(Math.sin(time * 1.3 + g.id * 2.1));
         g.flap += (flap - g.flap) * Math.min(1, h * 3);
-        double vy = Math.min(needVy, free + g.flap * CLIMB);
+        double vy = Math.min(needVy, free + g.flap * sp.climb);
         if (needVy < free) vy = needVy;              // Höhe abbauen geht immer (Bremsen, Gleiten)
         g.vel[1] += (vy - g.vel[1]) * Math.min(1, h * 2.5);
         g.pos[0] += g.vel[0] * h;
         g.pos[1] += g.vel[1] * h;
         g.pos[2] += g.vel[2] * h;
-        if (g.pos[1] < ground + 0.8 && g.state != State.LAND) { g.pos[1] = ground + 0.8; g.vel[1] = Math.max(0, g.vel[1]); }
+        double minAbove = sp == Species.SCHWALBE ? 0.35 : 0.8;
+        if (g.pos[1] < ground + minAbove && g.state != State.LAND) { g.pos[1] = ground + minAbove; g.vel[1] = Math.max(0, g.vel[1]); }
         // nie in ein Hindernis
         for (Obstacle o : obstacles) {
             double dx = g.pos[0] - o.x, dz = g.pos[2] - o.z, d = Math.hypot(dx, dz);
@@ -448,7 +510,7 @@ public final class Flock {
         // Flügel und Querneigung
         if (g.state != State.SOAR && Math.hypot(g.vel[0], g.vel[2]) > 0.5) g.facing = Math.toDegrees(Math.atan2(g.vel[0], -g.vel[2]));
         // Schlag mit 3,1 Hz, solange sie schlägt; im Gleiten bleibt die Phase stehen
-        if (g.flap > 0.05) g.wingPhase = (g.wingPhase + 2 * Math.PI * FLAP_HZ * h) % (2 * Math.PI);
+        if (g.flap > 0.05) g.wingPhase = (g.wingPhase + 2 * Math.PI * sp.flapHz * h) % (2 * Math.PI);
         double lat = ((g.vel[0] - ox) * -g.vel[2] + (g.vel[2] - oz) * g.vel[0]) / Math.max(1e-6, Math.hypot(g.vel[0], g.vel[2])) / h;
         double bank = Math.atan(Math.max(-15, Math.min(15, lat)) / 9.81);
         g.bank += (bank - g.bank) * Math.min(1, h * 3);
@@ -493,15 +555,15 @@ public final class Flock {
 
     private Perch freePerch(Gull g, boolean leeOnly) {
         List<Perch> free = new ArrayList<>();
-        for (Perch p : perches) if (p.by == null && p.spot.usable() && (!leeOnly || inLee(p.spot.position()))) free.add(p);
+        for (Perch p : perches) if (p.by == null && (p.mask & g.species.bit()) != 0 && p.spot.usable() && (!leeOnly || inLee(p.spot.position()))) free.add(p);
         if (free.isEmpty()) return null;
-        // nahe Plätze bevorzugen
+        // nahe und beliebte Plätze bevorzugen (seit Haithabu Phase 14: Abstand geteilt durch die Beliebtheit, fünf Proben)
         Perch best = null;
         double bd = 1e18;
-        for (int k = 0; k < 3; k++) {
+        for (int k = 0; k < 5; k++) {
             Perch p = free.get(g.rnd.nextInt(free.size()));
             double[] q = p.spot.position();
-            double d = Math.hypot(q[0] - g.pos[0], q[2] - g.pos[2]);
+            double d = (Math.hypot(q[0] - g.pos[0], q[2] - g.pos[2]) + 20) / p.appeal;
             if (d < bd) { bd = d; best = p; }
         }
         return best;
@@ -551,6 +613,396 @@ public final class Flock {
         return (from + Math.max(-maxStep, Math.min(maxStep, d)) + 360) % 360;
     }
 
+
+    // ------------------------------------------------------------------ Phase 13: die übrigen Arten
+
+    /** Höhe des Beins unter der Körpermitte (m) einer Art (das Netz der Möwe: 0,16 m). */
+    public static double legHeight(Species sp) { return 0.16 * sp.scale() * (sp == Species.SCHWAN ? 0.8 : 1); }
+
+    /** Lage der Körpermitte über dem Wasser beim Schwimmen (m): Enten und Schwäne liegen hoch, Kormorane tief. */
+    public static double floatHeight(Species sp) {
+        return switch (sp) { case KORMORAN -> -0.02 * sp.scale(); case SCHWAN -> 0.03 * sp.scale(); default -> 0.04 * sp.scale(); };
+    }
+
+    private double surface(double x, double z) {
+        Water w = water;
+        if (w != null) return w.surface(x, z);
+        Ground gr = ground;
+        return gr == null ? 0 : gr.height(x, z);
+    }
+
+    private double groundOf(double x, double z) { Ground gr = ground; return gr == null ? 0 : gr.height(x, z); }
+
+    /** Ein Vogel einer Art an seinem Platz: Schwimmer auf dem Wasser, Krähen auf einem Futterplatz, Schwalben in der Luft. */
+    private Gull spawn(Species sp, int id) {
+        Gull g = new Gull(id, seed, sp);
+        g.homeX = homeX;
+        g.homeZ = homeZ;
+        g.homeR = homeRadius * (sp == Species.SCHWALBE ? 0.8 : 1.6);
+        g.nextCall = 5 + g.rnd.nextDouble() * 60;
+        g.wingPhase = g.rnd.nextDouble() * 6.28;
+        g.facing = g.rnd.nextDouble() * 360;
+        if (!sp.present(dayOfYear)) { g.state = State.AWAY; g.timer = 30; return g; }
+        if (sp.swims) {
+            double[] p = waterPoint(g);
+            if (p == null) { g.state = State.AWAY; g.timer = 60; return g; }
+            g.pos[0] = p[0]; g.pos[2] = p[2]; g.pos[1] = p[1] + floatHeight(sp);
+            g.state = State.SWIM;
+            g.fold = 1;
+            g.timer = 20 + g.rnd.nextDouble() * 120;
+        } else if (sp == Species.KRAEHE && !feeding.isEmpty()) {
+            int ai = g.rnd.nextInt(feeding.size());
+            Area a = feeding.get(ai);
+            g.area = ai;
+            g.homeX = a.x(); g.homeZ = a.z(); g.homeR = Math.max(60, a.r() * 2);
+            double an = g.rnd.nextDouble() * 6.283, rr = a.r() * Math.sqrt(g.rnd.nextDouble());
+            g.pos[0] = a.x() + Math.sin(an) * rr; g.pos[2] = a.z() - Math.cos(an) * rr;
+            g.pos[1] = groundOf(g.pos[0], g.pos[2]) + legHeight(sp);
+            g.state = State.WALK;
+            g.fold = 1;
+            g.timer = 20 + g.rnd.nextDouble() * 90;
+        } else {
+            double an = g.rnd.nextDouble() * 6.283, rr = g.homeR * Math.sqrt(g.rnd.nextDouble());
+            g.pos[0] = g.homeX + Math.sin(an) * rr; g.pos[2] = g.homeZ - Math.cos(an) * rr;
+            g.pos[1] = groundOf(g.pos[0], g.pos[2]) + 3 + g.rnd.nextDouble() * 6;
+            g.vel[0] = Math.sin(an) * sp.vCruise; g.vel[2] = -Math.cos(an) * sp.vCruise;
+            g.state = State.FLY;
+            wanderOther(g);
+        }
+        return g;
+    }
+
+    /** Ein Punkt offenen Wassers in einer der Wasserflächen (bevorzugt der des Vogels), oder null. */
+    private double[] waterPoint(Gull g) {
+        if (waters.isEmpty()) return null;
+        for (int k = 0; k < 16; k++) {
+            int ai = g.area >= 0 && g.area < waters.size() && k < 8 ? g.area : g.rnd.nextInt(waters.size());
+            Area a = waters.get(ai);
+            double an = g.rnd.nextDouble() * 6.283, rr = a.r() * Math.sqrt(g.rnd.nextDouble());
+            double x = a.x() + Math.sin(an) * rr, z = a.z() - Math.cos(an) * rr, y = surface(x, z);
+            if (!Double.isNaN(y)) { g.area = ai; return new double[]{x, y, z}; }
+        }
+        return null;
+    }
+
+    /** Ist ein Störer näher als die Fluchtdistanz? Merkt sich die Richtung weg von ihm. */
+    boolean disturbed(Gull g) {
+        double fd = g.species.flightDistance;
+        for (double[] d : disturbers) {
+            double dx = g.pos[0] - d[0], dz = g.pos[2] - d[2], dy = g.pos[1] - d[1];
+            double r = Math.hypot(dx, dz);
+            if (r < fd && Math.abs(dy) < Math.max(8, fd)) {
+                double l = Math.max(1e-6, r);
+                g.fleeX = dx / l;
+                g.fleeZ = dz / l;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Schwimmen: langsam mit eigenem Kurs, beim Ufer drehen, lose beieinander; Enten und Schwäne gründeln. */
+    private void swim(Gull g, double h, double speed) {
+        Species sp = g.species;
+        double a = Math.toRadians(g.facing);
+        // Zusammenhalt: zu Artgenossen in 30 m, Abstand unter 1,5 Körperlängen
+        double cx = 0, cz = 0, sx = 0, sz = 0;
+        int n = 0;
+        for (Gull o : gulls) {
+            if (o == g || o.species != sp || o.state != State.SWIM) continue;
+            double dx = o.pos[0] - g.pos[0], dz = o.pos[2] - g.pos[2], d = Math.hypot(dx, dz);
+            if (d < 30) { cx += dx; cz += dz; n++; }
+            double near = sp.length * 1.5;
+            if (d < near && d > 1e-6) { sx -= dx / d * (near - d); sz -= dz / d * (near - d); }
+        }
+        double tx = Math.sin(a), tz = -Math.cos(a);
+        if (n > 0) { tx += cx / n * 0.02; tz += cz / n * 0.02; }
+        tx += sx * 0.8; tz += sz * 0.8;
+        // Ufer und Eis: vorausschauen und abdrehen
+        double look = 1.5 + sp.length * 2;
+        if (Double.isNaN(surface(g.pos[0] + tx * look, g.pos[2] + tz * look))) {
+            boolean found = false;
+            double bx = -tx, bz = -tz;
+            for (int k = 1; k < 12 && !found; k++) {
+                double ang = a + 0.52 * ((k + 1) / 2) * (k % 2 == 0 ? 1 : -1);
+                double qx = Math.sin(ang), qz = -Math.cos(ang);
+                if (!Double.isNaN(surface(g.pos[0] + qx * look, g.pos[2] + qz * look))) { bx = qx; bz = qz; found = true; }
+            }
+            tx = bx; tz = bz;
+        }
+        double want = Math.toDegrees(Math.atan2(tx, -tz));
+        if (g.rnd.nextDouble() < h / 6) g.slotSide = (g.rnd.nextDouble() - 0.5) * 70;
+        g.facing = turnToward(g.facing, want + g.slotSide * 0.3, 35 * h);
+        double sp0 = g.dabble > 0.3 ? 0.05 : speed;
+        double fa = Math.toRadians(g.facing);
+        double nx = g.pos[0] + Math.sin(fa) * sp0 * h, nz = g.pos[2] - Math.cos(fa) * sp0 * h;
+        double y = surface(nx, nz);
+        if (!Double.isNaN(y)) { g.pos[0] = nx; g.pos[2] = nz; g.pos[1] = y + floatHeight(sp); }
+        g.vel[0] = Math.sin(fa) * sp0; g.vel[1] = 0; g.vel[2] = -Math.cos(fa) * sp0;
+        g.fold = Math.min(1, g.fold + h * 2);
+        g.flap = 0;
+        g.bank = 0;
+        g.spread = Math.max(0, g.spread - h);
+        // Gründeln: Enten und Schwäne stecken alle halbe Minute den Kopf ins Wasser (Schwanz hoch), nachts nicht
+        boolean dab = (sp == Species.ENTE || sp == Species.SCHWAN) && !night();
+        if (dab && g.dabble <= 0.01 && g.slotDist <= 0 && g.rnd.nextDouble() < h / 25) g.slotDist = 3 + g.rnd.nextDouble() * 6;
+        if (g.slotDist > 0) { g.slotDist -= h; g.dabble = Math.min(1, g.dabble + h * 3); }
+        else g.dabble = Math.max(0, g.dabble - h * 3);
+    }
+
+    /** Vom Wasser auffliegen: steil, mit vollem Schlag, weg vom Störer. */
+    private void takeoffWater(Gull g) {
+        Species sp = g.species;
+        g.state = State.TAKEOFF;
+        g.timer = sp == Species.SCHWAN ? 5 : 2.2;
+        double fx = g.fleeX, fz = g.fleeZ;
+        if (Math.hypot(fx, fz) < 0.1) { double a = Math.toRadians(windFromDeg); fx = Math.sin(a); fz = -Math.cos(a); }
+        g.vel[0] = fx * 3; g.vel[2] = fz * 3; g.vel[1] = sp == Species.ENTE ? 3.5 : 1.5;
+        g.dabble = 0;
+        g.slotDist = 0;
+        g.fold = 0.3;
+        g.flap = 1;
+        g.fleeX = g.fleeZ = 0;
+        callNow(g);
+    }
+
+    /** Auf dem Wasser landen: ein Ziel in einer Wasserfläche, flach anfliegen. */
+    private void landOnWater(Gull g) {
+        double[] p = waterPoint(g);
+        if (p == null) return;
+        g.wanderX = p[0]; g.wanderY = p[1]; g.wanderZ = p[2];
+        g.state = State.LAND;
+        release(g);
+        g.timer = 60;
+        g.approach = 2;      // 2 = aufs Wasser
+    }
+
+    private void wanderOther(Gull g) {
+        Species sp = g.species;
+        double an = g.rnd.nextDouble() * 6.283, rr = g.homeR * Math.sqrt(g.rnd.nextDouble());
+        g.wanderX = g.homeX + Math.sin(an) * rr;
+        g.wanderZ = g.homeZ - Math.cos(an) * rr;
+        double w = surface(g.wanderX, g.wanderZ), base = Math.max(groundOf(g.wanderX, g.wanderZ), Double.isNaN(w) ? -1e9 : w);
+        g.wanderY = base + switch (sp) {
+            case SCHWALBE -> 0.6 + g.rnd.nextDouble() * 6;
+            case KRAEHE -> 8 + g.rnd.nextDouble() * 25;
+            default -> 4 + g.rnd.nextDouble() * 10;
+        };
+        g.timer = sp == Species.SCHWALBE ? 1.5 + g.rnd.nextDouble() * 2.5 : 10 + g.rnd.nextDouble() * 20;
+    }
+
+    /** Ein Schritt für Krähe, Schwalbe, Ente, Schwan und Kormoran. */
+    private void stepOther(Gull g, double h) {
+        Species sp = g.species;
+        boolean night = night();
+        g.timer -= h;
+        if (!sp.present(dayOfYear)) {
+            if (g.state != State.AWAY) { release(g); g.state = State.AWAY; }
+            return;
+        }
+        if (g.state == State.AWAY) {
+            // zurück am Tag (Schwimmer auch nachts, wenn es wieder offenes Wasser gibt)
+            if (g.timer > 0 || night && !sp.swims) return;
+            Gull fresh = spawn(sp, g.id);
+            if (fresh.state == State.AWAY) { g.timer = 60; return; }
+            System.arraycopy(fresh.pos, 0, g.pos, 0, 3);
+            System.arraycopy(fresh.vel, 0, g.vel, 0, 3);
+            g.state = fresh.state; g.timer = fresh.timer; g.fold = fresh.fold; g.area = fresh.area;
+            g.homeX = fresh.homeX; g.homeZ = fresh.homeZ; g.homeR = fresh.homeR;
+            g.wanderX = fresh.wanderX; g.wanderY = fresh.wanderY; g.wanderZ = fresh.wanderZ;
+            return;
+        }
+        double[] wind = windAt(g.pos[0], g.pos[1] - groundOf(g.pos[0], g.pos[2]), g.pos[2]);
+        switch (g.state) {
+            case SWIM -> {
+                // Eis oder Land unter dem Vogel: weg
+                if (Double.isNaN(surface(g.pos[0], g.pos[2]))) {
+                    if (waterPoint(g) == null) { g.state = State.AWAY; g.timer = 600; return; }
+                    takeoffWater(g);
+                    return;
+                }
+                swim(g, h, sp == Species.SCHWAN ? 0.35 : sp == Species.KORMORAN ? 0.6 : 0.45);
+                if (disturbed(g)) {
+                    if (sp == Species.KORMORAN) { g.state = State.DIVE; g.timer = 15 + g.rnd.nextDouble() * 20; return; }
+                    if (sp == Species.SCHWAN) {
+                        // Schwäne schwimmen weg, fliegen nur, wenn es sehr eng wird
+                        double d = Math.toDegrees(Math.atan2(g.fleeX, -g.fleeZ));
+                        g.facing = turnToward(g.facing, d, 120 * h);
+                        swim(g, h, 1.2);
+                        boolean close = false;
+                        for (double[] q : disturbers) close |= Math.hypot(q[0] - g.pos[0], q[2] - g.pos[2]) < 4;
+                        if (close) takeoffWater(g);
+                        return;
+                    }
+                    takeoffWater(g);
+                    return;
+                }
+                if (g.timer <= 0 && !night) {
+                    g.timer = 30 + g.rnd.nextDouble() * 150;
+                    if (sp == Species.KORMORAN) {
+                        double u = g.rnd.nextDouble();
+                        if (u < 0.55) { g.state = State.DIVE; g.timer = 20 + g.rnd.nextDouble() * 25; }
+                        else if (u < 0.8 && freePerch(g, false) != null) { takeoffWater(g); g.approach = 3; }
+                    } else if (sp == Species.ENTE && g.rnd.nextDouble() < 0.25) takeoffWater(g);
+                }
+                if (!night) maybeCall(g, h, sp == Species.ENTE ? 1 / 60.0 : 1 / 200.0);
+                return;
+            }
+            case DIVE -> {
+                // unter Wasser: 1 m/s in eigener Richtung, dann wieder auftauchen
+                double fa = Math.toRadians(g.facing);
+                double nx = g.pos[0] + Math.sin(fa) * h, nz = g.pos[2] - Math.cos(fa) * h;
+                if (!Double.isNaN(surface(nx, nz))) { g.pos[0] = nx; g.pos[2] = nz; } else g.facing = (g.facing + 150) % 360;
+                double y = surface(g.pos[0], g.pos[2]);
+                g.pos[1] = (Double.isNaN(y) ? g.pos[1] : y) - 1.2;
+                if (g.timer <= 0) { g.state = State.SWIM; g.timer = 15 + g.rnd.nextDouble() * 40; g.pos[1] = (Double.isNaN(y) ? 0 : y) + floatHeight(sp); }
+                return;
+            }
+            case PERCH -> {
+                // Krähen schlafen gemeinsam in einem Wäldchen außerhalb der Szene
+                if (night && sp == Species.KRAEHE) { release(g); g.state = State.AWAY; g.timer = 600 + g.rnd.nextDouble() * 1200; return; }
+                double[] p = g.perch.spot.position();
+                g.pos[0] = p[0]; g.pos[1] = p[1]; g.pos[2] = p[2];
+                g.vel[0] = g.vel[1] = g.vel[2] = 0;
+                g.flap = 0;
+                g.facing = turnToward(g.facing, (windFromDeg + (sp == Species.KORMORAN ? 180 : 0)) % 360, 30 * h);
+                // der Kormoran trocknet die Flügel: ausgebreitet, Rücken zum Wind
+                if (sp == Species.KORMORAN && !night) { g.spread = Math.min(1, g.spread + h * 0.8); g.fold = Math.max(0, 1 - g.spread); }
+                else { g.spread = Math.max(0, g.spread - h); g.fold = Math.min(1, g.fold + h * 1.5); }
+                if (disturbed(g) || g.timer <= 0 && !night || !g.perch.spot.usable()) {
+                    release(g);
+                    g.spread = 0;
+                    g.state = State.TAKEOFF;
+                    g.timer = 2;
+                    g.approach = 0;
+                    double a = Math.toRadians(windFromDeg);
+                    g.vel[0] = Math.sin(a) * 2; g.vel[2] = -Math.cos(a) * 2; g.vel[1] = 1.5;
+                    callNow(g);
+                }
+                return;
+            }
+            case WALK -> {
+                // am Boden: Schritte, Pausen, Picken (Kopf runter); weg, wenn jemand kommt oder es dunkel wird
+                boolean dist = disturbed(g);
+                if (dist || night || g.timer <= 0) {
+                    g.state = State.TAKEOFF;
+                    g.timer = 1.8;
+                    g.approach = 0;
+                    double fx = g.fleeX, fz = g.fleeZ;
+                    if (!dist) { double a = Math.toRadians(windFromDeg); fx = Math.sin(a); fz = -Math.cos(a); }
+                    g.vel[0] = fx * 3; g.vel[2] = fz * 3; g.vel[1] = 2.5;
+                    g.dabble = 0;
+                    callNow(g);
+                    return;
+                }
+                if (g.slotDist <= 0 && g.rnd.nextDouble() < h / 2.5) g.slotDist = 0.6 + g.rnd.nextDouble() * 2;      // eine Weile gehen
+                if (g.slotDist > 0) {
+                    g.slotDist -= h;
+                    if (g.rnd.nextDouble() < h) g.facing = (g.facing + (g.rnd.nextDouble() - 0.5) * 90 + 360) % 360;
+                    // im Futterplatz bleiben
+                    Area a = g.area >= 0 && g.area < feeding.size() ? feeding.get(g.area) : null;
+                    if (a != null && Math.hypot(g.pos[0] - a.x(), g.pos[2] - a.z()) > a.r())
+                        g.facing = turnToward(g.facing, Math.toDegrees(Math.atan2(a.x() - g.pos[0], -(a.z() - g.pos[2]))), 180 * h);
+                    double fa = Math.toRadians(g.facing), v = 0.45;
+                    g.pos[0] += Math.sin(fa) * v * h;
+                    g.pos[2] -= Math.cos(fa) * v * h;
+                    g.walkPhase = (g.walkPhase + h * 2 * Math.PI * 2.2) % (2 * Math.PI);
+                    g.dabble = Math.max(0, g.dabble - h * 4);
+                } else {
+                    // picken
+                    if (g.rnd.nextDouble() < h * 1.5) g.slotUp = g.slotUp > 0 ? 0 : 0.35;
+                    g.slotUp -= h;
+                    g.dabble = g.slotUp > 0 ? Math.min(1, g.dabble + h * 6) : Math.max(0, g.dabble - h * 6);
+                }
+                g.pos[1] = groundOf(g.pos[0], g.pos[2]) + legHeight(sp);
+                g.vel[0] = g.vel[1] = g.vel[2] = 0;
+                g.fold = Math.min(1, g.fold + h * 2);
+                g.flap = 0;
+                maybeCall(g, h, 1 / 40.0);
+                return;
+            }
+            default -> { }
+        }
+        // in der Luft: FLY, LAND, TAKEOFF
+        double[] want;
+        double wantY;
+        if (g.state == State.TAKEOFF) {
+            want = new double[]{g.vel[0] * 1.2, 0, g.vel[2] * 1.2};
+            double l = Math.hypot(want[0], want[2]);
+            if (l < sp.vMin * 0.5) {
+                if (l < 1e-6) { want[0] = sp.vMin * 0.5; want[2] = 0; }
+                else { want[0] *= sp.vMin * 0.5 / l; want[2] *= sp.vMin * 0.5 / l; }
+            }
+            wantY = g.pos[1] + 5;
+            g.fold = Math.max(0, g.fold - h * 4);
+            if (g.timer <= 0) {
+                g.state = State.FLY;
+                Perch p = g.approach == 3 ? freePerch(g, false) : null;
+                if (p != null) { g.perch = p; p.by = g; g.state = State.LAND; g.timer = 90; g.approach = 0; }
+                else if (sp.swims) landOnWater(g);
+                if (g.state == State.FLY) wanderOther(g);
+            }
+        } else if (g.state == State.LAND) {
+            double[] p = g.perch != null ? g.perch.spot.position() : new double[]{g.wanderX, g.wanderY, g.wanderZ};
+            if (g.perch == null && g.approach == 2) p[1] = surface(p[0], p[2]) + floatHeight(sp);
+            if (g.perch == null && sp == Species.KRAEHE) p[1] = groundOf(p[0], p[2]) + legHeight(sp);
+            if (Double.isNaN(p[1]) || g.timer <= 0) { release(g); g.state = State.FLY; wanderOther(g); return; }
+            double dx = p[0] - g.pos[0], dz = p[2] - g.pos[2], d = Math.hypot(dx, dz), dd = Math.sqrt(d * d + (p[1] - g.pos[1]) * (p[1] - g.pos[1]));
+            if (dd < (g.approach == 2 ? 1.5 : 1.0)) {
+                if (Math.hypot(g.vel[0], g.vel[2]) > 0.3) g.facing = Math.toDegrees(Math.atan2(g.vel[0], -g.vel[2]));
+                g.pos[0] = p[0]; g.pos[1] = p[1]; g.pos[2] = p[2];
+                g.vel[0] = g.vel[1] = g.vel[2] = 0;
+                if (g.perch != null) { g.state = State.PERCH; g.timer = 60 + g.rnd.nextDouble() * 240; }
+                else if (sp.swims) { g.state = State.SWIM; g.timer = 30 + g.rnd.nextDouble() * 120; }
+                else { g.state = State.WALK; g.timer = 25 + g.rnd.nextDouble() * 90; }
+                g.approach = 0;
+                callNow(g);
+                return;
+            }
+            if (d < 4) {
+                // Endanflug: gerade auf den Platz
+                double step = Math.min(dd, 2.5 * h);
+                for (int k = 0; k < 3; k++) {
+                    g.vel[k] = (p[k] - g.pos[k]) / Math.max(1e-6, dd) * 2.5;
+                    g.pos[k] += (p[k] - g.pos[k]) / Math.max(1e-6, dd) * step;
+                }
+                g.flap += (1 - g.flap) * Math.min(1, h * 4);
+                g.wingPhase = (g.wingPhase + 2 * Math.PI * sp.flapHz * h) % (2 * Math.PI);
+                return;
+            }
+            double v = Math.max(1.5, Math.min(sp.vCruise, d * 0.5));
+            want = toward(g, p[0], p[2], v, null);
+            wantY = p[1] + Math.min(8, d * (g.approach == 2 ? 0.08 : 0.2));
+        } else {
+            // FLY: umherfliegen; Schwalben tief und wendig, Krähen landen auf Futterplätzen oder Firsten, Schwimmer suchen Wasser
+            if (night && (sp == Species.SCHWALBE || sp == Species.KRAEHE)) {
+                // zum Schlafplatz (außerhalb der Szene)
+                g.state = State.AWAY;
+                g.timer = 600 + g.rnd.nextDouble() * 1200;
+                return;
+            }
+            double dx = g.wanderX - g.pos[0], dz = g.wanderZ - g.pos[2];
+            if (Math.hypot(dx, dz) < (sp == Species.SCHWALBE ? 6 : 20) || g.timer <= 0) wanderOther(g);
+            want = toward(g, g.wanderX, g.wanderZ, sp.vCruise, wind);
+            wantY = g.wanderY;
+            if (sp == Species.KRAEHE && g.rnd.nextDouble() < h / 18) {
+                Perch p = g.rnd.nextDouble() < 0.35 ? freePerch(g, false) : null;
+                if (p != null) { g.perch = p; p.by = g; g.state = State.LAND; g.timer = 90; g.approach = 0; }
+                else if (!feeding.isEmpty()) {
+                    int ai = g.area >= 0 && g.area < feeding.size() && g.rnd.nextDouble() < 0.7 ? g.area : g.rnd.nextInt(feeding.size());
+                    Area a = feeding.get(ai);
+                    g.area = ai;
+                    double an = g.rnd.nextDouble() * 6.283, rr = a.r() * Math.sqrt(g.rnd.nextDouble());
+                    g.wanderX = a.x() + Math.sin(an) * rr; g.wanderZ = a.z() - Math.cos(an) * rr; g.wanderY = groundOf(g.wanderX, g.wanderZ);
+                    g.homeX = a.x(); g.homeZ = a.z();
+                    release(g); g.state = State.LAND; g.timer = 90; g.approach = 1;
+                }
+            } else if (sp.swims && g.rnd.nextDouble() < h / 12) landOnWater(g);
+        }
+        fly(g, want, wantY, wind, h);
+        if (g.state == State.FLY && !night) maybeCall(g, h, sp == Species.KRAEHE ? 1 / 25.0 : sp == Species.SCHWALBE ? 1 / 15.0 : 1 / 90.0);
+    }
+
     // ------------------------------------------------------------------ Anzeige
 
     /** Zahl der Möwen je Zustand. */
@@ -560,11 +1012,48 @@ public final class Flock {
         return c;
     }
 
-    /** „16 Möwen: 9 fliegen, 3 stehen im Aufwind, 2 sitzen, 2 weg · 41 Rufe“ */
+    /** Zahl der Vögel einer Art, die da sind (nicht weg). */
+    public int present(Species sp) {
+        int n = 0;
+        for (Gull g : gulls) if (g.species == sp && g.state != State.AWAY) n++;
+        return n;
+    }
+
+    /** Zahl der Vögel einer Art im Zustand st. */
+    public int count(Species sp, State st) {
+        int n = 0;
+        for (Gull g : gulls) if (g.species == sp && g.state == st) n++;
+        return n;
+    }
+
+    /** „16 Möwen: 9 fliegen, 3 stehen im Aufwind, 2 sitzen, 2 weg · 41 Rufe“, mit den übrigen Arten dahinter. */
     public String describe() {
-        int[] c = census();
+        StringBuilder b = new StringBuilder(describeGulls());
+        for (Species sp : Species.values()) {
+            if (sp == Species.MOEWE) continue;
+            int n = 0;
+            for (Gull g : gulls) if (g.species == sp) n++;
+            if (n == 0) continue;
+            int sw = count(sp, State.SWIM) + count(sp, State.DIVE), pe = count(sp, State.PERCH), wa = count(sp, State.WALK), aw = count(sp, State.AWAY);
+            b.append(String.format(Locale.GERMAN, " · %d %s", n, plural(sp)));
+            if (sw > 0) b.append(", ").append(sw).append(" auf dem Wasser");
+            if (pe > 0) b.append(", ").append(pe).append(" sitzen");
+            if (wa > 0) b.append(", ").append(wa).append(" am Boden");
+            if (aw > 0) b.append(", ").append(aw).append(" weg");
+        }
+        return b.toString();
+    }
+
+    static String plural(Species sp) {
+        return switch (sp) { case MOEWE -> "Möwen"; case KRAEHE -> "Krähen"; case SCHWALBE -> "Schwalben"; case ENTE -> "Enten"; case SCHWAN -> "Schwäne"; case KORMORAN -> "Kormorane"; };
+    }
+
+    private String describeGulls() {
+        int[] c = new int[State.values().length];
+        int gullsN = 0;
+        for (Gull g : gulls) if (g.species == Species.MOEWE) { c[g.state.ordinal()]++; gullsN++; }
         int fly = c[State.FLY.ordinal()] + c[State.LAND.ordinal()] + c[State.TAKEOFF.ordinal()] + c[State.LEAVE.ordinal()];
-        return String.format(Locale.GERMAN, "%d Möwen: %d fliegen, %d stehen im Aufwind, %d sitzen, %d weg · %d Rufe", gulls.size(), fly, c[State.SOAR.ordinal()],
-                c[State.PERCH.ordinal()], c[State.AWAY.ordinal()], calls);
+        return String.format(Locale.GERMAN, "%d Möwen: %d fliegen, %d stehen im Aufwind, %d sitzen, %d schwimmen, %d weg · %d Rufe", gullsN, fly, c[State.SOAR.ordinal()],
+                c[State.PERCH.ordinal()], c[State.SWIM.ordinal()], c[State.AWAY.ordinal()], calls);
     }
 }

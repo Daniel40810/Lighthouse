@@ -14,6 +14,12 @@ public record Room(String name, double wallDb, double wallHz, double t60, double
     /** Ein Steuerhaus aus Stahl mit Fenstern: gedämpft, trocken. */
     public static final Room WHEELHOUSE = new Room("Steuerhaus", 18, 1500, 0.4, 0.12);
 
+    /**
+     * Seit Haithabu Phase 14: ein Langhaus aus Flechtwerk mit Lehm unter Reet, Lehmboden, Türen und Rauchlöcher offen.
+     * Wenig gedämpft, die Höhen fehlen, kurzer weicher Hall (Reet und Lehm schlucken) [G].
+     */
+    public static final Room LONGHOUSE = new Room("Langhaus", 13, 1100, 0.55, 0.15);
+
     /** Durchlass der Wand als Verstärkung bei ganz drinnen. */
     public double wallGain() { return Math.pow(10, -wallDb / 20); }
 }

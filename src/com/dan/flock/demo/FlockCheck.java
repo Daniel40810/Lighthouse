@@ -147,8 +147,117 @@ public final class FlockCheck {
         check(spread[0] > 0.6 && Math.abs(folded[0]) < 0.25 && folded[2] > 0.3,
                 f("Flügel: ausgebreitet reicht die Spitze %.2f m zur Seite (Spannweite gut 1,4 m), angelegt liegt sie %.2f m hinter der Schulter am Rumpf", spread[0], folded[2]));
 
+        species();
         lines.add(bad == 0 ? "Alles in Ordnung." : bad + " Prüfungen fehlgeschlagen.");
         return lines;
+    }
+
+    // ------------------------------------------------------------------ seit Haithabu Phase 13: die übrigen Arten
+
+    /** Ein See (Kreis 120 m um 0, 0) mit Ufer, drei Pfählen, eine Wiese als Futterplatz der Krähen, wenig Wind. */
+    static Flock lake(long seed, double iceRadius) {
+        Flock f = Flock.beaufort(2);
+        f.seed = seed;
+        f.windFromDeg = 250;
+        f.quality = Flock.Quality.LOW;
+        f.homeX = 0; f.homeZ = 0; f.homeRadius = 120;
+        f.ground = (x, z) -> Math.hypot(x, z) < 120 ? 0 : 0.02 * (Math.hypot(x, z) - 120);
+        f.water = (x, z) -> { double r = Math.hypot(x, z); return r < 118 && r >= iceRadius ? 0 : Double.NaN; };
+        f.waters.add(new Flock.Area(0, 0, 110));
+        f.feeding.add(new Flock.Area(200, 0, 40));
+        for (int i = 0; i < 3; i++) f.perches.add(new Flock.Perch("Pfahl " + i, 30 + i * 3, 1.2 + Flock.legHeight(com.dan.flock.Species.KORMORAN), 10).only(com.dan.flock.Species.KORMORAN, com.dan.flock.Species.MOEWE));
+        int[] m = new int[com.dan.flock.Species.values().length];
+        m[com.dan.flock.Species.ENTE.ordinal()] = 10;
+        m[com.dan.flock.Species.SCHWAN.ordinal()] = 2;
+        m[com.dan.flock.Species.KORMORAN.ordinal()] = 3;
+        m[com.dan.flock.Species.KRAEHE.ordinal()] = 6;
+        m[com.dan.flock.Species.SCHWALBE.ordinal()] = 8;
+        f.mix = m;
+        f.dayOfYear = 200;
+        return f;
+    }
+
+    private void species() {
+        com.dan.flock.Species ENTE = com.dan.flock.Species.ENTE, SCHWAN = com.dan.flock.Species.SCHWAN, KORM = com.dan.flock.Species.KORMORAN,
+                KRAEHE = com.dan.flock.Species.KRAEHE, SCHWALBE = com.dan.flock.Species.SCHWALBE;
+        // Netze: Spannweite wie die Art
+        StringBuilder b = new StringBuilder();
+        boolean meshOk = true;
+        for (com.dan.flock.Species sp : com.dan.flock.Species.values()) {
+            com.dan.flock.BirdMesh m = com.dan.flock.BirdMesh.build(sp, 0);
+            float[] v = m.vertices();
+            double maxX = 0, minZ = 0, maxZ = 0;
+            for (int i = 0; i < m.count(); i++) { maxX = Math.max(maxX, v[i * 10]); minZ = Math.min(minZ, v[i * 10 + 2]); maxZ = Math.max(maxZ, v[i * 10 + 2]); }
+            meshOk &= Math.abs(2 * maxX / sp.span - 1) < 0.08 && (maxZ - minZ) > sp.length * 0.75 && (maxZ - minZ) < sp.length * 1.45;
+            b.append(f("%s %.2f/%.2f m; ", sp.label, 2 * maxX, maxZ - minZ));
+        }
+        check(meshOk, "Netze: Spannweite und Länge je Art — " + b.toString().replaceAll("; $", ""));
+        // 10 Minuten am See im Juli
+        Flock f = lake(3, 0);
+        f.step(0.01);
+        double landBad = 0, swallowY = 0;
+        int dabbled = 0, dives = 0, spread = 0, walk = 0, swallowN = 0, swim = 0;
+        for (int i = 0; i < 18000; i++) {
+            f.step(1 / 30.0);
+            for (Flock.Gull g : f.gulls()) {
+                if (g.state == Flock.State.SWIM && Math.hypot(g.pos[0], g.pos[2]) > 118) landBad++;
+                if (g.species == ENTE && g.dabble > 0.9) dabbled++;
+                if (g.species == KORM && g.state == Flock.State.DIVE) dives++;
+                if (g.species == KORM && g.state == Flock.State.PERCH && g.spread > 0.9) spread++;
+                if (g.species == KRAEHE && g.state == Flock.State.WALK) walk++;
+                if (g.species == SCHWALBE && g.state == Flock.State.FLY) { swallowY += g.pos[1]; swallowN++; }
+                if (g.state == Flock.State.SWIM) swim++;
+            }
+        }
+        check(landBad == 0 && swim > 0 && dabbled > 0, f("Schwimmer bleiben auf dem Wasser (nie über Land), Enten gründeln (%d Bilder mit Kopf unter Wasser)", dabbled));
+        check(dives > 0 && spread > 0, f("Kormorane tauchen (%d Bilder unter Wasser) und trocknen auf den Pfählen die Flügel (%d Bilder)", dives, spread));
+        check(walk > 0 && swallowN > 0 && swallowY / swallowN < 7, f("Krähen gehen auf der Wiese (%d Bilder), Schwalben fliegen tief über dem Wasser (im Mittel %.1f m)", walk, swallowN == 0 ? 0 : swallowY / swallowN));
+        // Störung: ein Boot fährt mitten durch die Enten
+        Flock s = lake(5, 0);
+        s.step(0.01);
+        for (int i = 0; i < 900; i++) s.step(1 / 30.0);
+        double[] eye = {0, 1.5, 0};
+        s.disturbers.add(eye);
+        int took = 0, swanFlew = 0;
+        double swanMin = 1e9;
+        for (int i = 0; i < 1800; i++) {
+            Flock.Gull duck = null;
+            for (Flock.Gull g : s.gulls()) if (g.species == ENTE && g.state == Flock.State.SWIM) { duck = g; break; }
+            if (duck != null && i % 300 == 0) { eye[0] = duck.pos[0] + 8; eye[2] = duck.pos[2]; }
+            s.step(1 / 30.0);
+            for (Flock.Gull g : s.gulls()) {
+                if (g.species == ENTE && (g.state == Flock.State.TAKEOFF)) took++;
+                if (g.species == SCHWAN && (g.state == Flock.State.TAKEOFF || g.state == Flock.State.FLY)) swanFlew++;
+            }
+        }
+        check(took > 0, "Ein Boot fährt auf die Enten zu: sie fliegen auf (Fluchtdistanz 25 m) und landen woanders wieder");
+        // Schwäne: schwimmen weg
+        Flock w = lake(9, 0);
+        w.step(0.01);
+        for (int i = 0; i < 300; i++) w.step(1 / 30.0);
+        Flock.Gull swan = null;
+        for (Flock.Gull g : w.gulls()) if (g.species == SCHWAN) swan = g;
+        double[] e2 = {swan.pos[0] + 9, 1.5, swan.pos[2]};
+        w.disturbers.add(e2);
+        double d0 = Math.hypot(swan.pos[0] - e2[0], swan.pos[2] - e2[2]);
+        boolean flew = false;
+        for (int i = 0; i < 600; i++) { w.step(1 / 30.0); flew |= swan.state == Flock.State.TAKEOFF || swan.state == Flock.State.FLY; }
+        double d1 = Math.hypot(swan.pos[0] - e2[0], swan.pos[2] - e2[2]);
+        check(d1 > d0 + 3 && !flew, f("Ein Schwan fliegt nicht auf, er schwimmt weg (von %.0f auf %.0f m)", d0, d1));
+        // Winter: Schwalben fort; Eis: die Schwimmer verlassen das zugefrorene Wasser
+        Flock z = lake(4, 200);
+        z.dayOfYear = 20;
+        z.step(0.01);
+        for (int i = 0; i < 300; i++) z.step(1 / 10.0);
+        check(z.present(SCHWALBE) == 0 && z.present(ENTE) == 0 && z.present(SCHWAN) == 0,
+                "Im Januar sind keine Schwalben da; liegt Eis auf dem ganzen See, sind Enten und Schwäne fort");
+        // Nacht: Krähen und Schwalben schlafen anderswo, Enten bleiben auf dem Wasser
+        Flock n = lake(6, 0);
+        n.step(0.01);
+        n.ambientLux = 1;
+        for (int i = 0; i < 600; i++) n.step(1 / 10.0);
+        check(n.present(KRAEHE) == 0 && n.present(SCHWALBE) == 0 && n.count(ENTE, Flock.State.SWIM) == 10, "Nachts: Krähen und Schwalben sind fort, die Enten schlafen auf dem Wasser");
+        lines.add("  ·      " + f.describe());
     }
 
     public int failures() { return bad; }

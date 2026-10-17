@@ -37,6 +37,11 @@ public final class Ocean {
     public volatile double choppiness = 0.85;
     /** H_s der Windsee in m statt aus der Beaufort-Tabelle (NaN = Tabelle). */
     public volatile double heightOverride = Double.NaN;
+    /**
+     * Seit Haithabu (Phase 2): H_s aus Wind und Streichlänge (JONSWAP, {@link SeaState#fetchLimitedHeight}) statt aus
+     * der Tabelle, höchstens so hoch wie die Tabelle. Für Binnengewässer und Buchten, wo die See nicht ausreift.
+     */
+    public volatile boolean fetchLimited;
     /** Dünung: signifikante Höhe in m, Periode in s, Richtung, aus der sie kommt. */
     public volatile double swellHeight = 0.6, swellPeriod = 9.5, swellFromDeg = 290;
     /** Wasserstand (Gezeiten) in m. */
@@ -66,6 +71,24 @@ public final class Ocean {
     public static Ocean breeze() { return beaufort(4); }
     public static Ocean gale() { return beaufort(8); }
     public static Ocean storm() { return beaufort(10); }
+
+    /**
+     * Seit Haithabu (Phase 2): ein flaches, kleines Binnengewässer wie das Haddebyer Noor. Streichlänge 1,5 km, Tiefe
+     * 3 m, Wellenhöhe aus der Streichlänge, keine Dünung, weniger Schaum, weichere Kämme. Wind wie bei {@link #beaufort}.
+     */
+    public static Ocean noor(int bft) {
+        Ocean o = beaufort(bft);
+        o.fetch = 1_500;
+        o.depth = 3;
+        o.fetchLimited = true;
+        o.swellHeight = 0;
+        o.choppiness = 0.55;
+        o.foamAmount = 0.35;
+        o.ringHsLow = 0.03;
+        o.ringHsHigh = 0.35;
+        o.rebuildNow();
+        return o;
+    }
 
     /** Seegang nach Beaufort 0..12: Wind in der Mitte der Stufe, Dünung passend dazu. */
     public static Ocean beaufort(int bft) {
@@ -128,6 +151,7 @@ public final class Ocean {
 
     Params params() {
         double hs = Double.isNaN(heightOverride) ? SeaState.significantHeight(windSpeed) : Math.max(0, heightOverride);
+        if (Double.isNaN(heightOverride) && fetchLimited) hs = Math.min(hs, SeaState.fetchLimitedHeight(windSpeed, fetch, depth));
         return new Params(windSpeed, windFromDeg, fetch, depth, choppiness, hs, swellHeight, swellPeriod, swellFromDeg, foamAmount, seed, quality);
     }
 
@@ -284,11 +308,14 @@ public final class Ocean {
     }
 
     /** Brandungsring: Schaum im Abstand ds von einem Hindernis bei H_s und Zeit t (gleiche Formel im Shader). */
-    public static double surfRing(double ds, double hs, double x, double z, double t) {
+    public static double surfRing(double ds, double hs, double x, double z, double t) { return surfRing(ds, hs, x, z, t, 0.15, 1.6); }
+
+    /** Brandungsring mit eigener Schwelle (seit Haithabu Phase 8): voll ab hsHigh, nichts unter hsLow. */
+    public static double surfRing(double ds, double hs, double x, double z, double t, double hsLow, double hsHigh) {
         if (ds < 0) return 1;
         // Phase 16: bei ruhiger See (Bft 1, nur Dünung) nur ein Saum, kein Kragen
         double width = 0.5 + 0.8 * hs;
-        double strength = smooth(0.15, 1.6, hs);
+        double strength = smooth(hsLow, hsHigh, hs);
         double n = vnoise(x * 0.8 + t * 0.35, z * 0.8 - t * 0.2);
         return strength * Math.exp(-ds / width) * (0.45 + 0.55 * n);
     }
@@ -315,6 +342,15 @@ public final class Ocean {
     // ------------------------------------------------------------------ Hindernisse und Einschläge
 
     public void addObstacle(Obstacle o) { obstacles.add(o); }
+    /** Seit Haithabu Phase 8: viele Körper als Abstandsraster (Pfähle, Pfahlreihen); null = keins. */
+    public volatile ObstacleField obstacleField;
+    /**
+     * Seit Haithabu Phase 8: ab welcher Wellenhöhe H<sub>s</sub> (m) der Brandungsring um Körper beginnt und wann er
+     * voll ist. Offene See 0,15 bis 1,6; das Noor ({@link #noor}) 0,03 bis 0,35, sonst bliebe es an den Pfählen glatt.
+     */
+    public double ringHsLow = 0.15, ringHsHigh = 1.6;
+    /** Seit Haithabu Phase 9: Rümpfe in der Wasserlinie (bis 8 werden gezeichnet); innen kein Wasser. */
+    public volatile java.util.List<HullMask> hulls = java.util.List.of();
     public void clearObstacles() { obstacles.clear(); }
     public List<Obstacle> obstacles() { return new ArrayList<>(obstacles); }
 
@@ -376,7 +412,9 @@ public final class Ocean {
         double foam = foamFromJacobian(jac, thr);
         foam = Math.max(foam, streaks(x, z, s.windToRad, s.windSpeed));
         double hsAll = s.totalHs();
-        for (Obstacle ob : obstacles) foam = Math.max(foam, surfRing(ob.distance(x, z), hsAll, x, z, t));
+        for (Obstacle ob : obstacles) foam = Math.max(foam, surfRing(ob.distance(x, z), hsAll, x, z, t, ringHsLow, ringHsHigh));
+        ObstacleField of = obstacleField;
+        if (of != null) foam = Math.max(foam, surfRing(of.distance(x, z), hsAll, x, z, t, ringHsLow, ringHsHigh));
         o.foam = Math.min(1, foam);
         return o;
     }

@@ -998,7 +998,11 @@ public final class Pruefung {
         System.out.println("Tonnen und Schiffe (com.dan.buoyancy, Phase 13)");
         for (String l : new com.dan.buoyancy.demo.BuoyancyCheck().run()) if (l.startsWith("  ")) check(l.startsWith("  ok"), l.substring(8).trim());
         System.out.println("Möwen (com.dan.flock, Phase 13)");
-        for (String l : new com.dan.flock.demo.FlockCheck().run()) if (l.startsWith("  ")) check(l.startsWith("  ok"), l.substring(8).trim());
+        // seit Haithabu (Rückfluss Phase 17) schreibt FlockCheck auch Zeilen „·“ zur Auskunft; sie zählen nicht
+        for (String l : new com.dan.flock.demo.FlockCheck().run()) {
+            if (l.startsWith("  ·")) System.out.println(l);
+            else if (l.startsWith("  ")) check(l.startsWith("  ok"), l.substring(8).trim());
+        }
         System.out.println("Phase 13 in der App");
         SceneClock c = new SceneClock(LocalDate.of(2026, 10, 16), 11);
         Wiring w = new Wiring(c);
@@ -1148,11 +1152,13 @@ public final class Pruefung {
         w.soundLive = false;
         ev.sound(com.dan.lighthouse.wiring.SoundEvent.Kind.BRECHER, -5, 2, 0, 1);
         sc.render(1);
-        double quiet = sc.levels()[7];
+        // der Posten „Ereignisse“ nach Namen (seit dem Rückfluss aus Haithabu hat der Klang mehr Posten)
+        int pe = java.util.Arrays.asList(com.dan.soundscape.Soundscape.PARTS).indexOf("Ereignisse");
+        double quiet = sc.levels()[pe];
         w.soundLive = true;
         ev.sound(com.dan.lighthouse.wiring.SoundEvent.Kind.BRECHER, -5, 2, 0, 1);
         sc.render(1.5);
-        double loud = sc.levels()[7];
+        double loud = sc.levels()[pe];
         check(quiet < 20 && loud > 80, String.format(Locale.GERMAN, "Ereignisse gehen nur in den laufenden Klang: still %.0f dB, Brecher am Sockel %.0f dB", quiet, loud));
         // Donner aus dem Kanal eines echten Blitzes
         com.dan.lightning.Lightning L = new com.dan.lightning.Lightning();

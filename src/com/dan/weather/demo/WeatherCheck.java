@@ -177,6 +177,16 @@ public final class WeatherCheck {
                 f("„Ein Nebeltag“: 06:30 Nebel %.2f, 11:30 %.2f (Bft %d, %s), 15:00 flach %.2f, 19:20 %.2f; Regiebuch als Text hin und zurück",
                         dawn.fog(), noon.fog(), noon.beaufort(), noon.phase().label, flat.fog(), after.fog()));
 
+        // ------------------------------------------------ seit Haithabu Phase 3: ein Nebelmorgen im Herbst
+        Scenario am = Scenario.autumnFogMorning();
+        List<Weather.Snapshot> ar = Weather.run(am, at(am.startHour()), am.hours(), 300, 1885);
+        Weather.Snapshot a6 = byHour(ar, 6.0), a9 = byHour(ar, 9.0), a13 = byHour(ar, 13.0);
+        Scenario amBack = Scenario.parse(am.toText());
+        check(a6.fog() > 0.75 && a6.beaufort() <= 1 && a9.fog() > 0.3 && a9.fog() < a6.fog() - 0.1 && a13.fog() < 0.05 && a13.temperature() > a6.temperature() + 4
+                        && amBack.steps().size() == am.steps().size(),
+                f("„Ein Nebelmorgen im Herbst“: 06:00 Nebel %.2f (Bft %d, %.1f °C), 09:00 %.2f, 13:00 %.2f (%.1f °C); als Text hin und zurück",
+                        a6.fog(), a6.beaufort(), a6.temperature(), a9.fog(), a13.fog(), a13.temperature()));
+
         // ------------------------------------------------ freie Regie über 60 Tage
         Weather fr = new Weather();
         fr.seed = 4711;

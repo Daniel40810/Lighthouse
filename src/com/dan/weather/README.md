@@ -23,7 +23,7 @@ Der Kern braucht nur Java 21. Ein `gl/` gibt es nicht. Zum Herauskopieren reicht
   - Die Bedeckung schließt sich gut eine halbe Stunde vor dem Regen.
 - **Böen:** ein Ornstein-Uhlenbeck-Vorgang in Echtzeit, damit der Wind auch im Zeitraffer nicht flackert. Die stärkste Böe nach WMO liegt beim (1 + 2,5 · Böigkeit)-fachen des Mittelwinds.
 - **Freie Regie:** Eine Markow-Kette mit lognormalen Verweildauern wählt die nächste Lage, etwa klar 16 h, Sturm 7 h und Gewitter 2 h. Über 60 Tage sind Sturm und Gewitter rund 9 % der Zeit.
-- **Szenarien:** Ein Regiebuch ist eine Liste von Schritten. Jeder Schritt hat eine Lage, eine Dauer, einen Text, Vorgaben für einzelne Größen und einen Kamerawunsch. Als Text ist es lesbar und schreibbar (`toText`, `parse`), für Datei oder Datenbank. Vorhanden sind „Ein Sturmtag“ und „Ruhige Tage“.
+- **Szenarien:** Ein Regiebuch ist eine Liste von Schritten. Jeder Schritt hat eine Lage, eine Dauer, einen Text, Vorgaben für einzelne Größen und einen Kamerawunsch. Als Text ist es lesbar und schreibbar (`toText`, `parse`), für Datei oder Datenbank. Vorhanden sind „Ein Sturmtag“, „Ein Nebeltag“, „Ruhige Tage“ und seit Haithabu Phase 3 „Ein Nebelmorgen im Herbst“ (`autumnFogMorning()`: Strahlungsnebel nach windstiller Nacht, der nach Sonnenaufgang steigt und am Vormittag fort ist; 10 Stunden ab 05:00, Zeitraffer 240).
 - **Handregler:**
   - `set(Var, Wert)` überschreibt eine Größe sofort.
   - `release()` („Regie weiter“) gibt alle zurück; die Größen gleiten dann mit ihrer Trägheit zur Regie.
@@ -73,10 +73,19 @@ w.release();                                     // „Regie weiter“
 | Klasse | Aufgabe |
 |---|---|
 | `Weather` | Lagen, Zielwerte, Zeitleiste, Trägheit und Vorlauf, Böen, Handregler, `Snapshot` |
-| `Scenario` | Regiebuch mit Schritten, „Ein Sturmtag“, „Ruhige Tage“, Text hin und zurück |
+| `Scenario` | Regiebuch mit Schritten, „Ein Sturmtag“, „Ein Nebeltag“, „Ein Nebelmorgen im Herbst“, „Ruhige Tage“, Text hin und zurück |
 | `demo/WeatherChart` | der Verlauf als Bild: Lagen, Luftdruck, Wind mit Böen, Regen mit Gewitter, Bedeckung und Sicht |
 | `demo/WeatherDemo` | Fenster mit Kurven und laufendem Zeiger, Szenarien, Zeitraffer, Handregler; `--bild datei.png` schreibt die Barometerkurve |
 | `demo/WeatherCheck` | Prüfung ohne Fenster, Ende „Alles in Ordnung.“ |
+
+## Jahreszeit (seit Haithabu Phase 12)
+
+- `climate`: zwölf Monatsmittel der Temperatur (etwa aus `com.dan.season.Climate`, als `double[]`, ohne Abhängigkeit). Damit liegen die Lagen um das Mittel des Tags statt um 11,5 °C.
+- `anomaly`: Abweichung des Tags vom Klima in K.
+- Der Tagesgang reicht von ±1,7 °C im Januar bis ±3,9 °C im Juli.
+- Im Winter sind klare Lagen und Seenebel bis 2,5 K kälter, Fronten und Stürme bis 1,5 K milder [G].
+- Die freie Regie gewichtet die Übergänge nach dem Tag: Gewitter fast nur im Sommer, Seenebel öfter im Herbst, Stürme öfter im Winter.
+- Ohne `climate` bleibt alles wie bisher.
 
 ## Grenzen
 

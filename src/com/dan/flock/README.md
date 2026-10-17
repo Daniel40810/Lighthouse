@@ -1,4 +1,4 @@
-# com.dan.flock – Möwen
+# com.dan.flock – Möwen und andere Vögel
 
 Silbermöwen um einen Turm auf See: Sie fliegen im Schwarm, stehen im Aufwind an der Luvseite, landen gegen den Wind auf Geländern und Tonnen, schlafen nachts am Turm und suchen im Sturm das Lee. Das Package braucht nur Java 21, der Ordner `gl/` zusätzlich JOGL, der Ordner `demo/` zusätzlich `FStyle.jar`. Zum Herauskopieren reicht `src/com/dan/flock/`.
 
@@ -12,6 +12,32 @@ Silbermöwen um einen Turm auf See: Sie fliegen im Schwarm, stehen im Aufwind an
 - **Rufe:** zufällig mit Abstand, als Ereignis `onCall` (für einen Klang in einem anderen Package).
 - **Netz und Flügel:** `GullMesh` baut die Möwe (Rumpf, Kopf, Schnabel, Mantel, Innen- und Außenflügel mit schwarzen Spitzen, Beine); der Vertex-Shader biegt die Flügel um Schulter und Handgelenk: schlagen, gleiten, im Aufwind geknickt, beim Sitzen angelegt.
 - **Presets:** `calm()`, `breeze()`, `gale()`, `storm()`, `beaufort(n)`. **Reproduzierbar:** gleicher `seed`, gleicher Flug. **Stufen:** `Quality.LOW` bis `ULTRA` (6 bis 28 Möwen).
+
+## Weitere Arten (seit Haithabu Phase 13)
+
+`Species` nennt sechs Arten mit Maßen, Flug (Geschwindigkeiten, Sinken, Steigen, Schlagfrequenz, Anteil im Gleitflug), Fähigkeiten und Fluchtdistanz [G]:
+
+| Art | Länge / Spannweite | Kann | Flucht |
+|---|---|---|---|
+| Silbermöwe | 0,60 / 1,40 m | fliegt, sitzt, schwimmt | 6 m |
+| Nebelkrähe | 0,47 / 0,98 m | fliegt, sitzt auf Firsten, geht am Boden und pickt | 18 m |
+| Rauchschwalbe | 0,19 / 0,33 m | fliegt tief und wendig, nur Mitte April bis Mitte September | 2 m |
+| Stockente | 0,58 / 0,90 m | schwimmt, gründelt, fliegt steil auf (Erpel und Weibchen) | 25 m |
+| Höckerschwan | 1,50 / 2,30 m | schwimmt, gründelt, schwimmt weg statt aufzufliegen | 12 m |
+| Kormoran | 0,85 / 1,40 m | schwimmt tief, taucht, trocknet auf Pfählen die Flügel | 30 m |
+
+- **Zahl:** `mix` gibt die Zahl je Art. Die Möwen kommen weiter aus `quality`. Alle Werte 0: nur Möwen wie bisher.
+- **Wasser:** `water` gibt die Höhe der Oberfläche oder NaN, wo kein offenes Wasser ist (Land, Eis, zu flach). `waters` sind die Wasserflächen der Schwimmer, `feeding` die Futterplätze der Krähen.
+- **Störer:** `disturbers` sind Auge, Hund, Boote. Wer näher kommt als die Fluchtdistanz, scheucht die Vögel auf. Enten fliegen auf und landen woanders wieder, Schwäne schwimmen weg, Kormorane tauchen, Krähen und Möwen fliegen ab.
+- **Jahr:** `dayOfYear` steuert die Schwalben. Liegt Eis auf dem ganzen Wasser, sind die Schwimmer fort.
+- **Nacht:** Krähen und Schwalben schlafen außerhalb der Szene, Enten und Schwäne auf dem Wasser.
+- **Neue Zustände:** `SWIM`, `DIVE`, `WALK`.
+- **Sitzplätze:** Eine Maske gibt an, welche Arten einen Platz nehmen (`Perch.only`). Seit Haithabu Phase 14 hat jeder Platz eine Beliebtheit (`Perch.appeal`, 1 üblich): Ein Vogel wählt unter fünf freien Plätzen den mit dem kleinsten (Abstand + 20 m) / Beliebtheit.
+- **Netze** (`BirdMesh`): wie die Möwe gebaut, nach den Maßen der Art gestreckt.
+  - Der Hals von Schwan und Kormoran ist eine glatte Röhre: sitzend als S, im Flug gestreckt (zweite Spielart).
+  - Die Schwalbe hat einen Gabelschwanz, die Ente einen blauen Spiegel.
+  - `FlockGl` zeichnet ein Netz je Art und Spielart mit einem Aufruf.
+  - Gründeln neigt den Körper Kopf voran unter Wasser, der Kormoran sitzt aufrecht.
 
 ## Benutzung
 
@@ -49,6 +75,6 @@ flockGl.draw(gl, f, view, light);
 ## Grenzen
 
 - Aufwind und Windschatten sind Näherungen nach der Form eines Zylinders, kein Strömungsfeld.
-- Möwen schwimmen nicht und fischen nicht; sie sitzen nur auf Plätzen.
+- Fischen und Fressen sind nur Haltungen: gründeln, tauchen, picken. Es gibt keine Beute.
 - Kein Gefieder im Wind, keine einzelnen Federn; die Flügel haben zwei Glieder.
 - Rufe sind Ereignisse ohne Klang; den macht ein anderes Package.

@@ -12,6 +12,17 @@ uniform sampler2DArray uDeriv; // ∂h/∂x, ∂h/∂z, ∂Dx/∂x, ∂Dz/∂z
 uniform vec4 uSwellA[4];       // Richtung x, z, k, ω
 uniform vec4 uSwellB[4];       // A, Q, φ₀, –
 uniform int uReversed;
+uniform sampler2D uBed;        // seit Haithabu: Höhe des Grunds, optional
+uniform vec4 uBedRect;         // x, z der Nordwestecke, Kantenlänge (m), an (1) / aus (0)
+uniform vec3 uBedMap;          // Höhe = Wert · x + y; z: Trübung je m
+
+// Tiefe des Wassers über dem Grund am Ort p (groß, wenn kein Grund gesetzt; −1, wenn außerhalb des Rechtecks)
+float bedDepth(vec2 p) {
+    if (uBedRect.w <= 0.0) return 1.0e4;
+    vec2 uv = (p - uBedRect.xy) / uBedRect.z;
+    if (any(lessThan(uv, vec2(0.0))) || any(greaterThan(uv, vec2(1.0)))) return -1.0;
+    return uLevel - (textureLod(uBed, uv, 0.0).r * uBedMap.x + uBedMap.y);
+}
 const float EARTH_R = 6371000.0;
 
 // Dünung am Ruhepunkt p: Auslenkung (xyz) und Steigungen dy/dx0, dy/dz0, Jacobi-Anteil

@@ -1,6 +1,6 @@
 // fog_common.glsl — das Feld des Seenebels, Zeile für Zeile wie com.dan.fog.Fog.density (gleicher Ganzzahl-Hash).
 // uFogA: σ (1/m), Schwelle, mittlere Obergrenze (m), Weichheit · uFogB: Bankgröße (m), Schwaden, Versatz x, z (m)
-// uFogC: Wasserspiegel, Bedeckung, —, — · uFogSeed
+// uFogC: Wasserspiegel, Bedeckung, Untergrenze (m über dem Wasser), — · uFogSeed
 uniform vec4 uFogA, uFogB, uFogC;
 uniform int uFogSeed;
 
@@ -52,6 +52,7 @@ float fogDensityBT(vec3 p, vec2 bt) {
     if (h < -2.0) return 0.0;
     float soft = bt.y * uFogA.w;
     float hv = fogSmooth(bt.y + soft * 0.5, bt.y - soft * 0.5, h);
+    if (uFogC.z > 0.0) hv *= fogSmooth(uFogC.z - 2.0 * max(1.5, 0.3 * uFogC.z), uFogC.z, h);
     if (hv <= 0.0) return 0.0;
     float w = 1.0;
     if (uFogB.y > 0.0) {

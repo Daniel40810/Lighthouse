@@ -32,8 +32,19 @@ public final class Soundscape {
         Quality(int sr, int v, int b, int d, boolean rv) { sampleRate = sr; voices = v; bodies = b; drops = d; reverb = rv; }
     }
 
-    /** Ereignisse, die klingen. */
-    public enum Kind { BRECHER, NEBELHORN, TYFON, MOEWE, DONNER }
+    /**
+     * Ereignisse, die klingen. Seit Haithabu Phase 14 dazu die Rufe der Vögel und Haustiere ({@link Calls}), Gewerke,
+     * Ruderschlag und Einsturz ({@link Crafts}).
+     */
+    public enum Kind {
+        BRECHER, NEBELHORN, TYFON, MOEWE, DONNER,
+        KRAEHE, ENTE, ERPEL, SCHWALBE, KORMORAN, SCHWAN, HUHN, HAHN, ZIEGE, SCHWEIN, QUIEKEN, HUND,
+        HAMMER, KLOPFEN, BEIL, SAEGE, FEINSAEGE, RUDER, EINSTURZ;
+        /** Ein Ruf eines Tiers (aus {@link Calls})? */
+        public boolean animal() { return ordinal() >= KRAEHE.ordinal() && ordinal() <= HUND.ordinal(); }
+        /** Ein Klang eines Gewerks oder Schiffs (aus {@link Crafts})? */
+        public boolean craft() { return ordinal() >= HAMMER.ordinal(); }
+    }
 
     /** Signal mit Effektivwert 1 entspricht so vielen dB SPL. */
     public static final double REF_DB = 104;
@@ -77,12 +88,36 @@ public final class Soundscape {
     /** Körper, an denen der Wind singt, und dauernde Quellen (Schiffsdiesel). */
     public final List<Aeolian> bodies = new CopyOnWriteArrayList<>();
     public final List<Hum> hums = new CopyOnWriteArrayList<>();
+    // ---------------- seit Haithabu Phase 14: eine Siedlung
+    /** Feuer (Herd, Esse, Fackel, Brand), Werkstätten, die von selbst arbeiten, Mengen, die reden. */
+    public final List<Blaze> blazes = new CopyOnWriteArrayList<>();
+    public final List<Workshop> workshops = new CopyOnWriteArrayList<>();
+    public final List<Crowd> crowds = new CopyOnWriteArrayList<>();
+    /** Pfähle im Wasser {x, z}: Die Wellen glucksen an ihnen (die nächsten acht in 25 m klingen). */
+    public final List<double[]> pilings = new CopyOnWriteArrayList<>();
+    /** Wie viel Schilf (0..1) und Reetdach (0..1) in einigen Metern um das Ohr rauscht. */
+    public volatile double reedNear, thatchNear;
+    /**
+     * Zusätzliche Dämpfung über Land (dB je 100 m) durch Häuser, Zäune und Boden; nimmt auch die Höhen mit. 0 auf See
+     * (wie bisher), in einer Siedlung um 4.
+     */
+    public volatile double obstruction;
+    /**
+     * Rauigkeit des Bodens für das Windprofil (m): {@link #Z0} über See (wie bisher), um 0,3 in einer Siedlung mit
+     * Häusern und Zäunen; dort weht es am Ohr deutlich schwächer als in 10 m.
+     */
+    public volatile double roughness = Z0;
 
     // ------------------------------------------------------------------ Zustand (nur im Faden von render)
     private int sr;
     private long frame;
     private Dsp.Pink windL, windR, seaL, seaR, rainL, rainR;
     private Dsp.Brown earNoise, humNoise, seaLow;
+    private Dsp.Pink rustL, rustR;
+    private final Dsp.Biquad[] reedHp = new Dsp.Biquad[2], reedPk = new Dsp.Biquad[2], thatchBp = new Dsp.Biquad[2];
+    private final Pings clucks = new Pings();
+    private double rustleAm;
+    private final double[][] nearPiles = new double[8][];
     private Dsp.Rng rng;
     private final Dsp.Biquad[] windBp = new Dsp.Biquad[2], windHp = new Dsp.Biquad[2], seaLp = new Dsp.Biquad[2], rainHp = new Dsp.Biquad[2],
             rainPeak = new Dsp.Biquad[2], wallLp = new Dsp.Biquad[4];
@@ -107,7 +142,9 @@ public final class Soundscape {
     private final float[] humTable = Voice.Horn.harmonics(6, 1.2f);
 
     /** Pegel der Teile am Ohr (dB SPL, geglättet): Wind, Äolstöne, See, Brandung, Regen, Glas und Dach, Maschine, Ereignisse, alles. */
-    public static final String[] PARTS = {"Wind", "Äolstöne", "See", "Brandung", "Regen", "Glas und Dach", "Maschine", "Ereignisse", "alles"};
+    public static final String[] PARTS = {"Wind", "Äolstöne", "See", "Brandung", "Regen", "Glas und Dach", "Maschine",
+            "Feuer", "Reet und Schilf", "Pfähle", "Stimmen", "Ereignisse", "alles"};
+    static final int P_FIRE = 7, P_RUSTLE = 8, P_PILES = 9, P_CROWD = 10, P_EVENTS = 11, P_ALL = 12;
     private final double[] energy = new double[PARTS.length];
     private volatile double[] levels = new double[PARTS.length];
     private volatile double reductionDb;
@@ -160,7 +197,10 @@ public final class Soundscape {
     /** Verstärkung der Anpassung des Ohrs (dB). */
     public double autoGainDb() { return 20 * Math.log10(agcGain); }
     /** Wind am Ohr samt Profil (m/s). */
-    public double windAt(double height) { return windSpeed * Math.log(Math.max(1, height) / Z0) / Math.log(10 / Z0); }
+    public double windAt(double height) {
+        double z0 = Math.max(1e-5, Math.min(1.5, roughness));
+        return windSpeed * Math.log(Math.max(Math.max(1, z0 * 2), height) / z0) / Math.log(10 / z0);
+    }
     /** Rechenzeit je Sekunde Ton (ms). */
     public double msPerSecond() { return loadMs < 0 ? 0 : loadMs; }
 
@@ -174,7 +214,26 @@ public final class Soundscape {
             case NEBELHORN -> horn(k, x, y, z, strength, 1.0);
             case TYFON -> horn(k, x, y, z, strength, 6.0);
             case DONNER -> thunder(x, y, z, 70 + 40 * strength, null, null, null, true);
+            default -> event(k, x, y, z, strength, k == Kind.RUDER ? 10 : 0.5);
         }
+    }
+
+    /**
+     * Ein Ruf oder ein Klang der Siedlung mit einer Angabe tone: beim Ruderschlag die Zahl der Blätter im Wasser
+     * (2 bis 12 klingen), bei der Säge Stoß (über 0,5) oder Zug, beim Hammer der Amboss (0..1).
+     */
+    public void event(Kind k, double x, double y, double z, double strength, double tone) {
+        if (!k.animal() && !k.craft()) { event(k, x, y, z, strength); return; }
+        int sr = sampleRate();
+        long sd = nextSeed();
+        Calls.Made m = k.animal() ? Calls.make(k, strength, sd, sr) : Crafts.make(k, strength, tone, sd, sr);
+        enqueue(new Voice.Buffered(m.name(), x, y, z, m.level1m(), m.data(), false));
+    }
+
+    /** Für Werkstätten: eine fertige Stimme in die Warteschlange (Versatz in {@link Voice#lead}). */
+    void enqueueVoice(Voice v) {
+        v.start = Long.MIN_VALUE;
+        pending.add(v);
     }
 
     /**
@@ -222,7 +281,7 @@ public final class Soundscape {
             }
         }
         float[] data = Thunder.build(sampleRate(), dist, w, strokes, c, nextSeed());
-        Voice v = new Voice.Buffered("Donner", x, y, z, levelDb, data);
+        Voice v = new Voice.Buffered("Donner", x, y, z, levelDb, data, true);
         double dmin = Double.MAX_VALUE;
         for (double d : dist) dmin = Math.min(dmin, d);
         v.distance = dmin;
@@ -251,6 +310,13 @@ public final class Soundscape {
         seaL = new Dsp.Pink(s + 3); seaR = new Dsp.Pink(s + 4);
         rainL = new Dsp.Pink(s + 5); rainR = new Dsp.Pink(s + 6);
         earNoise = new Dsp.Brown(s + 7); humNoise = new Dsp.Brown(s + 8); seaLow = new Dsp.Brown(s + 9);
+        rustL = new Dsp.Pink(s + 10); rustR = new Dsp.Pink(s + 11);
+        for (int k = 0; k < 2; k++) {
+            reedHp[k] = new Dsp.Biquad().highpass(1600, 0.7, sr);
+            reedPk[k] = new Dsp.Biquad().peaking(4200, 0.8, 6, sr);
+            thatchBp[k] = new Dsp.Biquad().bandpass(1900, 0.5, sr);
+        }
+        clucks.clear();
         for (int k = 0; k < 2; k++) {
             windBp[k] = new Dsp.Biquad(); windHp[k] = new Dsp.Biquad().highpass(40, 0.7, sr);
             seaLp[k] = new Dsp.Biquad(); rainHp[k] = new Dsp.Biquad().highpass(900, 0.7, sr);
@@ -473,14 +539,16 @@ public final class Soundscape {
             }
         }
 
+        settlement(n, dt, e, ex, ey, ez, yaw, ins, c);
+
         // ---------------- Ereignisse
         for (Voice v; (v = pending.poll()) != null; ) {
             double d = Math.sqrt(sq(v.x - ex) + sq(v.y - ey) + sq(v.z - ez));
             if (!v.atEar) v.distance = d;
             // wer die Laufzeit schon abgewartet hat (Donner), beginnt jetzt; sonst nach Abstand / c
-            long delay = (long) ((v.atEar ? v.delaySeconds : d / c) * sr);
+            long delay = (long) (((v.atEar ? v.delaySeconds : d / c) + v.lead) * sr);
             // was am Ohr unter 30 dB bliebe, kostet nur Rechenzeit (Brecher am Turm, wenn das Ohr 4 km weit auf See ist)
-            if (!v.atEar && v.level1m - 20 * Math.log10(Math.max(1, d)) < 30) continue;
+            if (!v.atEar && v.level1m - 20 * Math.log10(Math.max(1, d)) - obstructionDb(d) < 30) continue;
             v.start = frame + delay;
             if (voices.size() >= q.voices) voices.remove(0);
             voices.add(v);
@@ -493,9 +561,9 @@ public final class Soundscape {
             boolean alive = v.render(tmp, off, n, sr);
             if (off == 0 || v.age > 0) { loudestVoice = v.name; lastVoiceAt = time(); }
             double d = Math.max(1, v.atEar ? 1 : v.distance);
-            double gain = Dsp.amp(v.level1m - (v.atEar ? 0 : 20 * Math.log10(d)));
+            double gain = Dsp.amp(v.level1m - (v.atEar ? 0 : 20 * Math.log10(d) + obstructionDb(d)));
             float[] g = pan(v.x, v.z, ex, ez, yaw);
-            double air = v.atEar ? sr * 0.45 : Math.max(250, 18_000 / (1 + d / 350));
+            double air = v.atEar ? sr * 0.45 : airHz(d);
             if (!v.atEar && g[2] < 0) air *= 0.6;
             v.air.lowpass(air, 0.6, sr);
             int itd = (int) Math.round(Math.abs(g[3]) * 0.00066 * sr);
@@ -510,7 +578,7 @@ public final class Soundscape {
                 float near = hold[i], far = j >= 0 ? hold[j] : v.hist[64 + j];
                 oL[i] += (rightFar ? near : far) * v.gl;
                 oR[i] += (rightFar ? far : near) * v.gr;
-                e[7] += near * near * 0.5 * (v.gl * v.gl + v.gr * v.gr);
+                e[P_EVENTS] += near * near * 0.5 * (v.gl * v.gl + v.gr * v.gr);
             }
             // Verlauf für den Laufzeitunterschied der Ohren ins nächste Stück mitnehmen
             if (n >= 64) System.arraycopy(hold, n - 64, v.hist, 0, 64);
@@ -548,7 +616,7 @@ public final class Soundscape {
             oR[i] += iR[i];
             et += 0.5 * (oL[i] * oL[i] + oR[i] * oR[i]);
         }
-        e[8] = et;
+        e[P_ALL] = et;
         // Anpassung des Ohrs: Energie über 4 s, Verstärkung folgt in 3 s
         double eb = et / n;
         agcEnergy = agcEnergy < 0 ? eb : agcEnergy + (eb - agcEnergy) * (1 - Math.exp(-dt / 4));
@@ -575,6 +643,91 @@ public final class Soundscape {
     }
 
     private final float[] hold = new float[BLOCK];
+
+    /** Zusätzliche Dämpfung über Land auf d m (dB). */
+    double obstructionDb(double d) { return Math.max(0, obstruction) * Math.max(0, d - 10) / 100; }
+
+    /** Grenze der Höhen nach Abstand (Luft, dazu Häuser und Boden über Land). */
+    double airHz(double d) { return Math.max(250, 18_000 / (1 + d / 350) / (1 + Math.max(0, obstruction) * Math.max(0, d - 10) / 400)); }
+
+    /**
+     * Seit Haithabu Phase 14: die Siedlung. Feuer (im Raum ohne die Wand), Werkstätten, Mengen, Schilf und Reet im
+     * Wind, Wellen an Pfählen.
+     */
+    private void settlement(int n, double dt, double[] e, double ex, double ey, double ez, double yaw, double ins, double c) {
+        // Werkstätten: Schläge dieses Stücks einplanen (sie laufen über die Warteschlange der Ereignisse)
+        double now = frame / (double) sr;
+        for (Workshop w : workshops) {
+            if (Math.hypot(w.x - ex, w.z - ez) > 900) continue;
+            w.schedule(this, now, dt, sr, seed);
+        }
+        // Feuer: höchstens sechs, die nächsten zuerst; im Raum nur, wenn das Ohr drinnen ist
+        int used = 0;
+        for (Blaze b : blazes) {
+            if (used >= 6) break;
+            double d = Math.max(0.7, Math.sqrt(sq(b.x - ex) + sq(b.y - ey) + sq(b.z - ez)));
+            if (b.size < 0.01 || d > 40 + 400 * b.size) continue;
+            if (b.indoor && ins < 0.05) continue;
+            float[] g = pan(b.x, b.z, ex, ez, yaw);
+            float[] L = b.indoor ? iL : oL, R = b.indoor ? iR : oR;
+            float k = b.indoor ? (float) ins : 1;
+            double ob = b.indoor ? 0 : obstructionDb(d);
+            e[P_FIRE] += b.render(L, R, n, sr, seed, g[0] * k * (float) Dsp.amp(REF_DB - ob), g[1] * k * (float) Dsp.amp(REF_DB - ob), d, b.indoor ? sr * 0.45 : airHz(d));
+            used++;
+        }
+        // Mengen
+        for (Crowd cr : crowds) {
+            double people = cr.people;
+            if (people < 0.5) continue;
+            double d = Math.max(Math.max(1, cr.radius), Math.sqrt(sq(cr.x - ex) + sq(cr.y - ey) + sq(cr.z - ez)));
+            double lv = 60 + 10 * Math.log10(0.35 * people) - 20 * Math.log10(d) - obstructionDb(d);
+            if (lv < 15) continue;
+            float[] g = pan(cr.x, cr.z, ex, ez, yaw);
+            // nah ist die Menge rundherum
+            float wide = (float) Math.min(1, cr.radius / d);
+            float gl = g[0] * (1 - wide) + 0.7071f * wide, gr = g[1] * (1 - wide) + 0.7071f * wide;
+            e[P_CROWD] += cr.render(oL, oR, n, sr, seed, gl, gr, Dsp.amp(lv), Math.min(airHz(d), d > 25 ? 2600 : sr * 0.45));
+        }
+        // Schilf und Reet im Wind am Ohr (Böen schütteln stärker)
+        double u2 = Math.max(0, windAt(Math.max(2, ey - waterLevel)) * (1 + gust));
+        double reed = Math.max(0, Math.min(1, reedNear)), thatch = Math.max(0, Math.min(1, thatchNear));
+        rustleAm += -rustleAm * dt / 0.6 + 0.4 * Math.sqrt(2 * dt / 0.6) * rng.gauss();
+        if ((reed > 0.01 || thatch > 0.01) && u2 > 0.8) {
+            double lr = 20 + 46 * Math.log10(u2) + 10 * Math.log10(Math.max(1e-3, reed)), lt = 14 + 46 * Math.log10(u2) + 10 * Math.log10(Math.max(1e-3, thatch));
+            float ar = reed > 0.01 ? (float) (Dsp.amp(lr) * Math.exp(0.5 * rustleAm) * 2.2) : 0, at = thatch > 0.01 ? (float) (Dsp.amp(lt) * Math.exp(0.4 * rustleAm) * 2.0) : 0;
+            for (int i = 0; i < n; i++) {
+                float a = rustL.next(), b = rustR.next();
+                float l = reedPk[0].process(reedHp[0].process(a)) * ar + thatchBp[0].process(a) * at;
+                float r = reedPk[1].process(reedHp[1].process(b)) * ar + thatchBp[1].process(b) * at;
+                oL[i] += l;
+                oR[i] += r;
+                e[P_RUSTLE] += 0.5 * (l * l + r * r);
+            }
+        }
+        // Wellen an Pfählen: Glucksen an den nächsten acht in 25 m
+        double hs = Math.max(0, waveHeight);
+        if (hs > 0.02 && !pilings.isEmpty()) {
+            int found = 0;
+            double[] dist = new double[8];
+            for (double[] p : pilings) {
+                double d = Math.hypot(p[0] - ex, p[1] - ez);
+                if (d > 25) continue;
+                if (found < 8) { nearPiles[found] = p; dist[found++] = d; continue; }
+                int worst = 0;
+                for (int k = 1; k < 8; k++) if (dist[k] > dist[worst]) worst = k;
+                if (d < dist[worst]) { nearPiles[worst] = p; dist[worst] = d; }
+            }
+            double rate = Math.min(3, 0.35 * hs / 0.1 + 0.2);
+            for (int k = 0; k < found; k++) {
+                double d = Math.max(1, Math.hypot(dist[k], ey - waterLevel));
+                double lv = 64 + 10 * Math.log10(Math.min(4, hs / 0.1)) - 20 * Math.log10(d);
+                float[] g = pan(nearPiles[k][0], nearPiles[k][1], ex, ez, yaw);
+                clucks.spawnPan(rate, dt, 160, 700, 0.012, 0.045, Dsp.amp(lv) * 2.5, g[0], g[1], rng, sr);
+                if (rng.uniform() < dt * rate * 0.5) clucks.one(1800 + 2500 * rng.uniform(), 0.004, Dsp.amp(lv - 6) * 2, g[0], g[1], rng, sr);
+            }
+        }
+        e[P_PILES] += clucks.render(oL, oR, n, sr);
+    }
 
     /** Verstärkung links, rechts, vorn (+1) oder hinten (−1), Seite (−1 links … +1 rechts) für eine Quelle. */
     static float[] pan(double x, double z, double ex, double ez, double yaw) {
@@ -646,6 +799,32 @@ public final class Soundscape {
                 wait += r.exp(rate);
             }
             if (wait < -1) wait = 0;
+        }
+
+        /** Wie {@link #spawn}, aber alle mit derselben Richtung (Verstärkung links, rechts). */
+        void spawnPan(double rate, double dt, double f0, double f1, double d0, double d1, double amp, float pl, float pr, Dsp.Rng r, int sr) {
+            if (rate <= 0) return;
+            wait -= dt;
+            while (wait <= 0 && count < MAX) {
+                one(f0 * Math.pow(f1 / f0, r.uniform()), d0 + (d1 - d0) * r.uniform(), amp * (0.3 + 0.9 * r.uniform()), pl, pr, r, sr);
+                wait += r.exp(rate);
+            }
+            if (wait < -1) wait = 0;
+        }
+
+        /** Ein einzelner Ton: Frequenz, Abklingzeit, Amplitude, Richtung. */
+        void one(double f, double decay, double amp, float pl, float pr, Dsp.Rng r, int sr) {
+            if (count >= MAX) return;
+            double rad = Math.exp(-1 / (decay * sr)), w = Dsp.TAU * Math.min(f, sr * 0.45) / sr;
+            c1[count] = 2 * rad * Math.cos(w);
+            c2[count] = -rad * rad;
+            y1[count] = amp * Math.sin(w);
+            y2[count] = 0;
+            gl[count] = pl;
+            gr[count] = pr;
+            left[count] = (int) (decay * sr * 7);
+            count++;
+            spawned++;
         }
 
         /** Addiert in l, r; gibt die Energie zurück. */

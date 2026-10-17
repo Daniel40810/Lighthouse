@@ -1,6 +1,9 @@
 package com.dan.soundscape.demo;
 
 import com.dan.soundscape.Aeolian;
+import com.dan.soundscape.Blaze;
+import com.dan.soundscape.Crowd;
+import com.dan.soundscape.Workshop;
 import com.dan.soundscape.Dsp;
 import com.dan.soundscape.Hum;
 import com.dan.soundscape.Room;
@@ -14,7 +17,9 @@ import java.util.Locale;
  * Prüfung des Packages ohne Lautsprecher (Paketvertrag Punkt 10). Endet mit „Alles in Ordnung.“. Gerechnet wird in
  * Zahlen, ausgewertet mit FFT: Rauschfarben, Filter, Wind nach Beaufort, Äolstöne nach Strouhal, Hörner nach KVR,
  * Laufzeit, Abstand, Richtung und Ohrenlaufzeit, Luftdämpfung, Wand und Raum, Regen auf Wasser und Glas, Donner,
- * Möwen, Maschine, Begrenzer, Anpassung des Ohrs, seed, Stufen und Rechenzeit.
+ * Möwen, Maschine, Begrenzer, Anpassung des Ohrs, seed, Stufen und Rechenzeit. Seit Haithabu Phase 14 dazu die
+ * Siedlung: Pegel und Gestalt der Rufe, Takt der Werkstätten, Ruderschlag, Feuer, Stimmengewirr, Schilf im Wind,
+ * Glucksen an Pfählen, Langhaus, Dämpfung über Land und die Rechenzeit einer Siedlung.
  */
 public final class SoundscapeCheck {
     private final List<String> lines = new ArrayList<>();
@@ -224,6 +229,9 @@ public final class SoundscapeCheck {
         check(Math.abs(fd - 37.5) < 1 && Math.abs(db(Analysis.rms(hmo, sr, 0.5, 2.5)) - diesel.aboardDb) < 4,
                 f("Diesel an Bord: Zündfrequenz %.1f Hz (750 U/min, 6 Zylinder: 37,5 Hz), %.0f dB im Steuerhaus", fd, db(Analysis.rms(hmo, sr, 0.5, 2.5))));
 
+        // ------------------------------------------------ seit Haithabu Phase 14: die Siedlung
+        siedlung(sr);
+
         // ------------------------------------------------ Begrenzer, Anpassung des Ohrs
         Soundscape lim = quiet();
         lim.horn(Soundscape.Kind.TYFON, 0, 2, -1.5, 1, 1.5);
@@ -261,6 +269,226 @@ public final class SoundscapeCheck {
 
         lines.add(bad == 0 ? "Alles in Ordnung." : bad + " Prüfungen fehlgeschlagen.");
         return lines;
+    }
+
+    /** Lauteste 100 ms (dB). */
+    static double max100(float[] o, int sr) {
+        int w = sr / 10;
+        double best = 0, acc = 0;
+        for (int i = 0; i < o.length / 2; i++) {
+            acc += 0.5 * (o[2 * i] * o[2 * i] + o[2 * i + 1] * o[2 * i + 1]);
+            if (i >= w) { int j = i - w; acc -= 0.5 * (o[2 * j] * o[2 * j] + o[2 * j + 1] * o[2 * j + 1]); }
+            best = Math.max(best, acc / w);
+        }
+        return db(Math.sqrt(best));
+    }
+
+    /** Einsätze (Zeiten, s), an denen der Pegel über 50 ms die Schwelle von unten kreuzt. */
+    static List<Double> onsets(float[] o, int sr, double thrDb) {
+        List<Double> l = new ArrayList<>();
+        int w = (int) (0.01 * sr);
+        boolean on = false;
+        double thr = Dsp.amp(thrDb), off = Dsp.amp(thrDb - 6);
+        for (int i = 0; 2 * (i + w) < o.length; i += w) {
+            double e = 0;
+            for (int k = 0; k < w; k++) { double v = 0.5 * (o[2 * (i + k)] + o[2 * (i + k) + 1]); e += v * v; }
+            double r = Math.sqrt(e / w);
+            if (!on && r > thr) { on = true; l.add(i / (double) sr); }
+            else if (on && r < off) on = false;
+        }
+        return l;
+    }
+
+    /** Die Siedlung (seit Haithabu Phase 14): Rufe, Gewerke, Ruder, Feuer, Menge, Schilf, Pfähle, Langhaus, Dämpfung über Land. */
+    private void siedlung(int sr) {
+        // Pegel aller Rufe und Klänge in 10 m: lauteste 100 ms = Pegel in 1 m − 20 dB − 3 dB (ein Ohr hört die Hälfte)
+        double worst = 0;
+        String worstK = "";
+        int kinds = 0;
+        for (Soundscape.Kind k : Soundscape.Kind.values()) {
+            if (!k.animal() && !k.craft()) continue;
+            Soundscape s = quiet();
+            s.render(0.05);
+            s.event(k, 0, 2, -10, 1, k == Soundscape.Kind.RUDER ? 10 : 0.3);
+            float[] o = s.render(5);
+            double want = expected(k);
+            double dev = max100(o, sr) - (want - 23);
+            if (Math.abs(dev) > Math.abs(worst)) { worst = dev; worstK = k.name(); }
+            kinds++;
+        }
+        check(kinds == 19 && Math.abs(worst) < 2.5, f("19 Rufe und Klänge der Siedlung in 10 m: lauteste 100 ms wie angegeben (größte Abweichung %+.1f dB, %s)", worst, worstK));
+        // Ziege meckert (Zittern 7 bis 10 Hz), Hahn kräht gut 2 s, Hund bellt kurz, Schwalbe hell, Schwein tief
+        Soundscape g = quiet();
+        g.seed = 5;
+        g.event(Soundscape.Kind.ZIEGE, 0, 2, -5, 1);
+        float[] go = g.render(2);
+        double gon = Analysis.onset(go, sr, 0, Dsp.amp(50));
+        int en = 4096;
+        double[] env = new double[en];
+        int step = sr / 200;
+        for (int i = 0; i < en && 2 * ((int) (gon * sr) + i * step + step) < go.length && i < 120; i++) {
+            double e = 0;
+            for (int k = 0; k < step; k++) { int j = (int) (gon * sr) + i * step + k; double v = go[2 * j]; e += v * v; }
+            env[i] = Math.sqrt(e / step);
+        }
+        double mean = 0;
+        for (int i = 0; i < 120; i++) mean += env[i] / 120;
+        for (int i = 0; i < 120; i++) env[i] = i < 120 ? env[i] - mean : 0;
+        for (int i = 120; i < en; i++) env[i] = 0;
+        double trem = Analysis.peak(Analysis.spectrum(env, en), 200, en, 4, 16);
+        Soundscape hh = quiet();
+        hh.event(Soundscape.Kind.HAHN, 0, 2, -5, 1);
+        float[] ho = hh.render(3.5);
+        double hon = Analysis.onset(ho, sr, 0, Dsp.amp(50)), hoff = offset(ho, sr, 1.0, Dsp.amp(50));
+        double[] cen = new double[3];
+        Soundscape.Kind[] ck = {Soundscape.Kind.SCHWALBE, Soundscape.Kind.SCHWEIN, Soundscape.Kind.HUND};
+        for (int i = 0; i < 3; i++) {
+            Soundscape c = quiet();
+            c.event(ck[i], 0, 2, -5, 1);
+            float[] co = c.render(3);
+            double on = Analysis.onset(co, sr, 0, Dsp.amp(45));
+            cen[i] = Analysis.centroid(Analysis.spectrum(Analysis.mono(co, sr, on, 0.12), 4096), sr, 4096);
+        }
+        check(trem > 6 && trem < 11 && hoff - hon > 1.6 && hoff - hon < 2.8 && cen[0] > 3500 && cen[1] < 1200 && cen[2] > 600 && cen[2] < 2500,
+                f("Ziege meckert mit %.1f Hz, Hahn kräht %.1f s; Schwerpunkt Schwalbe %.1f kHz, Schwein %.0f Hz, Hund %.1f kHz", trem, hoff - hon, cen[0] / 1000, cen[1], cen[2] / 1000));
+
+        // Werkstätten: der Schmied schlägt in Reihen mit Pausen; aus = still
+        Soundscape w = quiet();
+        Workshop smith = new Workshop("Schmiede", Workshop.Craft.SCHMIED, 0, 1, -20);
+        Workshop saw = new Workshop("Säger", Workshop.Craft.SAEGE, 30, 1, 0);
+        w.workshops.add(smith);
+        w.workshops.add(saw);
+        float[] wo = w.render(60);
+        long sm = smith.strikes(), sw = saw.strikes();
+        smith.active = false;
+        saw.active = false;
+        w.render(20);
+        long sm2 = smith.strikes() - sm;
+        List<Double> on = onsets(wo, sr, 55);
+        double minGap = 9, pause = 0;
+        for (int i = 1; i < on.size(); i++) { double d = on.get(i) - on.get(i - 1); minGap = Math.min(minGap, d); pause = Math.max(pause, d); }
+        check(sm > 20 && sm < 90 && sw > 30 && sw < 110 && sm2 == 0 && minGap > 0.15 && pause > 3,
+                f("Schmied: %d Schläge in 60 s (Reihen, längste Pause %.0f s), Säger %d Striche; abgestellt still (%d)", sm, pause, sw, sm2));
+
+        // Ruderschlag: zwölf Blätter gut 3 dB lauter als sechs
+        double[] oar = new double[2];
+        for (int i = 0; i < 2; i++) {
+            double sum = 0;
+            for (int k = 0; k < 6; k++) {
+                Soundscape r = quiet();
+                r.seed = 40 + k;
+                r.event(Soundscape.Kind.RUDER, 0, 1, -10, 1, i == 0 ? 6 : 12);
+                sum += max100(r.render(1.5), sr);
+            }
+            oar[i] = sum / 6;
+        }
+        check(Math.abs(oar[1] - oar[0] - 3.0) < 1.2, f("Ruderschlag: 12 Blätter %.1f dB, 6 Blätter %.1f dB in 10 m (+3 dB je Verdopplung)", oar[1], oar[0]));
+
+        // Feuer: Herd, Esse, brennendes Haus; ein Feuer im Raum hört man draußen nicht
+        double[] bl = new double[3];
+        double[] sizes = {0.25, 0.4, 1};
+        for (int i = 0; i < 3; i++) {
+            Soundscape b = quiet();
+            b.blazes.add(new Blaze("Feuer", 0, 2, -10, sizes[i], false));
+            b.render(1);
+            bl[i] = db(Analysis.rms(b.render(6), sr, 0, 6));
+        }
+        Soundscape bi = quiet();
+        bi.blazes.add(new Blaze("Herd", 0, 1, -3, 0.25, true));
+        bi.render(1);
+        double outside = db(Analysis.rms(bi.render(3), sr, 0, 3));
+        bi.inside = 1;
+        bi.room = Room.LONGHOUSE;
+        bi.render(1);
+        double inside = db(Analysis.rms(bi.render(3), sr, 0, 3));
+        check(bl[0] < bl[1] && bl[1] < bl[2] && bl[2] > 64 && bl[2] < 86 && outside < 25 && inside > 40,
+                f("Feuer in 10 m: Herd %.0f dB, Esse %.0f dB, brennendes Haus %.0f dB; der Herd im Haus in 3 m: drinnen %.0f dB, draußen nichts", bl[0], bl[1], bl[2], inside));
+
+        // Menge: zehnmal so viele Leute, 10 dB mehr
+        double[] cr = new double[2];
+        double[] ppl = {12, 120};
+        for (int i = 0; i < 2; i++) {
+            Soundscape m = quiet();
+            m.crowds.add(new Crowd("Markt", 0, 2, -15, ppl[i]));
+            m.render(2);
+            cr[i] = db(Analysis.rms(m.render(10), sr, 0, 10));
+        }
+        double crWant = 60 + 10 * Math.log10(0.35 * 120) - 20 * Math.log10(15);
+        check(Math.abs(cr[1] - cr[0] - 10) < 2 && Math.abs(cr[1] - crWant) < 2.5,
+                f("Stimmengewirr in 15 m: 120 Leute %.1f dB (gerechnet %.1f), 12 Leute %.1f dB", cr[1], crWant, cr[0]));
+
+        // Schilf im Wind: Rauschen im Band 2 bis 8 kHz, mehr mit dem Wind
+        double[] rs = new double[3];
+        double[][] cfg = {{6, 0}, {6, 1}, {11, 1}};
+        for (int i = 0; i < 3; i++) {
+            Soundscape r = quiet();
+            r.windSpeed = cfg[i][0];
+            r.gustiness = 0.2;
+            r.reedNear = cfg[i][1];
+            r.render(1);
+            float[] ro = r.render(6);
+            double[] p = Analysis.spectrum(Analysis.mono(ro, sr, 0, 6), 4096);
+            rs[i] = 10 * Math.log10(band(p, sr, 4096, 2000, 8000));
+        }
+        check(rs[1] - rs[0] > 10 && rs[2] > rs[1] + 6, f("Schilf im Wind: Band 2 bis 8 kHz %+.0f dB gegen ohne Schilf (6 m/s), bei 11 m/s noch %+.0f dB", rs[1] - rs[0], rs[2] - rs[1]));
+
+        // Pfähle: Glucksen nach Wellenhöhe; glattes Wasser still
+        long[] cl = new long[2];
+        double[] hs = {0.0, 0.3};
+        for (int i = 0; i < 2; i++) {
+            Soundscape pl = quiet();
+            pl.waveHeight = hs[i];
+            pl.wavePeriod = 2.5;
+            for (int k = 0; k < 6; k++) pl.pilings.add(new double[]{-5 + 2 * k, -4});
+            float[] po = pl.render(20);
+            cl[i] = onsets(po, sr, 38).size();
+        }
+        check(cl[0] == 0 && cl[1] > 20, f("Pfähle: bei 30 cm Wellen %d Glucksen in 20 s, bei glattem Wasser %d", cl[1], cl[0]));
+
+        // Langhaus und Dämpfung über Land
+        Soundscape lh = quiet();
+        lh.event(Soundscape.Kind.HUND, 0, 1, -20, 1);
+        double lout = max100(lh.render(2), sr);
+        Soundscape lh2 = quiet();
+        lh2.inside = 1;
+        lh2.room = Room.LONGHOUSE;
+        lh2.event(Soundscape.Kind.HUND, 0, 1, -20, 1);
+        double lin = max100(lh2.render(2), sr);
+        Soundscape ob = quiet(), ob2 = quiet();
+        ob2.obstruction = 4;
+        ob.event(Soundscape.Kind.KRAEHE, 0, 2, -210, 1);
+        ob2.event(Soundscape.Kind.KRAEHE, 0, 2, -210, 1);
+        double o0 = max100(ob.render(3), sr), o4 = max100(ob2.render(3), sr);
+        check(lout - lin > 9 && lout - lin < 20 && Math.abs(o0 - o4 - 8) < 1.5,
+                f("Langhaus: ein Hund in 20 m draußen klingt drinnen %.0f dB leiser und dumpf; über Land 4 dB je 100 m: eine Krähe in 210 m %.1f dB leiser", lout - lin, o0 - o4));
+
+        // Rechenzeit einer Siedlung: sechs Werkstätten, zwei Mengen, sechs Feuer, 60 Pfähle, Schilf und Reet
+        Soundscape big = Soundscape.beaufort(4);
+        big.quality = Soundscape.Quality.MEDIUM;
+        big.obstruction = 4;
+        big.reedNear = 0.5;
+        big.thatchNear = 0.5;
+        for (int k = 0; k < 6; k++) big.workshops.add(new Workshop("W" + k, Workshop.Craft.values()[k % 5], 30 * k - 80, 1, 40 - 15 * k));
+        big.crowds.add(new Crowd("Markt", 80, 1.5, -40, 150));
+        big.crowds.add(new Crowd("Hafen", -40, 1.5, 60, 40));
+        for (int k = 0; k < 6; k++) big.blazes.add(new Blaze("F" + k, 5 * k, 0.5, -8, 0.3, k == 0));
+        for (int k = 0; k < 60; k++) big.pilings.add(new double[]{-30 + k, 12});
+        big.render(2);
+        long t0 = System.nanoTime();
+        big.render(10);
+        double ms = (System.nanoTime() - t0) / 1e6 / 10;
+        check(ms < 90, f("Siedlung mit 6 Werkstätten, 2 Mengen, 6 Feuern, 60 Pfählen, Schilf und Reet (32 kHz): %.0f ms Rechnen je s Ton", ms));
+    }
+
+    /** Pegel in 1 m je Art bei voller Stärke (wie in Calls und Crafts angegeben; Huhn und Ziege rufen dann warnend). */
+    static double expected(Soundscape.Kind k) {
+        return switch (k) {
+            case KRAEHE -> 90; case ENTE -> 85; case ERPEL -> 72; case SCHWALBE -> 75; case KORMORAN -> 78; case SCHWAN -> 84;
+            case HUHN -> 88; case HAHN -> 100; case ZIEGE -> 92; case SCHWEIN -> 78; case QUIEKEN -> 104; case HUND -> 100;
+            case HAMMER -> 112; case KLOPFEN -> 92; case BEIL -> 100; case SAEGE -> 84; case FEINSAEGE -> 70;
+            case RUDER -> 86; case EINSTURZ -> 116;
+            default -> 0;
+        };
     }
 
     public int failures() { return bad; }

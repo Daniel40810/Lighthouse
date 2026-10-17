@@ -7,6 +7,7 @@ Eine flache Nebelschicht über dem Wasser, die in Bänken über die See zieht, m
 - **Sicht nach Koschmieder:** Im Kern einer Bank ist der Auslöschungskoeffizient σ = 3,0 / V (5 % Kontrast). `visibilityAt(x, y, z)` gibt die waagerechte Sicht am Ort, `transmittance(a, b)` die Durchlässigkeit eines Wegs.
 - **Bänke, die ziehen:** ein Rauschfeld in der Fläche (drei Oktaven Wertrauschen, leicht verwirbelt), das mit 80 % des Winds zieht. Der Anteil bedeckter Fläche (`coverage`) wird über eine Eichtabelle getroffen: 20/45/70 % gewollt ergeben 24/47/71 % gemessen.
 - **Obergrenze:** im Mittel `top` Meter über dem Wasser, von Ort zu Ort ±25 %, weich auslaufend. Darüber ist klare Luft; ein Turm von 30 m ragt aus einem Nebel von 18 m heraus.
+- **Untergrenze (seit Haithabu Phase 3):** `base` Meter über dem Wasser, darunter ist es klar, mit einem weichen Übergang von 2 · max(1,5 m, 0,3 · base). Damit hebt sich Strahlungsnebel am Morgen als Schicht vom Wasser ab, bevor er sich auflöst. 0 lässt alles wie bisher.
 - **Schwaden:** Rauschen in der Dichte, das mit der Höhe versetzt ist.
 - **Licht im Nebel:** Sonne und Mond mit Vorwärtsstreuung (Henyey-Greenstein, g = 0,75) und einem Anteil vielfach gestreuten Lichts, gedämpft durch den Nebel über dem Punkt; dazu der Himmel. Gegenlicht leuchtet, tief im Nebel wird es grau.
 - **Streufeld für fremde Lichter:** `scatter(x, y, z)` in 1/m, damit ein Leuchtfeuer seinen Strahl im Nebel zeigen kann (Nebeltröpfchen streuen fast alles).
@@ -53,7 +54,7 @@ fogGl.draw(gl, fog.snapshot(), view, light);   // Mischung ONE, SRC_ALPHA
 
 ## Grenzen
 
-- Der Nebel ist eine Schicht über einer ebenen See; Gelände kennt er nicht.
+- Der Nebel ist eine Schicht über einer ebenen See; Gelände kennt er nicht. Über Land liegt er in derselben Höhe über dem Wasserspiegel (im Tal dicht, auf Kuppen klar), sammelt sich aber nicht in Senken.
 - Licht von Lampen im Nebel rechnet das Package nicht selbst. Es gibt sein Streufeld her, ein Leuchtfeuer muss damit seinen Strahl zeichnen.
 - Vielfachstreuung ist genähert (fester Anteil, gedämpftes Himmelslicht), nicht gerechnet.
 - Die Tonlängen der Signale (Punkt 1 s, Strich 3 s, Gruppe 2 s, Tyfon 5 s) sind gestaltet; Periode und Muster kommen aus der Kennung. Den Klang macht ein anderes Package.

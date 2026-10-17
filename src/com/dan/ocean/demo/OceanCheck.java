@@ -38,6 +38,8 @@ public final class OceanCheck {
         cpuVersusExact();
         velocity();
         foam();
+        obstacleField();
+        hullMask();
         swell();
         ripples();
         obstacles();
@@ -46,6 +48,29 @@ public final class OceanCheck {
     }
 
     public int failures() { return bad; }
+
+    /** Seit Haithabu Phase 8: viele Pfähle als Abstandsraster, Brandungsring auch auf dem flachen Noor. */
+    void obstacleField() {
+        java.util.List<double[]> piles = new java.util.ArrayList<>();
+        for (int i = 0; i < 20; i++) piles.add(new double[]{i * 2.5, 0, 0.14});
+        com.dan.ocean.ObstacleField f = com.dan.ocean.ObstacleField.of(piles, -10, -10, 70, 20, 0.5, 6);
+        check(f.distance(5, 0) < 0.3 && Math.abs(f.distance(5, 4) - 3.86) < 0.3 && f.distance(5, 9) >= 5.9 && f.distance(500, 0) > 1e8,
+                String.format(java.util.Locale.GERMAN, "Abstandsraster: am Pfahl %.2f m, 4 m daneben %.2f m, außerhalb weit", f.distance(5, 0), f.distance(5, 4)));
+        Ocean noor = Ocean.noor(5);
+        noor.obstacleField = f;
+        double near = 0, far = 0;
+        for (int i = 0; i < 16; i++) { near += noor.foamAt(5 + i * 2.5 * 0 + 0.35, i * 0.02) / 16; far += noor.foamAt(30, 8 + i * 0.02) / 16; }
+        check(near > far + 0.1, String.format(java.util.Locale.GERMAN, "Brandungsring am Pfahl im Noor bei Bft 5: Schaum %.0f %% gegen %.0f %% abseits", near * 100, far * 100));
+    }
+
+    /** Seit Haithabu Phase 9: Umriss eines Rumpfs, innen kein Wasser. */
+    void hullMask() {
+        com.dan.ocean.HullMask m = new com.dan.ocean.HullMask(10, -5, 90, 11, 2.6);
+        // Kurs 90°: der Bug zeigt nach Osten (+x)
+        check(m.distance(10, -5) < -2.5 && m.distance(10, -5 + 3.6) > 0.9 && m.distance(10, -5 + 3.6) < 1.1
+                        && m.distance(20.5, -5) < 0 && m.distance(22, -5) > 0.9 && m.distance(10, 10) > 12,
+                String.format(Locale.GERMAN, "Rumpf in der Wasserlinie: Mitte %.1f m innen, 1 m querab %.2f m außen, Bug am Ende", m.distance(10, -5), m.distance(10, -1.4)));
+    }
 
     void check(boolean c, String what) {
         if (!c) bad++;

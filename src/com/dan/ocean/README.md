@@ -18,6 +18,8 @@ Zum Herauskopieren reicht `src/com/dan/ocean/`. Nur `demo/OceanDemo` braucht zus
 - **Schatten von oben (gl, optional):** zwei Schattenkarten als Draufsicht, jede mit ihrem Rechteck: eine für Wolken (`Light.shadowTexture`), eine für den Schatten eines Körpers, etwa eines Turms oder Schiffs (`Light.bodyShadowTexture`, seit Phase 5). Sie dämpfen nur Sonne und Mond, nicht den Himmel. Das Paket weiß nicht, wer den Schatten wirft.
 - **Feine Störung (gl, optional):** eine kachelbare Steigungstextur (`Light.detailTexture`, dh/dx und dh/dz in RG) mit Kachelgröße, Stärke und Reichweite, die auf die Normale gelegt wird, etwa die Ringkarte des Regens (seit Phase 7). Das Paket weiß nicht, woher sie kommt.
 - **Einfache Punktlichter (gl, optional, seit Phase 10):** bis zu acht Lichter ohne Lichtverteilung (`Light.flashPos`, `flashRgb`, `flashCount`: Ort, Größe der Quelle, Lichtstärke), etwa Blitze. Sie beleuchten Wasserkörper und Schaum; den Glanz der Quelle selbst zeigt die Spiegelung, wenn sie im Himmelspanorama steht. Das Paket weiß nicht, was leuchtet.
+- **Binnengewässer mit kurzer Streichlänge (seit Haithabu Phase 2):** `fetchLimited` begrenzt H<sub>s</sub> nach JONSWAP auf 0,0016 · U · √(F/g) und höchstens 0,6 der Tiefe; das Preset `noor(n)` stellt ein flaches Binnengewässer ein (Streichlänge 1,5 km, Tiefe 3 m, ohne Dünung, kürzere Kämme). `SeaState.fetchLimitedHeight` rechnet den Wert ohne See.
+- **Grund und Ufer (gl, optional, seit Haithabu Phase 2):** eine Höhenkarte des Grunds als Draufsicht (`Light.bedTexture` mit `bedRect`, `bedScale`, `bedOffset`, `bedColor`, `bedTurbidity`). Damit werden die Wellen zum Ufer hin flacher, der Grund scheint im seichten Wasser durch, am Ufer liegt ein Schaumsaum, und über Land wird nichts gezeichnet. Das Paket weiß nicht, woher die Karte kommt.
 - **Reproduzierbar:** gleicher `seed`, gleiche See. Die See läuft nach 1 000 s ohne Sprung in Schleife.
 
 ## Benutzung
@@ -71,8 +73,16 @@ Alle Felder sind öffentlich und zur Laufzeit änderbar. Ändert sich etwas am S
 
 ## Grenzen
 
-- Tiefwasser ist die Vorgabe. Mit `depth` ändert sich die Dispersion, aber Wellen laufen nicht auf, brechen nicht am Ufer und werden nicht gebeugt.
+- Tiefwasser ist die Vorgabe. Mit `depth` ändert sich die Dispersion, aber Wellen laufen nicht auf, brechen nicht am Ufer und werden nicht gebeugt. Mit Grundkarte werden sie zum Ufer hin nur gedämpft (kein Auflaufen, keine Brandung).
 - Hindernisse werfen keine Wellen zurück und schatten nichts ab. Sie bekommen nur den Brandungsring, die Gischt kommt aus dem Package `spray`.
 - Schaum aus Überschlag hängt an den zwei größten Kacheln. `foamAt` ist eine Näherung (nur Kachel 0, ohne Nachleuchten).
 - Ringwellen sind auf 32 gleichzeitig begrenzt und für einzelne große Ereignisse gedacht. Regen bringt seine eigenen Ringe als feine Störung mit.
 - Die Phase läuft in doppelter Genauigkeit (`GL_ARB_gpu_shader_fp64`, ab OpenGL 4.0 in jedem Kernprofil).
+
+## Seit Haithabu Phase 8: viele Pfähle
+
+`Ocean.obstacleField` nimmt ein `ObstacleField`: ein Raster des Abstands zum nächsten Körper (Zelle frei wählbar, gebaut mit `ObstacleField.of(kreise, x0, z0, breite, tiefe, zelle, maxAbstand)`). Um jeden Körper legt sich derselbe Brandungsring wie um ein `Obstacle`, das Wasser zwischen den Pfählen bleibt stehen; so tragen Landebrücken und Pfahlreihen mit Tausenden Pfählen ihren Schaum, ohne die Grenze von acht `Obstacle` zu sprengen. Die Grafikkarte bekommt das Raster als R32F-Textur (Einheit 8). Neu sind auch `ringHsLow` und `ringHsHigh`: ab welcher Wellenhöhe der Ring beginnt und wann er voll ist. Offene See wie bisher 0,15 bis 1,6 m, `Ocean.noor` 0,03 bis 0,35 m, sonst bliebe das flache Noor an den Pfählen glatt. `OceanCheck` prüft beides.
+
+## Seit Haithabu Phase 9: Rümpfe
+
+`Ocean.hulls` nimmt eine Liste von `HullMask` (Mitte, Kurs, halbe Länge und halbe Breite in der Wasserlinie, Völligkeit; bis 8 werden gezeichnet). Der Umriss ist eine spitze Linse mit der Halbbreite `halfBeam · (1 − |u|^Völligkeit)^0,8` (u = −1 … 1 von Heck zu Bug); 2 passt zu schlanken Rümpfen, bauchige brauchen mehr. Innerhalb des Umrisses zeichnet `surface.frag` kein Wasser; so schneidet die Oberfläche nicht durch offene Boote, und man sieht die Innenhaut. Außen liegt ein schmaler Schaumsaum, eine angedeutete Bugwelle. Das Paket kennt keine Schiffe: Der Benutzer füllt die Liste je Bild. `HullMask.distance` gibt den Abstand zum Umriss auch ohne Grafikkarte; `OceanCheck` prüft ihn.

@@ -77,6 +77,17 @@ public final class OceanGl {
          */
         public float[] flashPos = new float[32], flashRgb = new float[32];
         public int flashCount;
+        /**
+         * Seit Haithabu (Phase 2): der Grund unter dem Wasser, optional. Eine Höhentextur (R, normiert oder float)
+         * über dem Rechteck bedRect (x, z der Nordwestecke, Kantenlänge in m); Höhe = Wert · bedScale + bedOffset. Mit
+         * ihr dämpft das Paket die Wellen zum Ufer hin (unter 1,5 m Tiefe), zeigt im Flachwasser den Grund (Trübung
+         * bedTurbidity je m) und legt einen Schaumsaum an das Ufer. Außerhalb des Rechtecks und über dem Grund wird
+         * kein Wasser gezeichnet. Das Paket weiß nicht, woher der Grund kommt.
+         */
+        public int bedTexture;
+        public double[] bedRect = {0, 0, 1};
+        public double bedScale = 1, bedOffset = 0, bedTurbidity = 0.9;
+        public double[] bedColor = {0.20, 0.17, 0.12};
     }
 
     private int progSpectrum, progFft, progAssemble, progSurface;
@@ -271,6 +282,41 @@ public final class OceanGl {
         for (int i = 0; i < oc; i++) { ob[i * 4] = (float) obs.get(i).x(); ob[i * 4 + 1] = (float) obs.get(i).z(); ob[i * 4 + 2] = (float) obs.get(i).radius(); }
         gl.glUniform4fv(gl.glGetUniformLocation(p, "uObst[0]"), 8, ob, 0);
         gl.glUniform1i(gl.glGetUniformLocation(p, "uObstCount"), oc);
+        gl.glUniform2f(gl.glGetUniformLocation(p, "uRingHs"), (float) ocean.ringHsLow, (float) ocean.ringHsHigh);
+        java.util.List<com.dan.ocean.HullMask> hm = ocean.hulls;
+        float[] ha = new float[32], hb = new float[32];
+        int hc = Math.min(8, hm.size());
+        for (int i = 0; i < hc; i++) {
+            com.dan.ocean.HullMask m = hm.get(i);
+            double hr = Math.toRadians(m.headingDeg());
+            ha[i * 4] = (float) m.x(); ha[i * 4 + 1] = (float) m.z(); ha[i * 4 + 2] = (float) Math.sin(hr); ha[i * 4 + 3] = (float) Math.cos(hr);
+            hb[i * 4] = (float) m.halfLength(); hb[i * 4 + 1] = (float) m.halfBeam(); hb[i * 4 + 2] = (float) m.fullness();
+        }
+        gl.glUniform4fv(gl.glGetUniformLocation(p, "uHullA[0]"), 8, ha, 0);
+        gl.glUniform4fv(gl.glGetUniformLocation(p, "uHullB[0]"), 8, hb, 0);
+        gl.glUniform1i(gl.glGetUniformLocation(p, "uHullCount"), hc);
+        com.dan.ocean.ObstacleField of = ocean.obstacleField;
+        if (of != fieldUp) {
+            if (fieldTex != 0) { gl.glDeleteTextures(1, new int[]{fieldTex}, 0); fieldTex = 0; }
+            if (of != null) {
+                int[] tx = new int[1];
+                gl.glGenTextures(1, tx, 0);
+                fieldTex = tx[0];
+                gl.glBindTexture(GL.GL_TEXTURE_2D, fieldTex);
+                gl.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 4);
+                gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL4.GL_R32F, of.w(), of.h(), 0, GL4.GL_RED, GL.GL_FLOAT, java.nio.FloatBuffer.wrap(of.dist()));
+                gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR);
+                gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
+                gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE);
+                gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE);
+            }
+            fieldUp = of;
+        }
+        gl.glActiveTexture(GL.GL_TEXTURE0 + 8);
+        gl.glBindTexture(GL.GL_TEXTURE_2D, fieldTex);
+        gl.glUniform1i(gl.glGetUniformLocation(p, "uObstField"), 8);
+        gl.glUniform1i(gl.glGetUniformLocation(p, "uObstFieldOn"), of != null && fieldTex != 0 ? 1 : 0);
+        if (of != null) gl.glUniform4f(gl.glGetUniformLocation(p, "uObstFieldRect"), (float) of.x0(), (float) of.z0(), (float) (of.w() * of.cell()), (float) (of.h() * of.cell()));
         List<Ripples.Impulse> rp = ocean.impulses();
         float[] rr = new float[128];
         int rc = Math.min(32, rp.size());
@@ -313,6 +359,13 @@ public final class OceanGl {
         gl.glUniform1i(gl.glGetUniformLocation(p, "uFlashN"), Math.min(8, light.flashCount));
         gl.glUniform4fv(gl.glGetUniformLocation(p, "uFlashPos"), 8, light.flashPos, 0);
         gl.glUniform4fv(gl.glGetUniformLocation(p, "uFlashRgb"), 8, light.flashRgb, 0);
+        gl.glActiveTexture(GL.GL_TEXTURE7);
+        gl.glBindTexture(GL.GL_TEXTURE_2D, light.bedTexture);
+        gl.glUniform1i(gl.glGetUniformLocation(p, "uBed"), 7);
+        gl.glUniform4f(gl.glGetUniformLocation(p, "uBedRect"), (float) light.bedRect[0], (float) light.bedRect[1],
+                (float) Math.max(1, light.bedRect[2]), light.bedTexture != 0 ? 1f : 0f);
+        gl.glUniform3f(gl.glGetUniformLocation(p, "uBedMap"), (float) light.bedScale, (float) light.bedOffset, (float) light.bedTurbidity);
+        gl.glUniform3f(gl.glGetUniformLocation(p, "uBedColor"), (float) light.bedColor[0], (float) light.bedColor[1], (float) light.bedColor[2]);
         gl.glActiveTexture(GL.GL_TEXTURE0);
         gl.glDisable(GL.GL_CULL_FACE);
         gl.glEnable(GL.GL_DEPTH_TEST);
@@ -355,7 +408,11 @@ public final class OceanGl {
         texH0 = texA = texB = texDisp = texDeriv = 0;
     }
 
+    private int fieldTex;
+    private com.dan.ocean.ObstacleField fieldUp;
+
     public void dispose(GL4 gl) {
+        if (fieldTex != 0) { gl.glDeleteTextures(1, new int[]{fieldTex}, 0); fieldTex = 0; fieldUp = null; }
         deleteTextures(gl);
         for (int p : new int[]{progSpectrum, progAssemble, progSurface}) if (p != 0) gl.glDeleteProgram(p);
         for (int p : fftByN.values()) gl.glDeleteProgram(p);

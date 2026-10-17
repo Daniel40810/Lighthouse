@@ -175,7 +175,10 @@ public final class OceanDemo {
         root.setBackground(bg);
         root.add(canvas, BorderLayout.CENTER);
         root.add(side, BorderLayout.EAST);
+        f.setPreferredFrameSize(new java.awt.Dimension(1400, 820));
         f.setSize(1400, 820);
+        // deckend: ein GLCanvas in einem durchsichtigen Fenster bleibt unter Windows leer (wie in der App und den Lighthouse-Demos)
+        f.setBackground(new Color(15, 19, 17));
         f.setLocationRelativeTo(null);
         f.setVisible(true);
         new Animator(canvas).start();

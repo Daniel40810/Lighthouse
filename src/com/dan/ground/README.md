@@ -1,6 +1,6 @@
 # com.dan.ground – Gras, Blumen, Steine und Erde
 
-Das Paket erzeugt die Bodendecke um einen Betrachter: Gräser in Horsten, Blumen, Steine, Kiesel und offene Erde. Sie bewegen sich im Wind, wechseln mit der Jahreszeit und lassen sich niedertreten. Es braucht nur Java 21 und hängt nicht vom Geyser-Projekt ab. Das Paket liefert je Bild bewegte Dreiecke mit Farbe und Normale, zeichnen muss der eigene Renderer. Unter `demo/` liegt ein kleiner CPU-Renderer als Beispiel.
+Das Paket erzeugt die Bodendecke um einen Betrachter: Gräser in Horsten, Blumen, Steine, Kiesel und offene Erde. Sie bewegen sich im Wind, wechseln mit der Jahreszeit und lassen sich niedertreten. Der Kern braucht nur Java 21 und hängt nicht vom Geyser-Projekt ab. Er liefert je Bild bewegte Dreiecke mit Farbe und Normale. Unter `demo/` liegt ein kleiner CPU-Renderer als Beispiel; seit Haithabu Phase 2b zeichnet `gl/GroundGl` die Bodendecke mit JOGL (aus Kīlauea).
 
 Zum Herauskopieren reicht `src/com/dan/ground/`. Nur `demo/MeadowDemo` braucht zusätzlich `FStyle.jar` für die Oberfläche.
 
@@ -9,10 +9,11 @@ Zum Herauskopieren reicht `src/com/dan/ground/`. Nur `demo/MeadowDemo` braucht z
 - **Arten:**
   - Yellowstone: Idaho-Schwingel, Ährenweizengras, Segge, Silberlupine, Indian Paintbrush, Balsamwurzel, Glockenblume
   - Mitteleuropa: Wiesen-Rispengras, Margerite, Klatschmohn, Kornblume, Löwenzahn
+  - Schlei im Herbst (seit Haithabu Phase 2b): Adlerfarn, Segge, Schafgarbe, Rainfarn, Findling; dazu `Plant.litter()` (Laubstreu)
   - dazu Kiesel, Steine und offene Erde
 
   Alle Werte sind öffentlich und lassen sich ändern.
-- **Biome:** `Biome.yellowstone()`, `europe()` und `gravelBar()` mischen die Arten mit Dichten je Quadratmeter. Jede Art zieht ihre Dichte aus einer von vier Schichten: Gras, Blumen, Steine, Erde. Manche Arten mögen es feucht, etwa Seggen, andere trocken, etwa die Balsamwurzel.
+- **Biome:** `Biome.yellowstone()`, `europe()`, `gravelBar()` und `schlei()` mischen die Arten mit Dichten je Quadratmeter. Jede Art zieht ihre Dichte aus einer von vier Schichten: Gras, Blumen, Steine, Erde. Manche Arten mögen es feucht, etwa Seggen, andere trocken, etwa die Balsamwurzel.
 - **Standort:** Über die Schnittstelle `Site` sagt man, wie hoch der Boden ist und wie dicht jede Schicht dort ist. So legt man Pfade, Blumeninseln, Geröllfelder, Ufer oder heiße Stellen ohne Bewuchs fest.
 - **Wind:** Böen laufen als Wellen über die Wiese. Die Halme biegen sich nach Höhe und Steifheit und zittern, die Blüten nicken, die Wurzeln bleiben am Ort.
 - **Niedertreten:** Gehende (`pushers`) drücken das Gras zur Seite. Es richtet sich in einigen Sekunden wieder auf, dadurch entstehen sichtbare Spuren.
@@ -54,6 +55,7 @@ Halme und Blüten sind dünn (`solid = 0`) und werden von beiden Seiten beleucht
 | `Meadow` | Kacheln, Formen (Horste, Blumen, Steine, Erde), Jahreszeit, Ausdünnung, Bewegung, Niedertreten |
 | `Batch` | Ergebnis je Bild |
 | `GNoise` | Rauschen |
+| `gl/GroundGl` | Bodendecke mit JOGL: hochladen (jedes zweite Bild, solange das Auge steht), beidseitige Halme mit Durchscheinen, Ausblenden als Raster, Sonnen- und Wolkenschatten |
 
 ## Demo und Selbsttest
 

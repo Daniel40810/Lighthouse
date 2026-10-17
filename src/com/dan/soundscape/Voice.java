@@ -21,6 +21,8 @@ abstract class Voice {
     double distance;
     /** Wartezeit bis zum Ohr für Klänge mit Pegel am Ohr (Donner, dessen Laufzeit noch aussteht), s. */
     double delaySeconds;
+    /** Seit Haithabu Phase 14: Versatz im Stück (s), zu dem der Klang an der Quelle beginnt (Takt der Werkstätten). */
+    double lead;
 
     Voice(String name, double x, double y, double z, double level1m, boolean atEar) {
         this.name = name;
@@ -193,14 +195,17 @@ abstract class Voice {
         double length() { return total; }
     }
 
-    // ------------------------------------------------------------------ fertig gerechneter Klang (Donner)
+    // ------------------------------------------------------------------ fertig gerechneter Klang
 
-    /** Ein vorher gerechneter Klang (Donner), Pegel schon am Ohr. */
+    /**
+     * Ein vorher gerechneter Klang: Donner (Pegel schon am Ohr, atEar) oder seit Haithabu Phase 14 Rufe und Gewerke
+     * (Pegel in 1 m).
+     */
     static final class Buffered extends Voice {
         final float[] data;
 
-        Buffered(String name, double x, double y, double z, double levelAtEar, float[] data) {
-            super(name, x, y, z, levelAtEar, true);
+        Buffered(String name, double x, double y, double z, double level, float[] data, boolean atEar) {
+            super(name, x, y, z, level, atEar);
             this.data = data;
         }
 

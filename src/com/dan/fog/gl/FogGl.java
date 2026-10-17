@@ -173,7 +173,7 @@ public final class FogGl {
     static void setFog(GL4 gl, int p, Fog.Snapshot s) {
         gl.glUniform4f(gl.glGetUniformLocation(p, "uFogA"), (float) s.sigma(), (float) s.threshold(), (float) s.top(), (float) s.softness());
         gl.glUniform4f(gl.glGetUniformLocation(p, "uFogB"), (float) s.bankSize(), (float) s.wisps(), (float) s.offX(), (float) s.offZ());
-        gl.glUniform4f(gl.glGetUniformLocation(p, "uFogC"), (float) s.waterLevel(), (float) s.coverage(), 0f, 0f);
+        gl.glUniform4f(gl.glGetUniformLocation(p, "uFogC"), (float) s.waterLevel(), (float) s.coverage(), (float) s.base(), 0f);
         gl.glUniform1i(gl.glGetUniformLocation(p, "uFogSeed"), s.seed());
     }
 

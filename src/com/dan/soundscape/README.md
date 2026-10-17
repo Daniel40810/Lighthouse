@@ -1,6 +1,6 @@
 # com.dan.soundscape – Klang
 
-Erzeugter Ton ohne Audiodateien: Wind mit Äolstönen an Stäben und Seilen, See und Brandung, Regen auf dem Wasser, auf Glas und auf einem Dach, Brecher, Nebelhorn und Typhon, Möwen, Donner aus dem Kanal eines Blitzes und der Diesel eines Schiffs. Alles gilt für ein Ohr mit Ort und Blickrichtung: Abstand, Laufzeit, Luftdämpfung, Richtung. Drinnen dämpft die Wand und der Raum hallt. Der Kern braucht nur Java 21; die Ausgabe auf den Lautsprecher nimmt `javax.sound.sampled` aus dem JDK. Ein `gl/` gibt es nicht. Zum Herauskopieren reicht `src/com/dan/soundscape/`; nur `demo/SoundscapeDemo` braucht zusätzlich `FStyle.jar`.
+Erzeugter Ton ohne Audiodateien: Wind mit Äolstönen an Stäben und Seilen, See und Brandung, Regen auf dem Wasser, auf Glas und auf einem Dach, Brecher, Nebelhorn und Typhon, Möwen, Donner aus dem Kanal eines Blitzes und der Diesel eines Schiffs. Seit Haithabu Phase 14 dazu eine Siedlung: Rufe von Vögeln und Haustieren, Werkstätten, die von selbst arbeiten, Ruderschlag, Feuer, Stimmengewirr, Schilf und Reet im Wind und Wellen an Pfählen. Alles gilt für ein Ohr mit Ort und Blickrichtung: Abstand, Laufzeit, Luftdämpfung, Richtung. Drinnen dämpft die Wand und der Raum hallt. Der Kern braucht nur Java 21; die Ausgabe auf den Lautsprecher nimmt `javax.sound.sampled` aus dem JDK. Ein `gl/` gibt es nicht. Zum Herauskopieren reicht `src/com/dan/soundscape/`; nur `demo/SoundscapeDemo` braucht zusätzlich `FStyle.jar`.
 
 ## Was es kann
 
@@ -19,6 +19,18 @@ Erzeugter Ton ohne Audiodateien: Wind mit Äolstönen an Stäben und Seilen, See
 - **Maschine:** `hums` (Ort, Zündfrequenz, Pegel); `Hum.firing(750, 6)` = 37,5 Hz. Mit `aboard` klingt sie gleichmäßig durch den Rumpf.
 - **Raum:** `inside` 0..1 und `room`: `Room.OUTDOORS`, `STONE_TOWER` (−28 dB, bis 320 Hz, Hall 2,2 s), `GLASS_LANTERN` (−14 dB, bis 2,2 kHz, 0,7 s), `WHEELHOUSE` (−18 dB, 1,5 kHz, 0,4 s). Hall nach Schroeder und Moorer.
 - **Ohr passt sich an:** `autoGain` zieht den Pegel über 4 s zu 84 dB, höchstens 18 dB hinauf und 12 dB hinab; Donner und Horn bleiben laut, eine stille Nacht wird hörbar. Ein Begrenzer mit 5 ms Vorschau fängt den Rest.
+- **Siedlung** (seit Haithabu Phase 14, alles erzeugt [G]):
+  - **Rufe** mit `event(Kind, x, y, z, Stärke)`: Krähe, Stockente (Weibchen und Erpel), Rauchschwalbe, Kormoran, die singenden Schwingen des Höckerschwans, Huhn (Gackern, Warnruf ab Stärke 0,9), Hahn, Ziege (Meckern mit 7 bis 10 Hz), Schwein (Grunzen, Quieken), Hund. Jeder Ruf ist eine Folge von Tönen aus Grundton, Obertönen und Rauschen durch Formanten (`Calls`).
+  - **Gewerke und Schiffe** mit `event(Kind, x, y, z, Stärke, tone)`: Hammer auf heißem Eisen und Prellschlag auf dem Amboss (Eigentöne eines kleinen Blockambosses ab 2 kHz), Klopfen des Bronzegießers, Beil und Dechsel, Säge und feine Säge (Stoß und Zug), Ruderschlag eines Schiffs (tone = Blätter im Wasser: Eintauchen, Spritzen, Knarren in Pforte oder Dolle, Tropfen), einstürzende brennende Balken (`Crafts`).
+  - **Pegel:** lauteste 100 ms in 1 m: Hahn und Hund 100 dB, Hammer 112, Beil 100, Krähe 90, Ziege 88, Ente 85, Säge 84, Huhn 80, Schwein 78, Schwalbe 75, feine Säge 70, Einsturz 116, Ruderschlag 86 + 10 · lg(Blätter / 10).
+  - **Werkstätten** (`workshops`, `Workshop`): Schmied, Bronzegießer, Zimmermann, Säger, Kammmacher arbeiten von selbst in Reihen mit Pausen, solange `active`; Takt und Pausen siehe `Workshop`.
+  - **Feuer** (`blazes`, `Blaze`): Knistern, Knacken und Brausen nach der Größe (Fackel 0,1, Herd 0,25, Esse 0,4, brennendes Haus 1); ein Feuer mit `indoor` hört man nur drinnen, dann ohne die Wand.
+  - **Stimmengewirr** (`crowds`, `Crowd`): acht gedachte Sprecher in Silben ohne Sinn und ein sprachförmiges Rauschen; 60 + 10 · lg(0,35 · Leute) dB am Rand der Menge.
+  - **Schilf und Reet** (`reedNear`, `thatchNear` 0..1): Rauschen im Wind (2 bis 8 kHz für Schilf, um 2 kHz für Reet), stärker in Böen.
+  - **Pfähle** (`pilings`, {x, z}): Die Wellen glucksen an den nächsten acht in 25 m, mehr mit der Wellenhöhe.
+  - **Über Land** (`obstruction`, dB je 100 m): Häuser, Zäune und Boden dämpfen und nehmen die Höhen; in einer Siedlung um 4.
+  - **Rauigkeit** (`roughness`, m): Windprofil über dem Boden; 0,0002 über See (wie bisher), um 0,3 zwischen Häusern, wo der Wind am Ohr schwächer rauscht.
+  - **Raum** `Room.LONGHOUSE`: Langhaus aus Flechtwerk und Lehm unter Reet, −13 dB, bis 1,1 kHz, Hall 0,55 s.
 - **Presets:** `calm()`, `breeze()`, `gale()`, `storm()`, `beaufort(n)` (Wind, Seegang, Regen). **Reproduzierbar:** gleicher `seed`, gleicher Ton. **Stufen:** `Quality.LOW` bis `ULTRA` (22,05 bis 48 kHz, 12 bis 48 Stimmen, 2 bis 10 Äolskörper, Hall ab MEDIUM).
 
 ## Benutzung
@@ -43,22 +55,24 @@ Ohne Lautsprecher: `s.render(Sekunden)` gibt verschränktes Stereo, `Wav.write(d
 |---|---|
 | `Soundscape` | Eingänge, Betten (Wind, Äolstöne, See, Brandung, Regen, Glas, Dach, Maschine), Ereignisse, Mischer mit Ort und Richtung, Wand, Hall, Anpassung, Begrenzer, Pegel |
 | `Voice` | Ereignisse: Brecher, Horn, Möwe, vorgerechneter Klang |
+| `Calls`, `Crafts` | Rufe der Tiere, Gewerke, Ruder, Einsturz (seit Haithabu Phase 14) |
+| `Workshop`, `Blaze`, `Crowd` | Werkstätten mit eigenem Takt, Feuer, Mengen (seit Haithabu Phase 14) |
 | `Thunder` | Donner aus dem Kanal (N-Wellen, Luft, Echos) |
 | `Dsp` | Rauschen, Biquads, Glättung, Hall, Begrenzer |
 | `Aeolian`, `Hum`, `Room` | singende Körper, dauernde Quellen, Räume |
 | `AudioOut`, `Wav` | Lautsprecher (eigener Faden), WAV-Datei |
-| `demo/SoundscapeDemo` | Fenster mit Ton, Reglern und Pegeln; `--bild` sechs Hörszenen als Spektrogramme, `--wav` dieselben als WAV |
+| `demo/SoundscapeDemo` | Fenster mit Ton, Reglern und Pegeln; `--bild` acht Hörszenen als Spektrogramme, `--wav` dieselben als WAV |
 | `demo/SoundscapeCheck` | Prüfung ohne Lautsprecher, endet mit „Alles in Ordnung.“ |
 | `demo/Analysis` | FFT, Spektrum, Spitze, Schwerpunkt, Einsatz, Spektrogramm |
 
 ## Demo und Selbsttest
 
-- `com.dan.soundscape.demo.SoundscapeDemo` spielt einen gedachten Turm mit Galerie; Beaufort, Regen, Ort des Ohrs, Knöpfe für Nebelhorn, Typhon, Möwe, Brecher, Donner nah und fern.
-- `com.dan.soundscape.demo.SoundscapeCheck` prüft mit FFT: Rauschfarben, Filter, Wind nach Beaufort, Äolston nach Strouhal, Nebelhorn und Typhon nach KVR, Laufzeit, Abstand, Richtung und Ohrenlaufzeit, Luftdämpfung, Wand, Nachhallzeit, Regen auf Wasser und Glas, Donner, Möwe, Diesel, Begrenzer, Anpassung, seed, Stufen und Rechenzeit.
+- `com.dan.soundscape.demo.SoundscapeDemo` spielt einen gedachten Turm mit Galerie; Beaufort, Regen, Ort des Ohrs, Knöpfe für Nebelhorn, Typhon, Möwe, Brecher, Donner nah und fern. Seit Phase 14: „Dorf“ legt Werkstätten, Markt, Feuer und Pfähle um den Turm, eine Liste spielt jeden Ruf und Klang der Siedlung, das Langhaus ist als Raum wählbar.
+- `com.dan.soundscape.demo.SoundscapeCheck` prüft mit FFT: Rauschfarben, Filter, Wind nach Beaufort, Äolston nach Strouhal, Nebelhorn und Typhon nach KVR, Laufzeit, Abstand, Richtung und Ohrenlaufzeit, Luftdämpfung, Wand, Nachhallzeit, Regen auf Wasser und Glas, Donner, Möwe, Diesel, Begrenzer, Anpassung, seed, Stufen und Rechenzeit; seit Phase 14 dazu die Pegel aller 19 Rufe und Klänge, Meckern und Krähen, den Takt der Werkstätten, Ruderschlag, Feuer, Stimmengewirr, Schilf, Pfähle, Langhaus, Dämpfung über Land und die Rechenzeit einer Siedlung.
 
 ## Grenzen
 
 - Kein Doppler, keine Bodenreflexion, kein Wind, der den Schall verweht; Richtung nur in der Ebene.
 - Die Pegel der Betten sind geschätzt und an Erfahrungswerte angelehnt, nicht gemessen; Hörner und Typhon folgen den Vorschriften.
-- Die Möwe ist eine Silbermöwe; andere Arten fehlen. Das Nebelhorn ist ein Diaphon nach Gehör, kein bestimmtes Horn.
+- Die Möwe ist eine Silbermöwe. Die Rufe der übrigen Arten sind nach Gehör und Beschreibungen gebaut, keine Aufnahmen; man erkennt die Art, nicht das einzelne Tier. Das Stimmengewirr hat keine Wörter. Das Nebelhorn ist ein Diaphon nach Gehör, kein bestimmtes Horn.
 - Der Hall ist ein Schroeder-Hall, kein Abbild des Raums.

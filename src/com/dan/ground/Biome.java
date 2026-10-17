@@ -48,6 +48,18 @@ public final class Biome {
                 .add(Plant.soil(), 3, 0.2f, 0);
     }
 
+    /**
+     * Schlei im Herbst (seit Haithabu Phase 2b): im Wald Adlerfarn und Seggen (die Laubstreu malt das Gelände), auf den Wiesen späte
+     * Schafgarbe und Rainfarn, Kiesel und eiszeitliche Findlinge. Das Gras selbst liefert dort {@code com.dan.reed}.
+     */
+    public static Biome schlei() {
+        return new Biome("Schlei · Herbst")
+                .add(Plant.bracken(), 0, 1.6f, -0.2f).add(Plant.sedge(), 0, 2.2f, 1)
+                .add(Plant.yarrow(), 1, 1.2f, -0.3f).add(Plant.tansy(), 1, 0.6f, 0.1f)
+                .add(Plant.pebble(), 2, 6, 0).add(Plant.stone(), 2, 0.6f, 0).add(Plant.boulder(), 2, 0.025f, 0)
+                .add(Plant.soil(), 3, 0.06f, 0);
+    }
+
     /** Kiesbank am Fluss: viele Kiesel und Steine, wenig Gras, Seggen am Wasser. */
     public static Biome gravelBar() {
         return new Biome("Kiesbank")

@@ -90,6 +90,25 @@ public record Scenario(String name, double startHour, double lapse, List<Step> s
         return new Scenario("Ein Nebeltag", 5.5, 200, l);
     }
 
+    /**
+     * „Ein Nebelmorgen im Herbst“ (seit Haithabu Phase 3): Strahlungsnebel nach einer klaren, windstillen Nacht über
+     * Wasser und Niederungen, kühl und feucht. Nach Sonnenaufgang wärmt die Sonne den Boden, der Nebel hebt sich als
+     * Schicht (die App nimmt dafür die Untergrenze von com.dan.fog), reißt in Fetzen auf und ist am Vormittag fort; ein
+     * klarer, milder Herbsttag folgt. 10 Stunden ab 05:00, im Zeitraffer 240 : 1 gut 2½ Minuten. Kamerawünsche: die
+     * Namen der Ansichten der App.
+     */
+    public static Scenario autumnFogMorning() {
+        Weather.Var W = Weather.Var.WIND, F = Weather.Var.FOG, D = Weather.Var.DIRECTION, C = Weather.Var.COVER, V = Weather.Var.VISIBILITY,
+                H = Weather.Var.HUMIDITY, T = Weather.Var.TEMPERATURE, G = Weather.Var.GUST, P = Weather.Var.PRESSURE;
+        List<Step> l = new ArrayList<>();
+        l.add(Step.of(1.5, Weather.Phase.NEBEL, "Nebel vor Tag, windstill", "Hochburg", F, 0.9, W, 0.6, D, 160, C, 0.5, V, 10, H, 99, T, 5, G, 0.05, P, 1026));
+        l.add(Step.of(1.25, Weather.Phase.NEBEL, "Sonnenaufgang im Nebel", "Hochburg", F, 0.85, W, 0.8, H, 99, T, 5.5));
+        l.add(Step.of(1.5, Weather.Phase.NEBEL, "Der Nebel steigt", "Hochburg", F, 0.6, W, 1.4, H, 96, T, 8));
+        l.add(Step.of(1.25, Weather.Phase.KLAR, "Nebelfetzen über dem Wasser", "Vom Noor", F, 0.22, W, 2.2, H, 88, T, 10, C, 1.0));
+        l.add(Step.of(4.5, Weather.Phase.KLAR, "Ein klarer Herbsttag", "Vom Noor", F, 0.0, W, 3.0, C, 2.0, V, 30, H, 75, T, 13));
+        return new Scenario("Ein Nebelmorgen im Herbst", 5.0, 240, l);
+    }
+
     /** Eine ruhige Lage für die freie Regie zum Vergleich: zwei Tage Hochdruck mit Seenebel am Morgen. */
     public static Scenario calmDays() {
         List<Step> l = new ArrayList<>();

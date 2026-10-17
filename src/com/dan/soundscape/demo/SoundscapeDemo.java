@@ -6,6 +6,9 @@ import com.dan.fcombobox.FComboBox;
 import com.dan.fframe.FFrame;
 import com.dan.fslider.FSlider;
 import com.dan.soundscape.Aeolian;
+import com.dan.soundscape.Blaze;
+import com.dan.soundscape.Crowd;
+import com.dan.soundscape.Workshop;
 import com.dan.soundscape.AudioOut;
 import com.dan.soundscape.Hum;
 import com.dan.soundscape.Room;
@@ -41,8 +44,8 @@ import java.util.Locale;
  * zeigt das laufende Spektrogramm.
  * <pre>
  * SoundscapeDemo                          Fenster mit Ton
- * SoundscapeDemo --bild datei.png [breite] sechs Hörszenen als Spektrogramme mit Pegeln
- * SoundscapeDemo --wav ordner             dieselben sechs Hörszenen als WAV (je 15 s)
+ * SoundscapeDemo --bild datei.png [breite] acht Hörszenen als Spektrogramme mit Pegeln
+ * SoundscapeDemo --wav ordner             dieselben acht Hörszenen als WAV (je 15 s)
  * </pre>
  */
 public final class SoundscapeDemo {
@@ -90,7 +93,7 @@ public final class SoundscapeDemo {
     /** Eine Hörszene: Text, Dateiname, Ton, Pegel. */
     record Scene(String title, String file, float[] audio, int sampleRate, String levels) { }
 
-    /** Sechs Hörszenen zu je 15 s, gerechnet ohne Lautsprecher. */
+    /** Acht Hörszenen zu je 15 s, gerechnet ohne Lautsprecher (seit Haithabu Phase 14 dazu zwei in einer Siedlung). */
     static List<Scene> scenes() {
         List<Scene> l = new ArrayList<>();
         double len = 15;
@@ -151,7 +154,48 @@ public final class SoundscapeDemo {
             if (t == 1) x.thunder(-3500, 1500, -2500, 92, null, null, new double[]{0, 0.07, 0.16}, true);
             if (t == 9) x.thunder(250, 400, -200, 116, null, null, new double[]{0, 0.05}, true);
         }));
+        // 7 seit Haithabu Phase 14: eine Siedlung am Mittag
+        s = village(Soundscape.beaufort(3));
+        l.add(scene("Siedlung am Mittag: Schmied, Kammmacher, Bootsbauer, Markt, Hühner, Ziegen, Hund, Schilf, Pfähle", "7_Siedlung_Mittag", s, len, (t, x) -> {
+            if (t % 4 == 1) x.event(Soundscape.Kind.HUHN, 8 + t, 0.3, -12, 0.6);
+            if (t == 3 || t == 11) x.event(Soundscape.Kind.ZIEGE, -40, 6, -50, 0.7);
+            if (t == 6) x.event(Soundscape.Kind.HUND, 15, 0.5, 10, 0.8);
+            if (t == 9) x.event(Soundscape.Kind.KRAEHE, -30, 12, -30, 1);
+            if (t == 2 || t == 13) x.event(Soundscape.Kind.ENTE, 10, 0, 30, 1);
+        }));
+        // 8 dieselbe Siedlung im Langhaus am Abend, Regen auf dem Reet
+        s = village(Soundscape.beaufort(4));
+        s.rainRate = 3;
+        s.inside = 1;
+        s.room = Room.LONGHOUSE;
+        s.thatchNear = 1;
+        s.blazes.add(new Blaze("Herd", 2.5, 0.4, -1, 0.3, true));
+        for (Workshop w : s.workshops) w.active = false;
+        s.crowds.get(0).people = 15;
+        l.add(scene("Im Langhaus am Abend: Herd knistert, Regen und Wind im Reet, draußen der Hund und die Hühner", "8_Langhaus_Abend", s, len, (t, x) -> {
+            if (t == 4) x.event(Soundscape.Kind.HUND, 15, 0.5, 10, 1);
+            if (t == 9) x.event(Soundscape.Kind.HAHN, -12, 0.5, -20, 0.8);
+        }));
         return l;
+    }
+
+    /** Seit Haithabu Phase 14: ein gedachtes Dorf um das Ohr (Werkstätten, Markt, Feuerstelle, Schilf, Pfähle am Ufer). */
+    static Soundscape village(Soundscape s) {
+        s.waveHeight = 0.15;
+        s.wavePeriod = 2.5;
+        s.obstruction = 4;
+        s.earX = 0;
+        s.earY = 1.7;
+        s.earZ = 0;
+        s.workshops.add(new Workshop("Schmiede", Workshop.Craft.SCHMIED, -70, 1, -60));
+        s.workshops.add(new Workshop("Kammmacher", Workshop.Craft.KAMMMACHER, 16, 1, 7));
+        s.workshops.add(new Workshop("Bootsbauer", Workshop.Craft.ZIMMERER, 45, 0.5, 35));
+        s.crowds.add(new Crowd("Markt", 90, 1.5, -40, 120));
+        s.blazes.add(new Blaze("Feuerstelle", 9, 0.3, -6, 0.3, false));
+        s.reedNear = 0.3;
+        s.thatchNear = 0.4;
+        for (int i = 0; i < 12; i++) s.pilings.add(new double[]{-8 + i * 2.5, 14});
+        return s;
     }
 
     interface Script { void at(int second, Soundscape s); }
@@ -257,11 +301,11 @@ public final class SoundscapeDemo {
         });
         rain.addChangeListener(e -> { s.rainRate = rain.getValue(); rainLbl.setText("Regen " + rain.getValue() + " mm/h"); });
         vol.addChangeListener(e -> { s.volume = vol.getValue() / 100.0; volLbl.setText("Lautstärke " + vol.getValue() + " %"); });
-        FComboBox where = new FComboBox(new Object[]{"Galerie (draußen)", "Laternenraum", "Treppenhaus", "Steuerhaus"});
+        FComboBox where = new FComboBox(new Object[]{"Galerie (draußen)", "Laternenraum", "Treppenhaus", "Steuerhaus", "Langhaus"});
         where.addActionListener(e -> {
             int i = where.getSelectedIndex();
             s.inside = i == 0 ? 0 : 1;
-            s.room = switch (i) { case 1 -> Room.GLASS_LANTERN; case 2 -> Room.STONE_TOWER; case 3 -> Room.WHEELHOUSE; default -> Room.OUTDOORS; };
+            s.room = switch (i) { case 1 -> Room.GLASS_LANTERN; case 2 -> Room.STONE_TOWER; case 3 -> Room.WHEELHOUSE; case 4 -> Room.LONGHOUSE; default -> Room.OUTDOORS; };
             s.glassDrops = i == 1 || i == 3 ? s.rainRate * 6 : 0;
             s.roofDrops = i == 1 ? s.rainRate * 15 : 0;
         });
@@ -273,10 +317,33 @@ public final class SoundscapeDemo {
         breaker.addActionListener(e -> s.event(Soundscape.Kind.BRECHER, 0, 2, -5.5, 1));
         near.addActionListener(e -> s.thunder(250, 400, -200, 114, null, null, new double[]{0, 0.05}, true));
         far.addActionListener(e -> s.thunder(-3500, 1500, -2500, 90, null, null, new double[]{0, 0.07, 0.16}, false));
+        // seit Haithabu Phase 14: ein Dorf um das Ohr, Rufe und Klänge der Siedlung
+        FCheckBox dorf = new FCheckBox("Dorf (Werkstätten, Markt, Feuer, Pfähle)");
+        Soundscape dorfVorlage = village(Soundscape.beaufort(0));
+        dorf.addActionListener(e -> {
+            if (dorf.isSelected()) {
+                for (Workshop w : dorfVorlage.workshops) s.workshops.add(new Workshop(w.name, w.craft, w.x, w.y + 24, w.z));
+                for (Crowd c : dorfVorlage.crowds) s.crowds.add(new Crowd(c.name, c.x, c.y + 24, c.z, c.people));
+                for (Blaze b : dorfVorlage.blazes) s.blazes.add(new Blaze(b.name, b.x, b.y + 24, b.z, b.size, false));
+                s.pilings.addAll(dorfVorlage.pilings);
+                s.reedNear = 0.3;
+                s.obstruction = 4;
+            } else {
+                s.workshops.clear(); s.crowds.clear(); s.blazes.clear(); s.pilings.clear();
+                s.reedNear = 0;
+                s.obstruction = 0;
+            }
+        });
+        java.util.List<Soundscape.Kind> calls = new ArrayList<>();
+        for (Soundscape.Kind k : Soundscape.Kind.values()) if (k.animal() || k.craft()) calls.add(k);
+        FComboBox callBox = new FComboBox(calls.toArray());
+        FButton call = new FButton("Ruf oder Klang");
+        call.addActionListener(e -> s.event((Soundscape.Kind) callBox.getSelectedItem(), 25 * (Math.random() - 0.5), 22, -15, 1,
+                callBox.getSelectedItem() == Soundscape.Kind.RUDER ? 10 : Math.random()));
         FCheckBox agc = new FCheckBox("Ohr passt sich an");
         agc.setSelected(true);
         agc.addActionListener(e -> s.autoGain = agc.isSelected());
-        for (Component c : new Component[]{title, state, bftLbl, bft, rainLbl, rain, where, horn, typhon, gull, breaker, near, far, agc, volLbl, vol}) {
+        for (Component c : new Component[]{title, state, bftLbl, bft, rainLbl, rain, where, horn, typhon, gull, breaker, near, far, dorf, callBox, call, agc, volLbl, vol}) {
             if (c instanceof JComponent jc) jc.setAlignmentX(Component.LEFT_ALIGNMENT);
             side.add(c);
             side.add(javax.swing.Box.createVerticalStrut(6));

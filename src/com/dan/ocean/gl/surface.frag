@@ -8,6 +8,8 @@ in vec2 vRest;
 in vec3 vWorld;
 in float vHeight;
 in float vDist;
+in float vDepth;
+uniform vec3 uBedColor;
 out vec4 frag;
 uniform sampler2D uSky;        // Himmel als Panorama (Azimut von Nord, Höhe), linear
 uniform float uSkyGain;
@@ -19,6 +21,13 @@ uniform float uWindTo;
 uniform float uWindSpeed;
 uniform vec4 uObst[8];         // x, z, Radius
 uniform int uObstCount;
+uniform sampler2D uObstField;    // seit Haithabu Phase 8: Abstand zum nächsten Körper (m), viele Pfähle
+uniform vec4 uObstFieldRect;     // Ecke x, z, Breite, Tiefe (m)
+uniform int uObstFieldOn;
+uniform vec2 uRingHs;            // Brandungsring: Beginn und volle Stärke über H_s (m)
+uniform vec4 uHullA[8];          // seit Haithabu Phase 9: Rumpf x, z, sin und cos des Kurses
+uniform vec4 uHullB[8];          // halbe Länge, halbe Breite in der Wasserlinie (m), Völligkeit
+uniform int uHullCount;
 uniform vec4 uRipple[32];      // x, z, Alter, Stärke
 uniform int uRippleCount;
 uniform float uFoamGain;
@@ -69,6 +78,8 @@ vec2 rippleSlope(vec2 p) {
 }
 
 void main() {
+    // seit Haithabu: kein Wasser über dem Grund oder außerhalb seines Rechtecks
+    if (vDepth < -0.02) discard;
     // Wolkenschatten (aus com.dan.cloud über die App): Anteil direkten Lichts an dieser Stelle
     float shade = 1.0;
     if (uShadowRect.w > 0.0) shade = textureLod(uCloudShadow, (vWorld.xz - uShadowRect.xy) / uShadowRect.z, 0.0).r;
@@ -85,7 +96,30 @@ void main() {
         if (ds < 0.0) discard;
         float width = 0.5 + 0.8 * uHs;
         float n = vnoise(vec2(vWorld.x * 0.8 + uTime * 0.35, vWorld.z * 0.8 - uTime * 0.2));
-        ring = max(ring, smoothr(0.15, 1.6, uHs) * exp(-ds / width) * (0.45 + 0.55 * n));
+        ring = max(ring, smoothr(uRingHs.x, uRingHs.y, uHs) * exp(-ds / width) * (0.45 + 0.55 * n));
+    }
+    // Rümpfe: innen kein Wasser (offene Boote), außen ein schmaler Saum aus Schaum
+    for (int i = 0; i < 8; i++) {
+        if (i >= uHullCount) break;
+        vec2 d = vWorld.xz - uHullA[i].xy;
+        vec2 f = vec2(uHullA[i].z, -uHullA[i].w);
+        float s = dot(d, f), q = d.x * -f.y + d.y * f.x;
+        float u = s / uHullB[i].x;
+        float ds;
+        if (abs(u) >= 1.0) ds = length(vec2(abs(s) - uHullB[i].x, q));
+        else ds = abs(q) - uHullB[i].y * pow(max(1.0 - pow(abs(u), uHullB[i].z), 0.0), 0.8);
+        if (ds < 0.0) discard;
+        float n = vnoise(vec2(vWorld.x * 1.3 + uTime * 0.5, vWorld.z * 1.3 - uTime * 0.3));
+        ring = max(ring, 0.35 * exp(-ds / 0.35) * (0.4 + 0.6 * n));
+    }
+    if (uObstFieldOn == 1) {
+        vec2 fu = (vWorld.xz - uObstFieldRect.xy) / uObstFieldRect.zw;
+        if (all(greaterThan(fu, vec2(0.0))) && all(lessThan(fu, vec2(1.0)))) {
+            float ds = textureLod(uObstField, fu, 0.0).r;
+            float width = 0.5 + 0.8 * uHs;
+            float n = vnoise(vec2(vWorld.x * 0.8 + uTime * 0.35, vWorld.z * 0.8 - uTime * 0.2));
+            ring = max(ring, smoothr(uRingHs.x, uRingHs.y, uHs) * exp(-ds / width) * (0.45 + 0.55 * n));
+        }
     }
     // Ableitungen und Schaum aller Kaskaden
     float sx = 0.0, sz = 0.0, jx = 0.0, jz = 0.0, keep = 1.0;
@@ -124,6 +158,13 @@ void main() {
     float back = pow(clamp(dot(-Vh, Lh) * 0.5 + 0.5, 0.0, 1.0), 4.0);
     float grazing = pow(1.0 - clamp(V.y, 0.0, 1.0), 2.0);
     vec3 sss = uSssColor * crest * grazing * (sunC * back * sunUp * 0.9 + skyUp * 0.35) * 0.15;
+    // seit Haithabu: im Flachwasser scheint der Grund durch (Weg hin und zurück, schräg länger), bei uBedRect.w = 0 nie
+    if (uBedRect.w > 0.0 && vDepth < 8.0) {
+        float path = max(vDepth, 0.0) * (1.0 + 1.0 / max(V.y, 0.15));
+        float T = exp(-uBedMap.z * path);
+        vec3 bedLit = uBedColor / 3.14159265 * (sunC * sunUp * exp(-uBedMap.z * max(vDepth, 0.0) / max(sunUp, 0.15)) + skyUp * 3.5);
+        body = mix(body, bedLit, T);
+    }
     vec3 col = mix(body + sss, refl, F);
 
     // Glitzer: Sonne und Mond, rauer mit der Entfernung (die kleinen Wellen sind dort weggefiltert)
@@ -166,6 +207,11 @@ void main() {
     float along = dot(vRest, wd), across = dot(vRest, vec2(-wd.y, wd.x));
     float warp = vnoise(vec2(along / 23.0, across / 3.1)) * 1.6;
     float streak = smoothr(13.0, 17.5, uWindSpeed) * smoothr(0.58, 0.82, vnoise(vec2(along / 34.0 + warp, across / 0.9)) * 0.6 + vnoise(vec2(along / 9.0 - warp, across / 0.35)) * 0.4) * 0.75;
+    // seit Haithabu: Schaumsaum am Ufer, wenn Wind die kleinen Wellen auflaufen lässt
+    if (uBedRect.w > 0.0) {
+        float shore = (1.0 - smoothstep(0.02, 0.22, vDepth)) * smoothr(2.5, 9.0, uWindSpeed);
+        ring = max(ring, shore * (0.35 + 0.65 * vnoise(vec2(vWorld.x * 1.3 - uTime * 0.4, vWorld.z * 1.3 + uTime * 0.3))) * 0.6);
+    }
     foam = clamp(max(max(foam, streak), ring), 0.0, 1.0);
     // Struktur: in Windrichtung gestrecktes Rauschen; wenig Schaum zeigt nur die Spitzen (zerrissene Schaumköpfe),
     // viel Schaum deckt alles. In der Ferne wird die Struktur weich, damit nichts flimmert.

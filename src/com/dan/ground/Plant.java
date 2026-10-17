@@ -73,6 +73,15 @@ public final class Plant {
         return p;
     }
 
+    /** Adlerfarn (Pteridium aquilinum): breite Wedel im lichten Wald und am Waldrand; im Herbst rostbraun (seit Haithabu Phase 2b). */
+    public static Plant bracken() {
+        Plant p = new Plant("Adlerfarn", "Pteridium aquilinum", Kind.GRASS);
+        p.size = 0.75f; p.sizeVar = 0.35f; p.blades = 6; p.bladeWidth = 0.075f; p.spread = 0.12f; p.lean = 0.55f; p.stiffness = 1.2f;
+        p.green = new float[]{0.05f, 0.11f, 0.025f}; p.dry = new float[]{0.24f, 0.11f, 0.04f}; p.winter = new float[]{0.16f, 0.09f, 0.05f};
+        p.greenUp = 135; p.dryStart = 262; p.dryFull = 305;
+        return p;
+    }
+
     // ------------------------------------------------------------ Blumen
 
     /** Indian Paintbrush (Castilleja): leuchtend rote Hochblätter an der Spitze. */
@@ -139,6 +148,22 @@ public final class Plant {
         return p;
     }
 
+    /** Gemeine Schafgarbe (Achillea millefolium): weiße Dolden, blüht bis in den Oktober (seit Haithabu Phase 2b). */
+    public static Plant yarrow() {
+        Plant p = new Plant("Schafgarbe", "Achillea millefolium", Kind.FLOWER);
+        p.size = 0.4f; p.petals = 12; p.head = 0.04f; p.petal = new float[]{0.72f, 0.70f, 0.62f}; p.center = new float[]{0.60f, 0.55f, 0.45f};
+        p.bloomStart = 165; p.bloomPeak = 215; p.bloomEnd = 300; p.stiffness = 1.2f;
+        return p;
+    }
+
+    /** Rainfarn (Tanacetum vulgare): gelbe Knöpfe in Doldentrauben, an Wegen und Ufern, bis Oktober (seit Haithabu Phase 2b). */
+    public static Plant tansy() {
+        Plant p = new Plant("Rainfarn", "Tanacetum vulgare", Kind.FLOWER);
+        p.size = 0.6f; p.petals = 10; p.head = 0.03f; p.petal = new float[]{0.62f, 0.45f, 0.02f}; p.center = new float[]{0.55f, 0.40f, 0.02f};
+        p.bloomStart = 190; p.bloomPeak = 230; p.bloomEnd = 290; p.stiffness = 1.3f;
+        return p;
+    }
+
     // ------------------------------------------------------------ Steine und Erde
 
     /** Kiesel: klein, rund, grau bis braun. */
@@ -152,6 +177,20 @@ public final class Plant {
     public static Plant stone() {
         Plant p = new Plant("Stein", "", Kind.STONE);
         p.size = 0.25f; p.sizeVar = 0.6f; p.color = new float[]{0.13f, 0.12f, 0.11f};
+        return p;
+    }
+
+    /** Findling: großer Stein aus der Eiszeit, halb eingesunken, flechtengrau (seit Haithabu Phase 2b). */
+    public static Plant boulder() {
+        Plant p = new Plant("Findling", "", Kind.STONE);
+        p.size = 0.7f; p.sizeVar = 0.5f; p.color = new float[]{0.17f, 0.165f, 0.15f};
+        return p;
+    }
+
+    /** Laubstreu: braune Decke aus gefallenem Laub unter Bäumen (seit Haithabu Phase 2b). */
+    public static Plant litter() {
+        Plant p = new Plant("Laubstreu", "", Kind.SOIL);
+        p.size = 1.6f; p.sizeVar = 0.5f; p.color = new float[]{0.16f, 0.085f, 0.035f};
         return p;
     }
 
