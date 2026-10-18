@@ -39,11 +39,15 @@ public final class Soundscape {
     public enum Kind {
         BRECHER, NEBELHORN, TYFON, MOEWE, DONNER,
         KRAEHE, ENTE, ERPEL, SCHWALBE, KORMORAN, SCHWAN, HUHN, HAHN, ZIEGE, SCHWEIN, QUIEKEN, HUND,
-        HAMMER, KLOPFEN, BEIL, SAEGE, FEINSAEGE, RUDER, EINSTURZ;
+        HAMMER, KLOPFEN, BEIL, SAEGE, FEINSAEGE, RUDER, EINSTURZ,
+        /** Seit Glacier Phase 12: das Eis und der See ({@link Glacial}). */
+        KNACKEN, AECHZEN, AUFSCHLAG, AUFLAUFEN, KONDOR;
         /** Ein Ruf eines Tiers (aus {@link Calls})? */
         public boolean animal() { return ordinal() >= KRAEHE.ordinal() && ordinal() <= HUND.ordinal(); }
         /** Ein Klang eines Gewerks oder Schiffs (aus {@link Crafts})? */
-        public boolean craft() { return ordinal() >= HAMMER.ordinal(); }
+        public boolean craft() { return ordinal() >= HAMMER.ordinal() && ordinal() <= EINSTURZ.ordinal(); }
+        /** Seit Glacier Phase 12: ein Klang des Eises oder des Sees (aus {@link Glacial})? */
+        public boolean glacial() { return ordinal() >= KNACKEN.ordinal(); }
     }
 
     /** Signal mit Effektivwert 1 entspricht so vielen dB SPL. */
@@ -91,6 +95,8 @@ public final class Soundscape {
     // ---------------- seit Haithabu Phase 14: eine Siedlung
     /** Feuer (Herd, Esse, Fackel, Brand), Werkstätten, die von selbst arbeiten, Mengen, die reden. */
     public final List<Blaze> blazes = new CopyOnWriteArrayList<>();
+    /** Seit Glacier Phase 13: Wildwasser (Dammbruch, Ruptura); zählt zum Teil „See“. */
+    public final List<Torrent> torrents = new CopyOnWriteArrayList<>();
     public final List<Workshop> workshops = new CopyOnWriteArrayList<>();
     public final List<Crowd> crowds = new CopyOnWriteArrayList<>();
     /** Pfähle im Wasser {x, z}: Die Wellen glucksen an ihnen (die nächsten acht in 25 m klingen). */
@@ -214,7 +220,7 @@ public final class Soundscape {
             case NEBELHORN -> horn(k, x, y, z, strength, 1.0);
             case TYFON -> horn(k, x, y, z, strength, 6.0);
             case DONNER -> thunder(x, y, z, 70 + 40 * strength, null, null, null, true);
-            default -> event(k, x, y, z, strength, k == Kind.RUDER ? 10 : 0.5);
+            default -> event(k, x, y, z, strength, k == Kind.RUDER ? 10 : k == Kind.AUFSCHLAG ? 1000 : 0.5);
         }
     }
 
@@ -223,10 +229,10 @@ public final class Soundscape {
      * (2 bis 12 klingen), bei der Säge Stoß (über 0,5) oder Zug, beim Hammer der Amboss (0..1).
      */
     public void event(Kind k, double x, double y, double z, double strength, double tone) {
-        if (!k.animal() && !k.craft()) { event(k, x, y, z, strength); return; }
+        if (!k.animal() && !k.craft() && !k.glacial()) { event(k, x, y, z, strength); return; }
         int sr = sampleRate();
         long sd = nextSeed();
-        Calls.Made m = k.animal() ? Calls.make(k, strength, sd, sr) : Crafts.make(k, strength, tone, sd, sr);
+        Calls.Made m = k.animal() ? Calls.make(k, strength, sd, sr) : k.glacial() ? Glacial.make(k, strength, tone, sd, sr) : Crafts.make(k, strength, tone, sd, sr);
         enqueue(new Voice.Buffered(m.name(), x, y, z, m.level1m(), m.data(), false));
     }
 
@@ -287,6 +293,28 @@ public final class Soundscape {
         v.distance = dmin;
         if (!arrived) v.delaySeconds = dmin / c;
         enqueue(v);
+    }
+
+    /**
+     * Seit Glacier Phase 12: der Donner einer Kalbung. Der Riss ist der Kanal: jedes Stück des Wegs (Punkte {x, y, z})
+     * sendet eine N-Welle wie beim Gewitter; die Summe rollt so lange, wie die Abstände zum Ohr auseinanderliegen.
+     * Pegel in 1 m 136 + 6 · lg(V / 1 000) dB [G], am Ohr nach 1/r und 0,5 dB je 100 m Luft; er beginnt nach der Laufzeit
+     * vom nächsten Punkt.
+     */
+    public void calving(double[][] path, double volume) {
+        if (path == null || path.length == 0) return;
+        double[] dist = new double[path.length], w = new double[path.length];
+        double dmin = Double.MAX_VALUE, cx = 0, cy = 0, cz = 0;
+        for (int i = 0; i < path.length; i++) {
+            double[] q = path[i];
+            dist[i] = Math.max(1, Math.sqrt(sq(q[0] - earX) + sq(q[1] - earY) + sq(q[2] - earZ)));
+            w[i] = 1;
+            dmin = Math.min(dmin, dist[i]);
+            cx += q[0]; cy += q[1]; cz += q[2];
+        }
+        double l1 = 136 + 6 * Math.log10(Math.max(1, volume) / 1000);
+        double atEar = l1 - 20 * Math.log10(dmin) - 0.005 * dmin;
+        thunder(cx / path.length, cy / path.length, cz / path.length, atEar, dist, w, null, false);
     }
 
     private synchronized long nextSeed() { return seed * 7919 + (voiceSeed++) * 104729; }
@@ -674,6 +702,15 @@ public final class Soundscape {
             double ob = b.indoor ? 0 : obstructionDb(d);
             e[P_FIRE] += b.render(L, R, n, sr, seed, g[0] * k * (float) Dsp.amp(REF_DB - ob), g[1] * k * (float) Dsp.amp(REF_DB - ob), d, b.indoor ? sr * 0.45 : airHz(d));
             used++;
+        }
+        // Wildwasser (seit Glacier Phase 13): bis 3 km hörbar
+        for (Torrent tr : torrents) {
+            if (tr.flow < 0.5) continue;
+            double d = Math.max(1, Math.sqrt(sq(tr.x - ex) + sq(tr.y - ey) + sq(tr.z - ez)));
+            if (d > 3000) continue;
+            float[] g = pan(tr.x, tr.z, ex, ez, yaw);
+            float k = (float) Dsp.amp(REF_DB - obstructionDb(d));
+            e[2] += tr.render(oL, oR, n, sr, seed, g[0] * k, g[1] * k, d, airHz(d));
         }
         // Mengen
         for (Crowd cr : crowds) {

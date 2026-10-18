@@ -134,6 +134,20 @@ public final class LighthouseApp {
             rd.stopSound();
             view.stop();
         }, "Lighthouse-Ende"));
+        // Kinomodus (Rückfluss aus Glacier Phase 16): Bedienfeld, Statuszeile und Titelleiste weg, ganzer Bildschirm
+        rd.kinoFenster = an -> SwingUtilities.invokeLater(() -> kinoFenster(f, view, side, south, root, an));
+        if (Startbild.kino != null) {
+            // nach den Daten und dem ersten Bild (der Vorspann deckt den Rest)
+            com.dan.weather.Scenario sc = Startbild.kino;
+            long bis = System.currentTimeMillis() + 60_000;
+            javax.swing.Timer kt = new javax.swing.Timer(250, null);
+            kt.addActionListener(e -> {
+                if (rd.frames() < 30 && System.currentTimeMillis() < bis) return;
+                kt.stop();
+                controls.kinoStarten(sc);
+            });
+            kt.start();
+        }
         // F11: nur die Szene (Bedienfeld und Statuszeile weg und wieder da)
         view.setKeyAction(java.awt.event.KeyEvent.VK_F11, () -> SwingUtilities.invokeLater(() -> {
             boolean an = !side.isVisible();
@@ -202,9 +216,61 @@ public final class LighthouseApp {
         f.addWindowStateListener(e -> reshape(f));
     }
 
+    private static boolean kinoVoll, kinoSeite = true, kinoSueden = true;
+    private static int kinoZustand;
+    private static java.awt.Rectangle kinoRahmen;
+
+    /** Kinomodus: Vollbild und zurück. */
+    private static void kinoFenster(FFrame f, SceneView view, java.awt.Component side, java.awt.Component south, JPanel root, boolean an) {
+        if (an == kinoVoll) return;
+        java.awt.Component bar = taskbar(f);
+        if (an) {
+            kinoSeite = side.isVisible();
+            kinoSueden = south.isVisible();
+            kinoZustand = f.getExtendedState();
+            kinoRahmen = f.getBounds();
+            kinoVoll = true;
+            side.setVisible(false);
+            south.setVisible(false);
+            if (bar != null) bar.setVisible(false);
+            java.awt.Rectangle schirm = f.getGraphicsConfiguration().getBounds();
+            f.setExtendedState(Frame.NORMAL);
+            f.setBounds(schirm);
+            reshape(f);
+            view.zeigerVerbergen(true);
+            f.toFront();
+        } else {
+            kinoVoll = false;
+            side.setVisible(kinoSeite);
+            south.setVisible(kinoSueden);
+            if (bar != null) bar.setVisible(true);
+            if ((kinoZustand & Frame.MAXIMIZED_BOTH) != 0) f.setExtendedState(kinoZustand);
+            else if (kinoRahmen != null) f.setBounds(kinoRahmen);
+            reshape(f);
+            view.zeigerVerbergen(false);
+        }
+        root.revalidate();
+        root.repaint();
+        view.requestFocusInWindow();
+    }
+
+    /** Die Titelleiste des FFrame (FTaskbar) oder null. */
+    private static java.awt.Component taskbar(FFrame f) {
+        try {
+            for (java.lang.reflect.Field fd : FFrame.class.getDeclaredFields()) {
+                if (!fd.getType().getSimpleName().equals("FTaskbar")) continue;
+                fd.setAccessible(true);
+                return (java.awt.Component) fd.get(f);
+            }
+        } catch (Exception e) {
+            System.err.println("FFrame-Titelleiste nicht gefunden: " + e);
+        }
+        return null;
+    }
+
     private static void reshape(FFrame f) {
         try {
-            boolean max = (f.getExtendedState() & Frame.MAXIMIZED_BOTH) != 0;
+            boolean max = kinoVoll || (f.getExtendedState() & Frame.MAXIMIZED_BOTH) != 0;
             f.setShape(max ? null : new java.awt.geom.RoundRectangle2D.Double(0, 0, f.getWidth(), f.getHeight(), 20, 20));
         } catch (UnsupportedOperationException | IllegalComponentStateException e) {
             // Form nicht möglich: dann eben eckig

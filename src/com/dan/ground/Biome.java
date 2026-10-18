@@ -60,6 +60,29 @@ public final class Biome {
                 .add(Plant.soil(), 3, 0.06f, 0);
     }
 
+    /**
+     * Moräne (seit Glacier, Phase 2): frischer Schutt am Rand des Gletschers, Kies, Steine und Blöcke, kaum Bewuchs,
+     * einzelne Horste und Seggen in den nassen Rinnen.
+     */
+    public static Biome moraine() {
+        return new Biome("Moräne")
+                .add(Plant.idahoFescue(), 0, 0.5f, -0.5f).add(Plant.sedge(), 0, 0.8f, 1)
+                .add(Plant.pebble(), 2, 55, 0).add(Plant.stone(), 2, 6, 0).add(Plant.boulder(), 2, 0.12f, 0)
+                .add(Plant.soil(), 3, 0.3f, 0);
+    }
+
+    /**
+     * Patagonien am See (seit Glacier, Phase 2): unter den Südbuchen Laubstreu und Seggen, auf den offenen Hängen
+     * Horstgras (das hohe zeichnet {@code com.dan.reed}), wenige Sommerblumen, viel Kies und Steine vom Eis.
+     */
+    public static Biome patagonia() {
+        return new Biome("Patagonien · Lago Argentino")
+                .add(Plant.idahoFescue(), 0, 3.0f, -0.6f).add(Plant.sedge(), 0, 1.6f, 1)
+                .add(Plant.harebell(), 1, 0.4f, -0.2f).add(Plant.yarrow(), 1, 0.3f, -0.4f)
+                .add(Plant.pebble(), 2, 18, 0).add(Plant.stone(), 2, 1.6f, 0).add(Plant.boulder(), 2, 0.04f, 0)
+                .add(Plant.soil(), 3, 0.15f, 0);
+    }
+
     /** Kiesbank am Fluss: viele Kiesel und Steine, wenig Gras, Seggen am Wasser. */
     public static Biome gravelBar() {
         return new Biome("Kiesbank")

@@ -19,5 +19,9 @@ void main() {
     }
     float th = HIGH_HEIGHT / d.y;
     tau += highTau(vec2(x, z) + d.xz * th) / d.y;
+    for (int i = 0; i < LENS_SLICES; i++) {
+        float tl = (LENS_HEIGHT + float(i) * LENS_STEP) / d.y;
+        tau += lensTau(vec2(x, z) + d.xz * tl, i) / d.y;
+    }
     frag = vec4(exp(-tau * SHADOW_SOFT), 0.0, 0.0, 1.0);
 }

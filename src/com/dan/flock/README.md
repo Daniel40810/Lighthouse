@@ -39,6 +39,13 @@ Silbermöwen um einen Turm auf See: Sie fliegen im Schwarm, stehen im Aufwind an
   - `FlockGl` zeichnet ein Netz je Art und Spielart mit einem Aufruf.
   - Gründeln neigt den Körper Kopf voran unter Wasser, der Kormoran sitzt aufrecht.
 
+## Patagonien (seit Glacier Phase 10)
+
+- **Andenkondor** (`Species.KONDOR`, 1,20 m lang, 3,00 m Spannweite): gleitet mit 16 m/s von Thermik zu Thermik und sinkt dabei, kreist darin mit 40 bis 70 m Halbmesser (die Mitte treibt mit dem Wind) und steigt mit `condorLift()` (Sonne aus `ambientLux`, dazu Hangwind) bis an die Decke. Er schlägt nur, wenn er unter die Hälfte von `condorFloor` sinkt. Thermiken: `thermals` (Kreise über sonnigen Hängen), sonst Kreise im Revier um `condorX`, `condorZ` mit `condorRadius`. Nachts sitzt er außerhalb der Szene an seinem Felsen. Netz mit gefingerten Handschwingen, weißem Feld auf den Armschwingen und grauem Kopf.
+- **Dominikanermöwe** (`kelpGulls = true`, Larus dominicanus): verhält sich wie die Silbermöwe, hat aber einen schwarzen Mantel (eigenes Netz, Spielart 1 der Möwe).
+- **Sitzplätze, die treiben:** ein `Perch` mit eigenem `Spot` (etwa die höchste Ecke eines Eisbergs) bewegt die sitzende Möwe mit; ist der Platz nicht mehr `usable()`, fliegt sie ab.
+- **Prüfung** (`FlockCheck`, Abschnitt Glacier): Kondore bleiben zwischen 110 und 700 m über Grund, sind die Hälfte der Zeit im Kreis und steigen dort mit 1,7 m/s, schlagen fast nie; eine Möwe sitzt 9 min auf einem treibenden Eisberg und treibt mit; nachts sind die Kondore fort.
+
 ## Benutzung
 
 ```java

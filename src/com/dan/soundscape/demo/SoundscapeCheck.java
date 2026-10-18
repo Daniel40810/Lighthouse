@@ -267,6 +267,7 @@ public final class SoundscapeCheck {
         boolean q = Soundscape.Quality.LOW.sampleRate == 22_050 && Soundscape.Quality.ULTRA.sampleRate == 48_000 && !Soundscape.Quality.LOW.reverb;
         check(q && ms < 120, f("Stufen von 22 bis 48 kHz; Sturm mit drei Äolskörpern, Brandung, Regen auf Glas und Dach: %.0f ms Rechnen je s Ton", ms));
 
+        glacier(sr);
         lines.add(bad == 0 ? "Alles in Ordnung." : bad + " Prüfungen fehlgeschlagen.");
         return lines;
     }
@@ -556,4 +557,39 @@ public final class SoundscapeCheck {
         }
         return count;
     }
+
+    /** Seit Glacier Phase 12: die Klänge des Eises und der Donner der Kalbung. */
+    private void glacier(int sr) {
+            Soundscape.Kind[] ks = {Soundscape.Kind.KNACKEN, Soundscape.Kind.AECHZEN, Soundscape.Kind.AUFSCHLAG, Soundscape.Kind.AUFLAUFEN, Soundscape.Kind.KONDOR};
+            double[] tone = {0, 0, 20_000, 0, 0}, str = {1, 1, 1, 0.5, 1};
+            double[] cen = new double[ks.length], lev = new double[ks.length], low = new double[ks.length];
+            for (int k = 0; k < ks.length; k++) {
+                Soundscape q = quiet();
+                q.event(ks[k], 0, 2, -100, str[k], tone[k]);
+                float[] o = q.render(4.3);
+                double on = Analysis.onset(o, sr, 0, Dsp.amp(20));
+                double[] sp = Analysis.spectrum(Analysis.mono(o, sr, Math.max(0, on), 1.5), 8192);
+                cen[k] = Analysis.centroid(sp, sr, 8192);
+                double lo = 0, all = 0;
+                for (int b = 1; b < sp.length; b++) { all += sp[b]; if (b * (double) sr / 8192 < 100) lo += sp[b]; }
+                low[k] = lo / Math.max(1e-30, all);
+                double best = 0;
+                for (double t = Math.max(0, on); t < 4.1; t += 0.02) best = Math.max(best, Analysis.rms(o, sr, t, 0.1));
+                lev[k] = db(best) + 40;   // in 100 m gemessen (unter dem Begrenzer), auf 1 m gerechnet
+            }
+            check(cen[0] > 600 && lev[0] > 116 && lev[0] < 132,
+                    f("Knacken: hell (Schwerpunkt %.0f Hz), stark %.0f dB in 1 m (wie ein Schuss)", cen[0], lev[0]));
+            check(cen[1] < 350 && lev[1] > 98 && lev[1] < 114, f("Ächzen: tief (Schwerpunkt %.0f Hz), %.0f dB in 1 m", cen[1], lev[1]));
+            check(low[2] > 0.25 && lev[2] > 120 && lev[2] < 138, f("Aufschlag von 20 000 m³: %.0f %% der Energie unter 100 Hz, %.0f dB in 1 m", 100 * low[2], lev[2]));
+            check(cen[3] > 400 && cen[3] < 2500, f("Auflaufen der Welle: Rauschen mit Schwerpunkt %.0f Hz, %.0f dB in 1 m", cen[3], lev[3]));
+            check(cen[4] > 600 && lev[4] < 76, f("Kondor: Luft in den Schwingen (Schwerpunkt %.0f Hz), leise (%.0f dB in 1 m)", cen[4], lev[4]));
+            // der Donner einer Kalbung: aus dem Riss, nach der Laufzeit, rollt länger, je länger der Riss
+            Soundscape q = quiet();
+            double[][] path = new double[20][];
+            for (int i = 0; i < 20; i++) path[i] = new double[]{0, 4 * i, -400 - 6 * i};
+            q.calving(path, 30_000);
+            float[] o = q.render(5);
+            double cc = q.soundSpeed(), on = Analysis.onset(o, sr, 0, Dsp.amp(40));
+            check(Math.abs(on - 400 / cc) < 0.08, f("Donner der Kalbung aus 400 m: kommt nach %.2f s (Laufzeit %.2f s), %.0f dB am Ohr", on, 400 / cc, db(Analysis.rms(o, sr, on, 0.5))));
+            }
 }

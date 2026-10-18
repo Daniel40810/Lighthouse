@@ -22,6 +22,18 @@ Zum Herauskopieren reicht `src/com/dan/ocean/`. Nur `demo/OceanDemo` braucht zus
 - **Grund und Ufer (gl, optional, seit Haithabu Phase 2):** eine Höhenkarte des Grunds als Draufsicht (`Light.bedTexture` mit `bedRect`, `bedScale`, `bedOffset`, `bedColor`, `bedTurbidity`). Damit werden die Wellen zum Ufer hin flacher, der Grund scheint im seichten Wasser durch, am Ufer liegt ein Schaumsaum, und über Land wird nichts gezeichnet. Das Paket weiß nicht, woher die Karte kommt.
 - **Reproduzierbar:** gleicher `seed`, gleiche See. Die See läuft nach 1 000 s ohne Sprung in Schleife.
 
+## Lange Welle von außen (seit Glacier Phase 8)
+
+`OceanGl.Light.longTexture0/1` und `longRect0/1` ({x0, z0, Zelle, an}) nehmen den Wasserstand einer langen Welle als Textur, etwa aus `com.dan.wave`: 0 ist das feine Gitter, 1 das grobe, das feine hat Vorrang. Trockene Texel (≤ −29) zählen beim Abtasten nicht mit, so bleibt der Spiegel am Ufer, wo er ist. Der Scheitelshader hebt die Fläche um die Höhe; wo die Welle den Grund freilegt, taucht sie unter ihn. Der Pixelshader nimmt die Neigung in die Normale und malt Schaum an die steile Stirn. Ohne Textur ändert sich nichts. `Ocean.heightAt` kennt die lange Welle nicht; die App summiert (Schnittstelle `Sea`).
+
+## Treibeis (seit Glacier Phase 9)
+
+`OceanGl.Light.brashTexture` und `brashRect` ({x0, z0, Breite, Tiefe}) nehmen den Anteil der Fläche, den Treibeis bedeckt (0..1), etwa aus `com.dan.buoyancy.BrashField`. Der Pixelshader legt Brocken aus Zellen von rund 1,7 m hinein, so viele, wie das Feld sagt; in der Ferne bleibt ein weißer Schleier. Eisberge legen über `obstacleField` ihren Brandungsring.
+
+## Zweiter Spiegel (seit Glacier Phase 13)
+
+`Light.level` zeichnet die See auf einem anderen Wasserstand, etwa einen gestauten Seearm über dem Hauptsee. `Light.maskTexture` (R8, 1 = dieses Wasser) mit `maskRect` {x0, z0, Kante} und `maskMode` beschränkt das Zeichnen: 1 nur innen, −1 nur außen. Die Glacier-App zeichnet so den Brazo Rico während des Staus ein zweites Mal, ohne lange Welle und Treibeis.
+
 ## Benutzung
 
 ```java
@@ -86,3 +98,11 @@ Alle Felder sind öffentlich und zur Laufzeit änderbar. Ändert sich etwas am S
 ## Seit Haithabu Phase 9: Rümpfe
 
 `Ocean.hulls` nimmt eine Liste von `HullMask` (Mitte, Kurs, halbe Länge und halbe Breite in der Wasserlinie, Völligkeit; bis 8 werden gezeichnet). Der Umriss ist eine spitze Linse mit der Halbbreite `halfBeam · (1 − |u|^Völligkeit)^0,8` (u = −1 … 1 von Heck zu Bug); 2 passt zu schlanken Rümpfen, bauchige brauchen mehr. Innerhalb des Umrisses zeichnet `surface.frag` kein Wasser; so schneidet die Oberfläche nicht durch offene Boote, und man sieht die Innenhaut. Außen liegt ein schmaler Schaumsaum, eine angedeutete Bugwelle. Das Paket kennt keine Schiffe: Der Benutzer füllt die Liste je Bild. `HullMask.distance` gibt den Abstand zum Umriss auch ohne Grafikkarte; `OceanCheck` prüft ihn.
+
+## Seit Glacier Phase 2: Gletschersee
+
+`Ocean.lago(beaufort)` – ein Binnensee statt des Meeres: Wind über rund 10 km Anlauf, 100 m tief, keine Dünung.
+Dazu die Farben des milchig-türkisen Gletscherwassers `LAGO_WATER` und `LAGO_SSS` (Gletschermehl streut, das Licht
+kommt grün-türkis aus dem Wasser zurück) [G]. Die App reicht das Gelände als Grund (`Light.bedTexture`, `bedRect`,
+`bedScale`, `bedOffset`) und eine hohe Trübung (`bedTurbidity`), damit der Grund nur am Ufer durchscheint.
+Rückfluss in Phase 16.

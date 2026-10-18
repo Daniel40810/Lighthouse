@@ -214,10 +214,34 @@ public final class WeatherCheck {
         }
         double tot = Arrays.stream(share).sum(), stormShare = (share[3] + share[4]) / tot;
         boolean all = true;
-        for (Weather.Phase ph : Weather.Phase.values()) all &= share[ph.ordinal()] > 0;
+        int chain = 0;
+        for (Weather.Phase ph : Weather.Phase.values()) {
+            if (ph == Weather.Phase.FOEHN) { all &= share[ph.ordinal()] == 0; continue; }   // nur mit eigenem Klima
+            all &= share[ph.ordinal()] > 0;
+            chain++;
+        }
         check(all && legal && stormShare > 0.05 && stormShare < 0.3 && seen.size() > 30,
-                f("Freie Regie, 60 Tage: alle %d Lagen, %d Wechsel nur entlang der Kette, Sturm und Gewitter %.0f %%, Seenebel %.0f %% der Zeit",
-                        Weather.Phase.values().length, seen.size(), stormShare * 100, share[Weather.Phase.NEBEL.ordinal()] / tot * 100));
+                f("Freie Regie, 60 Tage: alle %d Lagen der Kette (Föhnsturm nur mit eigenem Klima), %d Wechsel nur entlang der Kette, Sturm und Gewitter %.0f %%, Seenebel %.0f %% der Zeit",
+                        chain, seen.size(), stormShare * 100, share[Weather.Phase.NEBEL.ordinal()] / tot * 100));
+        // Seit Glacier Phase 3: eigenes Klima mit Föhnsturm
+        Weather pf = new Weather();
+        pf.seed = 4711;
+        double[][] mk = new double[9][9];
+        mk[0][8] = 1; mk[8][0] = 1;
+        for (int i = 1; i < 8; i++) mk[i][0] = 1;
+        double[][] tg = new double[9][];
+        for (Weather.Phase ph : Weather.Phase.values()) tg[ph.ordinal()] = Weather.target(ph);
+        tg[8][0] = 21;
+        pf.transitions = mk;
+        pf.targets = tg;
+        pf.startFree(tf, Weather.Phase.KLAR);
+        int foehn = 0;
+        double maxW = 0;
+        for (double t = tf; t < tf + 10 * 86400; t += 600) {
+            Weather.Snapshot r = pf.update(t, 0.05);
+            if (r.phase() == Weather.Phase.FOEHN) { foehn++; maxW = Math.max(maxW, r.wind()); }
+        }
+        check(foehn > 100 && maxW > 20, f("Eigenes Klima: Föhnsturm erreicht (%d von 1440 Proben), Wind bis %.1f m/s aus der eigenen Zielzeile", foehn, maxW));
         check(nWarm > 0 && nCold > 0 && warm / nWarm - cold / nCold > 2.5, f("Tagesgang bei klarem Wetter: 15 Uhr %.1f °C, 4 Uhr %.1f °C", warm / nWarm, cold / nCold));
 
         // ------------------------------------------------ Hilfen

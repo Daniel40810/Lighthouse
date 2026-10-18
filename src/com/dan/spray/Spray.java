@@ -61,7 +61,7 @@ public final class Spray {
     private double[][] cooldown = new double[0][];
     private final Random rnd = new Random(1885);
     private int parcelSeed = 1;
-    private long splashes, mists, drifts, washes, hits, reentries;
+    private long splashes, mists, drifts, washes, hits, reentries, impacts;
     private double lastApex;
 
     public Spray() { }
@@ -206,6 +206,24 @@ public final class Spray {
                 for (int k = -1; k <= 1; k++) cooldown[bi][Math.floorMod(i + k, n)] = Math.max(cooldown[bi][Math.floorMod(i + k, n)], time + cd);
             }
         }
+    }
+
+    /**
+     * Ein Einschlag ohne Körper (Glacier, Phase 7): etwas mit dem Volumen v (m³) schlägt mit dem Tempo s (m/s) bei (x, z)
+     * auf das Wasser in der Höhe h. Ringsum steigt ein Kranz aus Schwällen; ihre Höhe wächst mit der Wurzel aus der
+     * Fallhöhe des Wassers, das verdrängt wird [G]: jet ≈ 0,35 · s · (v^⅓ / 4)^0,4, höchstens 60 m. Gibt die Höhe zurück.
+     */
+    public synchronized double impact(double x, double h, double z, double v, double s) {
+        if (v <= 0 || s <= 0) return 0;
+        double r = Math.max(0.5, 0.5 * Math.cbrt(v));
+        double jet = Math.min(60, 0.35 * s * Math.pow(Math.max(0.25, Math.cbrt(v) / 4), 0.4));
+        if (jet < 0.3) return 0;
+        Body b = Body.cylinder(x, z, r, h - 2, h + 2);
+        int n = (int) Math.max(3, Math.min(10, 3 + Math.cbrt(v)));
+        double a0 = rnd.nextDouble() * Math.PI * 2;
+        for (int k = 0; k < n; k++) splash(b, a0 + k * Math.PI * 2 / n, h, jet * (0.7 + 0.5 * rnd.nextDouble()));
+        impacts++;
+        return jet;
     }
 
     /**
@@ -360,6 +378,9 @@ public final class Spray {
 
     /** Bisher: Schwälle, Nebel, Fahnen, Treffer, Wiedereintritte, Weißwasser. */
     public synchronized long[] totals() { return new long[]{splashes, mists, drifts, hits, reentries, washes}; }
+
+    /** Einschläge ohne Körper seit dem Start ({@link #impact}). */
+    public long impacts() { return impacts; }
 
     public double lastApex() { return lastApex; }
 

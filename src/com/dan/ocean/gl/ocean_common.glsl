@@ -25,6 +25,40 @@ float bedDepth(vec2 p) {
 }
 const float EARTH_R = 6371000.0;
 
+// seit Glacier Phase 8: eine lange Welle von außen (Flachwasser, zwei Gitter), optional. Je Texel der Wasserstand über
+// dem Ruhespiegel; trockene Zellen tragen LONG_DRY und zählen beim Abtasten nicht mit.
+uniform sampler2D uLongH0, uLongH1;
+uniform vec4 uLongR0, uLongR1;   // x0, z0 der Ecke, Zelle (m), an (1) / aus (0)
+const float LONG_DRY = -29.0;
+
+// x: Höhe (m), y: Gewicht nasser Nachbarn (0 = trocken), z: 1 im Gitter, sonst 0
+vec3 longLevel(sampler2D t, vec4 r, vec2 p) {
+    ivec2 n = textureSize(t, 0);
+    vec2 u = (p - r.xy) / r.z - 0.5;
+    if (u.x < -0.5 || u.y < -0.5 || u.x > float(n.x) - 0.5 || u.y > float(n.y) - 0.5) return vec3(0.0);
+    vec2 i = floor(u), f = u - i;
+    float s = 0.0, w = 0.0;
+    for (int b = 0; b <= 1; b++)
+        for (int a = 0; a <= 1; a++) {
+            ivec2 c = clamp(ivec2(i) + ivec2(a, b), ivec2(0), n - 1);
+            float e = texelFetch(t, c, 0).r;
+            if (e <= LONG_DRY) continue;
+            float ww = (a == 0 ? 1.0 - f.x : f.x) * (b == 0 ? 1.0 - f.y : f.y);
+            s += ww * e;
+            w += ww;
+        }
+    return vec3(w > 1.0e-4 ? s / w : 0.0, w, 1.0);
+}
+
+vec3 longWave(vec2 p) {
+    if (uLongR0.w > 0.0) {
+        vec3 a = longLevel(uLongH0, uLongR0, p);
+        if (a.z > 0.0) return a;
+    }
+    if (uLongR1.w > 0.0) return longLevel(uLongH1, uLongR1, p);
+    return vec3(0.0);
+}
+
 // Dünung am Ruhepunkt p: Auslenkung (xyz) und Steigungen dy/dx0, dy/dz0, Jacobi-Anteil
 void swell(vec2 p, out vec3 d, out vec3 slope) {
     d = vec3(0.0);

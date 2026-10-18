@@ -14,7 +14,8 @@ import java.util.List;
  * <ul>
  * <li>{@code stars.bin}: aus der HYG-Datenbank v4.1 (astronexus, CC BY-SA 4.0), Position J2000 in Grad, Helligkeit V
  * in mag, Farbindex B−V; nach Helligkeit sortiert. Je Stern vier Zahlen, big-endian.</li>
- * <li>{@code figures.txt}: die Figuren aus dem Projekt Sternbild (BuiltinCatalog), 24 Sternbilder mit deutschen Namen.</li>
+ * <li>{@code figures.txt}: die Figuren aus dem Projekt Sternbild (BuiltinCatalog), 24 Sternbilder mit deutschen Namen;
+ * seit Glacier Phase 3 dazu vier des Südhimmels (Kreuz des Südens, Zentaur, Kiel des Schiffs, Südliches Dreieck).</li>
  * </ul>
  * Beides liegt als Ressource neben dieser Klasse und wird einmal gelesen.
  */
@@ -100,6 +101,26 @@ public final class StarCatalog {
     }
 
     /** Oberflächentemperatur in K aus B−V (Ballesteros 2012). */
+    /**
+     * Seit Glacier Phase 3: die Magellanschen Wolken, die in den Helligkeitsstufen der Milchstraße (d3-celestial) fehlen.
+     * Helligkeit 0..1 an RA/Dec (Grad, J2000) im Maß der Milchstraßenkarte: die Große Wolke (LMC) bei 5h 23m, −69,8°,
+     * rund 10° × 9° mit dem hellen Balken, die Kleine (SMC) bei 0h 53m, −72,8°, rund 5° × 3° [G]. Mit bloßem Auge
+     * gut so hell wie die hellen Teile der Milchstraße.
+     */
+    public static double magellanic(double raDeg, double decDeg) {
+        return cloudBlob(raDeg, decDeg, 80.89, -69.76, 4.6, 3.9, 0.0, 0.55)        // LMC, Scheibe
+                + cloudBlob(raDeg, decDeg, 80.0, -69.6, 2.6, 0.9, 20.0, 0.25)      // LMC, Balken
+                + cloudBlob(raDeg, decDeg, 13.19, -72.83, 2.2, 1.3, 45.0, 0.5);   // SMC
+    }
+
+    /** Ein weicher, gedrehter Fleck (Gauß) am Himmel; Abstände in der Tangentialebene um die Mitte. */
+    static double cloudBlob(double ra, double dec, double ra0, double dec0, double sa, double sb, double rotDeg, double peak) {
+        double dra = ((ra - ra0) % 360 + 540) % 360 - 180;
+        double x = dra * Math.cos(Math.toRadians(dec0)), y = dec - dec0;
+        double r = Math.toRadians(rotDeg), u = x * Math.cos(r) + y * Math.sin(r), v = -x * Math.sin(r) + y * Math.cos(r);
+        return peak * Math.exp(-0.5 * (u * u / (sa * sa) + v * v / (sb * sb)));
+    }
+
     public static double temperature(double bv) {
         return 4600 * (1 / (0.92 * bv + 1.7) + 1 / (0.92 * bv + 0.62));
     }

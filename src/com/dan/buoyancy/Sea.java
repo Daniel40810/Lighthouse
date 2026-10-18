@@ -13,4 +13,7 @@ public interface Sea {
 
     /** Ruhewasserstand (m). */
     double level();
+
+    /** Höhe des Grunds am Ort (m; seit Glacier Phase 9 für Eisberge, die stranden). Ohne Grund weit unten. */
+    default double bed(double x, double z) { return -1e9; }
 }

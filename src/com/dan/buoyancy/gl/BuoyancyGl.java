@@ -145,6 +145,49 @@ public final class BuoyancyGl {
         gl.glUseProgram(0);
     }
 
+    private final Map<Mesh, Part> extra = new java.util.IdentityHashMap<>();
+
+    /**
+     * Seit Glacier Phase 10: beliebige Netze aus {@link Mesh} mit ihrer Modellmatrix (Spalten zuerst; null: die Welt),
+     * etwa der Katamaran ({@link Mesh#catamaran}) und Stege einer App. Jedes Netz wird beim ersten Mal hochgeladen und
+     * bleibt, bis {@link #forget} oder {@link #dispose}. Mit Rückseitenverwerfung, wenn {@code cull}.
+     */
+    public void drawMeshes(GL4 gl, View view, Light light, java.util.List<Object[]> items, boolean cull) {
+        if (!ready || items.isEmpty()) return;
+        gl.glUseProgram(prog);
+        gl.glUniformMatrix4fv(gl.glGetUniformLocation(prog, "uVP"), 1, false, view.viewProj, 0);
+        set3(gl, "uCam", view.eye);
+        set3(gl, "uSunDir", light.sunDir);
+        set3(gl, "uSunCol", light.sunColor);
+        set3(gl, "uMoonDir", light.moonDir);
+        set3(gl, "uMoonCol", light.moonColor);
+        set3(gl, "uSkyTop", light.skyTop);
+        set3(gl, "uSkyHor", light.skyHorizon);
+        gl.glUniform1f(gl.glGetUniformLocation(prog, "uFogDist"), (float) light.fogDistance);
+        gl.glUniform1f(gl.glGetUniformLocation(prog, "uWindowGlow"), (float) light.windowGlow);
+        gl.glUniform1f(gl.glGetUniformLocation(prog, "uScreen"), (float) light.screen);
+        gl.glUniform1f(gl.glGetUniformLocation(prog, "uLamp"), (float) light.lamp);
+        gl.glEnable(GL.GL_DEPTH_TEST);
+        gl.glDepthFunc(view.reversedZ ? GL.GL_GREATER : GL.GL_LESS);
+        gl.glDepthMask(true);
+        gl.glDisable(GL.GL_BLEND);
+        if (cull) { gl.glEnable(GL.GL_CULL_FACE); gl.glCullFace(GL.GL_BACK); gl.glFrontFace(GL.GL_CCW); } else gl.glDisable(GL.GL_CULL_FACE);
+        int loc = gl.glGetUniformLocation(prog, "uModel");
+        double[] id = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+        for (Object[] it : items) {
+            Mesh m = (Mesh) it[0];
+            Part p = extra.get(m);
+            if (p == null) { p = upload(gl, m); extra.put(m, p); }
+            drawPart(gl, loc, p, it.length > 1 && it[1] != null ? (double[]) it[1] : id);
+        }
+        gl.glDisable(GL.GL_CULL_FACE);
+        gl.glBindVertexArray(0);
+        gl.glUseProgram(0);
+    }
+
+    /** Ein Netz von {@link #drawMeshes} wieder freigeben (etwa ein Steg, der neu gebaut wird). */
+    public void forget(GL4 gl, Mesh m) { Part p = extra.remove(m); free(gl, p); }
+
     private void drawPart(GL4 gl, int loc, Part p, double[] model) {
         float[] m = new float[16];
         for (int i = 0; i < 16; i++) m[i] = (float) model[i];
@@ -227,6 +270,8 @@ public final class BuoyancyGl {
         free(gl, bridge);
         free(gl, wiper);
         buoyParts.clear();
+        for (Part p : extra.values()) free(gl, p);
+        extra.clear();
         if (emptyVao != 0) gl.glDeleteVertexArrays(1, new int[]{emptyVao}, 0);
         prog = checkProg = emptyVao = 0;
         ship = bridge = wiper = null;

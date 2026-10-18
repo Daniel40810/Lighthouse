@@ -74,3 +74,12 @@ gl.drawPanorama(gl4, st, belichtung);    // ins gebundene Rundumbild
 - Dunst liegt gleichmäßig mit 1,2 km Skalenhöhe. Bodennebel und Nebelbänke bringt `fog`, Wolken bringt `cloud`.
 - Planeten ohne Lichtlaufzeit und Saturn ohne Ringneigung. Keine Kometen, kein Zodiakallicht, keine Polarlichter.
 - Die Sterne stehen an ihrem Ort von J2000; die Eigenbewegung fehlt (in 26 Jahren höchstens 0,04°, bei 61 Cygni).
+
+## Seit Glacier Phase 3: Südhimmel
+
+- Vier Sternbildfiguren des Südhimmels in `figures.txt`: Kreuz des Südens (Cru), Zentaur (Cen, mit α und β als
+  Zeiger), Kiel des Schiffs (Car, mit Canopus), Südliches Dreieck (TrA); jetzt 27 Figuren.
+- Die Magellanschen Wolken fehlen in den Helligkeitsstufen von d3-celestial. `StarCatalog.magellanic(ra, dec)` gibt
+  sie als weiche Flecken (Große Wolke 10° × 9° mit Balken, Kleine 5° × 3°) [G]; `SkyGl` malt sie beim Laden in die
+  Milchstraßenkarte. Auf 50° Süd stehen beide und das Kreuz die ganze Nacht über der Kimm.
+- Rückfluss nach Haithabu/Lighthouse in Phase 16.

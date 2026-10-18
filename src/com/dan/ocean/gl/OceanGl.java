@@ -85,9 +85,27 @@ public final class OceanGl {
          * kein Wasser gezeichnet. Das Paket weiß nicht, woher der Grund kommt.
          */
         public int bedTexture;
+        /**
+         * Seit Glacier Phase 8: eine lange Welle von außen (etwa {@code com.dan.wave}): je Gitter eine Textur R16F/R32F
+         * mit dem Wasserstand über dem Ruhespiegel (trocken ≤ −29) und {x0, z0, Zelle, an}. 0 ist das feine Gitter, 1 das
+         * grobe, das feine hat Vorrang.
+         */
+        public int longTexture0, longTexture1;
+        /** Seit Glacier Phase 9: Treibeis als Textur (Anteil der bedeckten Fläche 0..1) und {x0, z0, Breite, Tiefe}. */
+        public int brashTexture;
+        public double[] brashRect = {0, 0, 1, 1};
+        public double[] longRect0 = {0, 0, 1, 0}, longRect1 = {0, 0, 1, 0};
         public double[] bedRect = {0, 0, 1};
         public double bedScale = 1, bedOffset = 0, bedTurbidity = 0.9;
         public double[] bedColor = {0.20, 0.17, 0.12};
+        /**
+         * Seit Glacier Phase 13: ein zweiter Spiegel (ein gestauter Seearm über dem Hauptsee). {@code level}: Wasserstand
+         * dieses Zeichnens (NaN: der des Ozeans). {@code maskTexture} (R8, 1 = dieses Wasser) mit {x0, z0, Kantenlänge}
+         * und {@code maskMode}: 1 nur innen, −1 nur außen, 0 ohne Maske.
+         */
+        public double level = Double.NaN;
+        public int maskTexture, maskMode;
+        public double[] maskRect = {0, 0, 1};
     }
 
     private int progSpectrum, progFft, progAssemble, progSurface;
@@ -252,7 +270,7 @@ public final class OceanGl {
         gl.glUniform2f(gl.glGetUniformLocation(p, "uCenter"), cx, cz);
         double t = ocean.time();
         gl.glUniform1f(gl.glGetUniformLocation(p, "uTime"), (float) (t % Spectrum.REPEAT));
-        gl.glUniform1f(gl.glGetUniformLocation(p, "uLevel"), (float) ocean.waterLevel);
+        gl.glUniform1f(gl.glGetUniformLocation(p, "uLevel"), (float) (Double.isNaN(light.level) ? ocean.waterLevel : light.level));
         gl.glUniform1i(gl.glGetUniformLocation(p, "uCascades"), cascades);
         gl.glUniform1fv(gl.glGetUniformLocation(p, "uLength[0]"), 4, lengths(s), 0);
         gl.glUniform1i(gl.glGetUniformLocation(p, "uReversed"), view.reversedZ ? 1 : 0);
@@ -366,6 +384,27 @@ public final class OceanGl {
                 (float) Math.max(1, light.bedRect[2]), light.bedTexture != 0 ? 1f : 0f);
         gl.glUniform3f(gl.glGetUniformLocation(p, "uBedMap"), (float) light.bedScale, (float) light.bedOffset, (float) light.bedTurbidity);
         gl.glUniform3f(gl.glGetUniformLocation(p, "uBedColor"), (float) light.bedColor[0], (float) light.bedColor[1], (float) light.bedColor[2]);
+        gl.glActiveTexture(GL.GL_TEXTURE0 + 9);
+        gl.glBindTexture(GL.GL_TEXTURE_2D, light.longTexture0);
+        gl.glUniform1i(gl.glGetUniformLocation(p, "uLongH0"), 9);
+        gl.glActiveTexture(GL.GL_TEXTURE0 + 10);
+        gl.glBindTexture(GL.GL_TEXTURE_2D, light.longTexture1);
+        gl.glUniform1i(gl.glGetUniformLocation(p, "uLongH1"), 10);
+        gl.glUniform4f(gl.glGetUniformLocation(p, "uLongR0"), (float) light.longRect0[0], (float) light.longRect0[1],
+                (float) Math.max(0.01, light.longRect0[2]), light.longTexture0 != 0 && light.longRect0[3] > 0 ? 1f : 0f);
+        gl.glActiveTexture(GL.GL_TEXTURE0 + 11);
+        gl.glBindTexture(GL.GL_TEXTURE_2D, light.brashTexture);
+        gl.glUniform1i(gl.glGetUniformLocation(p, "uBrash"), 11);
+        gl.glUniform1i(gl.glGetUniformLocation(p, "uBrashOn"), light.brashTexture != 0 ? 1 : 0);
+        gl.glUniform4f(gl.glGetUniformLocation(p, "uBrashRect"), (float) light.brashRect[0], (float) light.brashRect[1],
+                (float) Math.max(1, light.brashRect[2]), (float) Math.max(1, light.brashRect[3]));
+        gl.glActiveTexture(GL.GL_TEXTURE0 + 12);
+        gl.glBindTexture(GL.GL_TEXTURE_2D, light.maskTexture);
+        gl.glUniform1i(gl.glGetUniformLocation(p, "uMask"), 12);
+        gl.glUniform1i(gl.glGetUniformLocation(p, "uMaskMode"), light.maskTexture != 0 ? light.maskMode : 0);
+        gl.glUniform3f(gl.glGetUniformLocation(p, "uMaskRect"), (float) light.maskRect[0], (float) light.maskRect[1], (float) Math.max(1, light.maskRect[2]));
+        gl.glUniform4f(gl.glGetUniformLocation(p, "uLongR1"), (float) light.longRect1[0], (float) light.longRect1[1],
+                (float) Math.max(0.01, light.longRect1[2]), light.longTexture1 != 0 && light.longRect1[3] > 0 ? 1f : 0f);
         gl.glActiveTexture(GL.GL_TEXTURE0);
         gl.glDisable(GL.GL_CULL_FACE);
         gl.glEnable(GL.GL_DEPTH_TEST);

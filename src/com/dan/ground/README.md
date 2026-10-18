@@ -69,3 +69,10 @@ Halme und Blüten sind dünn (`solid = 0`) und werden von beiden Seiten beleucht
 - Schatten werfen die Pflanzen nicht selbst. Der Renderer entscheidet, ob sie im Schatten liegen.
 - Die Farben und Blütezeiten sind nach Beschreibungen angenähert, nicht vermessen.
 - Die Rechenzeit hängt vor allem vom Zeichnen ab. Das Paket selbst braucht für eine Wiese von 30 m Reichweite etwa 10 bis 20 ms je Bild auf vier Kernen, bei 400 000 bis 600 000 Dreiecken.
+
+## Seit Glacier Phase 2: Moräne und Patagonien
+
+`Biome.moraine()` – frischer Gletscherschutt: Kies, Steine und Blöcke, kaum Pflanzen. `Biome.patagonia()` – Boden
+unter Südbuchen und am offenen Hang: Laubstreu, Seggen, Horstgras in Flecken, Steine; im Uferstreifen Kiesel [G].
+Die Bedeckung je Stelle liefert die App über `ground.Site.cover` (Glacier: `scene.Bodendecke` aus der Vegetation).
+Rückfluss in Phase 16.

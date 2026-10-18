@@ -43,6 +43,12 @@ uniform float uPointSigma;      // Auslöschung der Luft auf dem Weg zum Wasser 
 uniform int uFlashN;            // einfache Punktlichter (Blitze): Zahl
 uniform vec4 uFlashPos[8];      // Ort, Größe der Quelle (m)
 uniform vec4 uFlashRgb[8];      // Lichtstärke RGB in cd · Vorbelichtung
+uniform sampler2D uBrash;       // seit Glacier Phase 9: Treibeis, Anteil der bedeckten Fläche 0..1, optional
+uniform vec4 uBrashRect;        // Ecke x, z, Breite, Tiefe (m)
+uniform int uBrashOn;
+uniform sampler2D uMask;        // seit Glacier Phase 13: ein gestauter Seearm (1) als eigener Spiegel, optional
+uniform vec3 uMaskRect;         // Ecke x, z, Kantenlänge (m)
+uniform int uMaskMode;          // 1: nur innen zeichnen, −1: nur außen, 0: aus
 
 // Lichtstärke des Punktlichts in Richtung w (vom Licht weg), mal Faktor
 vec3 pointIntensity(vec3 w) {
@@ -80,6 +86,11 @@ vec2 rippleSlope(vec2 p) {
 void main() {
     // seit Haithabu: kein Wasser über dem Grund oder außerhalb seines Rechtecks
     if (vDepth < -0.02) discard;
+    if (uMaskMode != 0) {
+        vec2 mu = (vRest - uMaskRect.xy) / uMaskRect.z;
+        float m = all(greaterThan(mu, vec2(0.0))) && all(lessThan(mu, vec2(1.0))) ? textureLod(uMask, mu, 0.0).r : 0.0;
+        if (uMaskMode == 1 && m < 0.5 || uMaskMode == -1 && m >= 0.5) discard;
+    }
     // Wolkenschatten (aus com.dan.cloud über die App): Anteil direkten Lichts an dieser Stelle
     float shade = 1.0;
     if (uShadowRect.w > 0.0) shade = textureLod(uCloudShadow, (vWorld.xz - uShadowRect.xy) / uShadowRect.z, 0.0).r;
@@ -134,6 +145,18 @@ void main() {
     swell(vRest, swd, sws);
     sx += sws.x; sz += sws.y;
     vec2 rs = rippleSlope(vWorld.xz);
+    // seit Glacier Phase 8: Neigung der langen Welle; an ihrer steilen Stirn bricht sie weiß
+    float longFoam = 0.0;
+    if (uLongR0.w > 0.0 || uLongR1.w > 0.0) {
+        vec3 l0 = longWave(vRest);
+        if (l0.z > 0.0 && l0.y > 0.0) {
+            float e = uLongR0.w > 0.0 && longLevel(uLongH0, uLongR0, vRest).z > 0.0 ? uLongR0.z : uLongR1.z;
+            vec2 ls = vec2(longWave(vRest + vec2(e, 0.0)).x - longWave(vRest - vec2(e, 0.0)).x,
+                           longWave(vRest + vec2(0.0, e)).x - longWave(vRest - vec2(0.0, e)).x) / (2.0 * e);
+            rs += ls;
+            longFoam = smoothstep(0.04, 0.15, length(ls)) * smoothstep(0.15, 0.8, l0.x);
+        }
+    }
     if (uDetailP.w > 0.0) rs += texture(uDetail, vWorld.xz / uDetailP.x).rg * uDetailP.y * exp(-vDist / uDetailP.z);
     vec3 n = normalize(vec3(-(sx / max(0.2, 1.0 + jx + 0.5 * sws.z) + rs.x), 1.0, -(sz / max(0.2, 1.0 + jz + 0.5 * sws.z) + rs.y)));
 
@@ -212,7 +235,7 @@ void main() {
         float shore = (1.0 - smoothstep(0.02, 0.22, vDepth)) * smoothr(2.5, 9.0, uWindSpeed);
         ring = max(ring, shore * (0.35 + 0.65 * vnoise(vec2(vWorld.x * 1.3 - uTime * 0.4, vWorld.z * 1.3 + uTime * 0.3))) * 0.6);
     }
-    foam = clamp(max(max(foam, streak), ring), 0.0, 1.0);
+    foam = clamp(max(max(max(foam, streak), ring), longFoam), 0.0, 1.0);
     // Struktur: in Windrichtung gestrecktes Rauschen; wenig Schaum zeigt nur die Spitzen (zerrissene Schaumköpfe),
     // viel Schaum deckt alles. In der Ferne wird die Struktur weich, damit nichts flimmert.
     vec2 fp = vec2(along * 0.55, across);
@@ -224,6 +247,32 @@ void main() {
     // Schaum als matte Fläche mit Albedo 0,6: Strahldichte = 0,6/π · Bestrahlung
     vec3 foamCol = vec3(0.93, 0.97, 1.0) * 0.6 / 3.14159265 * (sunC * max(dot(n, uSunDir), 0.0) + moonC * max(dot(n, uMoonDir), 0.0) + skyUp * 3.5 + pointE * max(dot(n, Lp), 0.0) + flashE);
     col = mix(col, foamCol, foamVis);
+
+    // seit Glacier Phase 9: Treibeis. Die Brocken sind Zellen aus Rauschen (rund 1,7 m); es liegen so viele, wie das
+    // Feld Fläche bedeckt. In der Ferne nur noch die Bedeckung als weißer Schleier.
+    if (uBrashOn == 1) {
+        vec2 bu = (vWorld.xz - uBrashRect.xy) / uBrashRect.zw;
+        if (all(greaterThanEqual(bu, vec2(0.0))) && all(lessThanEqual(bu, vec2(1.0)))) {
+            float cover = textureLod(uBrash, bu, 0.0).r;
+            if (cover > 0.003) {
+                vec2 g = vWorld.xz / 1.7, gi = floor(g);
+                float best = 9.0, second = 9.0, hc = 1.0;
+                for (int y = -1; y <= 1; y++)
+                    for (int x = -1; x <= 1; x++) {
+                        vec2 c = gi + vec2(float(x), float(y));
+                        vec2 pnt = c + vec2(hash21(c), hash21(c + 17.3));
+                        float d = length(g - pnt);
+                        if (d < best) { second = best; best = d; hc = hash21(c + 5.1); }
+                        else if (d < second) second = d;
+                    }
+                float piece = step(hc, cover * 1.15) * smoothstep(0.05, 0.16, second - best);
+                float far = smoothstep(250.0, 1200.0, vDist);
+                float amount = mix(piece, cover * 0.85, far);
+                vec3 iceCol = vec3(0.80, 0.88, 0.94) * 0.75 / 3.14159265 * (sunC * max(uSunDir.y, 0.0) + moonC * max(uMoonDir.y, 0.0) + skyUp * 3.5);
+                col = mix(col, iceCol * (0.85 + 0.3 * hc), amount);
+            }
+        }
+    }
 
     // Dunst zur Kimm
     float f = 1.0 - exp(-vDist / uFogDist);

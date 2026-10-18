@@ -37,6 +37,9 @@ Der Kern braucht nur Java 21. Ein `gl/` gibt es nicht. Zum Herauskopieren reicht
   - Tendenz in Worten nach WMO (über 3 Stunden)
   - die Lage für einen Regenbogen nach einem Schauer (`showerEnd`)
 
+
+**Seit Glacier Phase 11:** `summerDay` (Vorgabe 196, Südhalbkugel 15) legt fest, wann Sommer ist: Tagesgang, Gewitter, Stürme und Nebel nach der Jahreszeit folgen ihm.
+
 ## „Ein Sturmtag“
 
 28,3 Stunden ab 6 Uhr, im Zeitraffer 420 : 1 gut vier Minuten:
@@ -92,3 +95,12 @@ w.release();                                     // „Regie weiter“
 - Die Zielwerte sind typisch für ein Sturmtief über der Deutschen Bucht im Herbst, keine Messreihe.
 - Es gibt keinen Ort: Das Wetter ist überall gleich. Wo es regnet, entscheiden die Wolken der App.
 - Nebel kommt nur aus Szenarien; die freie Regie bildet keinen Seenebel aus Taupunkt und Wassertemperatur.
+
+## Seit Glacier Phase 3: Föhnsturm und eigenes Klima
+
+- Neue Lage `Phase.FOEHN` („Föhnsturm“): stürmischer, böiger, trockener und warmer Fallwind mit großer Sicht und
+  wenig tiefen Wolken. Die Kette der Deutschen Bucht erreicht ihn nicht.
+- Eine App kann das Klima ersetzen: `transitions` (Übergänge je Lage), `targets` (Zielwerte je Lage, Spalten wie
+  `Var`) und `dwellHours` (Verweildauern). Glacier setzt das Klima Patagoniens (Westwind vom Eisfeld, Fronten aus
+  West, Föhnsturm, selten Gewitter). Ohne diese Felder läuft alles wie bisher.
+- Rückfluss in Phase 16.

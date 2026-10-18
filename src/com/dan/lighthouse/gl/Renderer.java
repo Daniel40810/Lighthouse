@@ -263,6 +263,21 @@ public final class Renderer implements GLEventListener {
     private double[] castRect = {0, 0, 1};
     /** Uhr und Kamera stehen (Standbilder schalten selbst weiter). */
     public volatile boolean frozen;
+    /**
+     * Kinomodus (com.dan.kino, Rückfluss aus Glacier Phase 16): ein Regiebuch im Kino, ohne Bedienfeld und HUD, Balken
+     * 2,39 : 1, Vor- und Abspann, Untertitel aus den Texten der Schritte, Überblendung bei jedem Wechsel der Kamera,
+     * Schwenk, Filmkorn.
+     */
+    public final com.dan.kino.Kino kino = new com.dan.kino.Kino();
+    private com.dan.kino.gl.KinoGl kinoGl;
+    /** Wechsel der Kamera, die auf das Merken des Bilds warten (kommen aus dem Bedienfeld, laufen im Bildlauf). */
+    private final java.util.concurrent.ConcurrentLinkedQueue<Runnable> kinoSchnitte = new java.util.concurrent.ConcurrentLinkedQueue<>();
+    private double kinoYaw, kinoTonBasis = Double.NaN;
+    private boolean kinoFensterAn;
+    private int kinoSchritt = -2;
+    private volatile com.dan.weather.Scenario kinoBuch;
+    /** true, wenn das Kino beginnt (Bedienfeld weg, Vollbild), false, wenn es zu Ende ist; im Bildlauf gerufen. */
+    public volatile java.util.function.Consumer<Boolean> kinoFenster = an -> { };
     /** Belichtungskorrektur in Blendenstufen. */
     public volatile double exposureBias;
     public volatile boolean photoRequest;
@@ -571,6 +586,15 @@ public final class Renderer implements GLEventListener {
             }
         }
         initLife(gl);
+        try {   // Kinomodus
+            com.dan.kino.KinoMaler km = new com.dan.kino.KinoMaler();
+            km.kopfFarbe = new java.awt.Color(214, 92, 76);   // Rot des Turms
+            kinoGl = new com.dan.kino.gl.KinoGl(kino, km);
+            kinoGl.init(gl);
+        } catch (RuntimeException e) {
+            System.err.println("Lighthouse: Kino nicht verfügbar (ohne Balken und Blenden): " + e.getMessage());
+            kinoGl = null;
+        }
         lastNanos = System.nanoTime();
         statsNanos = lastNanos;
         camera.snap();
@@ -586,6 +610,7 @@ public final class Renderer implements GLEventListener {
     /** Uhr und Kamera um dt weiterrechnen (vom Bildlauf aufgerufen; Standbilder rufen es mit festem dt). */
     public void step(double dt) {
         clock.step(dt);
+        kinoSchritt(dt);   // Kinomodus
         // Phase 12: zuerst die Wetterregie, dann bekommen alle Packages ihre Eingänge
         if (wiring != null && wiring.regie) {
             wiring.feedWeather(dt);
@@ -770,6 +795,90 @@ public final class Renderer implements GLEventListener {
 
     /** Phase 12: Kamera nach dem Wunsch des Regiebuchs: Aussen1, Drohne, Brecher, Aussen3, Sturmnacht, Laternenraum, Regenbogen. */
     public void applyView(String name) {
+        // Kinomodus: der Wechsel wartet auf das Merken des Bilds (Überblendung)
+        if (kino.schnitt()) kinoSchnitte.add(() -> applyViewJetzt(name));
+        else { applyViewJetzt(name); kinoYaw = 0; }
+    }
+
+    /** Kinomodus: ein Regiebuch (Szenario) im Kino; das Bedienfeld hat es schon gestartet. */
+    public void kinoStart(com.dan.weather.Scenario sc) {
+        frozen = false;
+        kinoBuch = sc;
+        kinoSchritt = -2;
+        kino.beginnen("Lighthouse · Roter Sand bei jedem Wetter", sc.name(),
+                String.format(Locale.GERMAN, "Der Leuchtturm Roter Sand in der Wesermündung: %d Bilder des Wetters in %.1f Stunden", sc.steps().size(), sc.hours()));
+    }
+
+    /** Kinomodus verlassen (Esc); das Regiebuch läuft im Fenster weiter. */
+    public void kinoVerlassen() {
+        frozen = false;
+        kino.abbrechen();
+    }
+
+    /** Die Zeilen des Abspanns (erste Zeile groß). */
+    java.util.List<String> abspann(com.dan.weather.Scenario sc) {
+        java.util.List<String> z = new java.util.ArrayList<>();
+        z.add(sc != null ? sc.name() : "Lighthouse");
+        z.add("Ort: Leuchtturm Roter Sand in der Wesermündung");
+        z.add("Szene: " + clock.label());
+        z.add("Himmel, Wetter, See, Gischt, Feuer und Klang: com.dan");
+        z.add("Lighthouse · " + VERSION);
+        return z;
+    }
+
+    /** Kino weiter: Untertitel aus den Schritten, Abspann am Ende, Schwenk und Ton. */
+    private void kinoSchritt(double dt) {
+        if (kino.laeuft() && wiring != null) {
+            com.dan.weather.Weather.Snapshot ws = wiring.weather.snapshot();
+            int st = ws == null || kinoBuch == null || !kinoBuch.name().equals(ws.scenario()) ? -1 : ws.step();
+            if (st >= 0 && st != kinoSchritt) { kinoSchritt = st; if (ws.stepText() != null) kino.untertitel(ws.stepText()); }
+            com.dan.kino.Kino.Lage l = kino.lage();
+            if (st < 0 && kinoSchritt >= 0 && (l == com.dan.kino.Kino.Lage.VORSPANN || l == com.dan.kino.Kino.Lage.FILM)) kino.beenden(abspann(kinoBuch));
+        }
+        kino.schritt(dt);
+        if (!kino.laeuft() && !kinoSchnitte.isEmpty() && !kino.schnittFaellig()) schnitteJetzt();
+        double sw = kino.schwenk();
+        if (camera.followName.isEmpty() && kinoSchnitte.isEmpty()) {
+            double dd = sw - kinoYaw;
+            if (camera.mode == Camera.Mode.FREI) camera.fyaw += dd; else if (camera.mode == Camera.Mode.KREISEN) camera.yaw += dd;
+        }
+        kinoYaw = sw;
+        if (kino.sichtbar()) {
+            if (Double.isNaN(kinoTonBasis)) kinoTonBasis = soundscape.volume;
+            soundscape.volume = kinoTonBasis * kino.ton();
+        } else if (!Double.isNaN(kinoTonBasis)) { soundscape.volume = kinoTonBasis; kinoTonBasis = Double.NaN; }
+    }
+
+    private void schnitteJetzt() {
+        Runnable x;
+        while ((x = kinoSchnitte.poll()) != null) x.run();
+        kinoYaw = 0;
+    }
+
+    /** Schnitt mit gemerktem Bild, dann Balken, Schwarz, Untertitel; Fenster auf und zu. */
+    private void kinoBild(GL4 gl, long now) {
+        if (kinoGl != null && kinoGl.bereit()) {
+            try {
+                if (kino.schnittFaellig()) {
+                    kinoGl.merken(gl, defaultFbo, surfW, surfH);
+                    schnitteJetzt();
+                    kino.geschnitten();
+                }
+                kinoGl.zeichnen(gl, defaultFbo, surfW, surfH, now / 1e9);
+            } catch (RuntimeException e) {
+                System.err.println("Lighthouse: Kino: " + e);
+                kinoGl = null;
+            }
+        } else if (kino.schnittFaellig()) { schnitteJetzt(); kino.geschnitten(); }
+        boolean an = kino.laeuft();
+        if (an != kinoFensterAn) {
+            kinoFensterAn = an;
+            try { kinoFenster.accept(an); } catch (RuntimeException e) { System.err.println("Lighthouse: Kinofenster: " + e); }
+        }
+    }
+
+    /** Phase 12: Kamera nach dem Wunsch des Regiebuchs (ohne Kino gleich, im Kino nach dem Merken des Bilds). */
+    private void applyViewJetzt(String name) {
         Camera c = camera;
         if (name == null || name.isEmpty() || c.rideTime() >= 0) return;
         zoom = 1;
@@ -2009,6 +2118,7 @@ public final class Renderer implements GLEventListener {
         int w = Math.max(64, (int) Math.round(surfW * renderScale)), h = Math.max(64, (int) Math.round(surfH * renderScale));
         if (w != hdrW || h != hdrH) resizeTargets(gl, w, h);
         renderFrame(gl, w, h);
+        kinoBild(gl, now);   // Kinomodus über das fertige Bild; F12 und Vorschau bekommen es mit
         if (photoRequest) { photoRequest = false; takePhoto(gl, surfW, surfH); }
         java.util.function.Consumer<BufferedImage> gr = grabRequest;
         if (gr != null) {
@@ -2305,8 +2415,8 @@ public final class Renderer implements GLEventListener {
         gl.glDrawArrays(GL.GL_TRIANGLES, 0, 3);
         mark(gl, 14);
 
-        // 12 HUD
-        if (showHud) {
+        // 12 HUD (nicht im Kino)
+        if (showHud && !kino.laeuft()) {
             hud.refresh(gl, 250, this::paintHud, frozen);
             hud.draw(gl, overlay, emptyVao, 12, surfH - hud.height - 12, surfW, surfH);
         }
@@ -3000,6 +3110,7 @@ public final class Renderer implements GLEventListener {
         Gpu.deleteTextures(gl, shadowTex, castTex);
         shadowSize = 0;
         hud.dispose(gl);
+        if (kinoGl != null) kinoGl.dispose(gl);
         if (oceanOk) oceanGl.dispose(gl);
         if (beaconOk) beaconGl.dispose(gl);
         if (lightningOk) lightningGl.dispose(gl);

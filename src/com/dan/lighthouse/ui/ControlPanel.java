@@ -65,6 +65,7 @@ public final class ControlPanel extends JPanel implements javax.swing.Scrollable
     private FComboBox cloudKind, stormBox, lapseBox, qualBox, hudBox;
     private final JLabel hudLbl = small("");
     private final JLabel weatherLbl = small(""), baroLbl = label("");
+    private final FCheckBox imKino = new FCheckBox("Im Kino zeigen");
     private final FCheckBox regieBox = new FCheckBox("Regie läuft (Leertaste)"), followBox = new FCheckBox("Kamera folgt dem Regiebuch"),
             autoBox = new FCheckBox("Auflösung selbst regeln");
     private final FSlider scaleSl = new FSlider(50, 100, 100);
@@ -109,6 +110,10 @@ public final class ControlPanel extends JPanel implements javax.swing.Scrollable
         rg.add(daten.regieStart);
         rg.add(daten.regieBearbeiten);
         put(rg);
+        imKino.setSelected(true);
+        imKino.setToolTipText("Kinomodus: ganzer Bildschirm ohne Bedienfeld, Breitwand mit Balken, Vor- und Abspann, Untertitel aus den Schritten, "
+                + "Überblendung bei jedem Wechsel der Kamera. Esc beendet das Kino (das Regiebuch läuft weiter), Leertaste hält an, F12 fotografiert.");
+        put(imKino);
         JPanel regieButtons = grid(2);
         FButton freeRegie = new FButton("Freie Regie"), resume = new FButton("Regie weiter");
         freeRegie.addActionListener(e -> {
@@ -674,7 +679,13 @@ public final class ControlPanel extends JPanel implements javax.swing.Scrollable
     /** Phase 15: Daten laden, auf Wunsch den letzten Stand herstellen, Sitzung beginnen (nach dem Start der Szene). */
     public void datenStarten(boolean weiterWieZuletzt) { daten.starten(weiterWieZuletzt); }
 
-    /** Phase 15: ein Regiebuch starten (aus der Liste oder dem Bearbeiten-Fenster). */
+    /** Kinomodus: ein Regiebuch gleich im Kino (aus dem Startbild). */
+    public void kinoStarten(com.dan.weather.Scenario sc) {
+        imKino.setSelected(true);
+        startScenario(sc);
+    }
+
+    /** Phase 15: ein Regiebuch starten (aus der Liste oder dem Bearbeiten-Fenster); mit Haken „Im Kino zeigen“ im Kino. */
     private void startScenario(com.dan.weather.Scenario sc) {
         clock.set(clock.date(), sc.startHour());
         wiring.resumeRegie();
@@ -684,6 +695,7 @@ public final class ControlPanel extends JPanel implements javax.swing.Scrollable
         followBox.setSelected(true);
         lastStep = -2;
         syncFromScene();
+        if (imKino.isSelected()) r.kinoStart(sc);
         view.requestFocusInWindow();
     }
 

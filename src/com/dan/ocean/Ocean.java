@@ -90,6 +90,29 @@ public final class Ocean {
         return o;
     }
 
+    /**
+     * Seit Glacier (Phase 2): ein großer, tiefer Gletschersee wie der Lago Argentino vor dem Perito Moreno.
+     * Streichlänge 10 km, Tiefe 100 m, Wellenhöhe aus der Streichlänge, keine Dünung (kein Meer), wenig Schaum, die
+     * Brandungsringe erst ab mittlerem Seegang. Das milchige Türkis vom Gletschermehl setzt der Benutzer über die
+     * Wasserfarbe in {@code gl.OceanGl.Light} ({@link #LAGO_WATER}, {@link #LAGO_SSS}).
+     */
+    public static Ocean lago(int bft) {
+        Ocean o = beaufort(bft);
+        o.fetch = 10_000;
+        o.depth = 100;
+        o.fetchLimited = true;
+        o.swellHeight = 0;
+        o.choppiness = 0.7;
+        o.foamAmount = 0.5;
+        o.ringHsLow = 0.08;
+        o.ringHsHigh = 0.9;
+        o.rebuildNow();
+        return o;
+    }
+
+    /** Streulicht und Kamm eines Gletschersees: milchiges Türkis vom Gletschermehl (linear) [G]. */
+    public static final double[] LAGO_WATER = {0.030, 0.105, 0.105}, LAGO_SSS = {0.07, 0.36, 0.33};
+
     /** Seegang nach Beaufort 0..12: Wind in der Mitte der Stufe, Dünung passend dazu. */
     public static Ocean beaufort(int bft) {
         Ocean o = new Ocean();

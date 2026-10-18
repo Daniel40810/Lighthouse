@@ -574,8 +574,15 @@ public final class SkyGl {
         }
         int w = img.getWidth(), h = img.getHeight();
         ByteBuffer bb = Buffers.newDirectByteBuffer(w * h);
+        // seit Glacier Phase 3 mit den Magellanschen Wolken (fehlen in der Karte); die Karte ist im Shader quadriert,
+        // darum die Wurzel der Helligkeit
         for (int y = 0; y < h; y++)
-            for (int x = 0; x < w; x++) bb.put((byte) (img.getRaster().getSample(x, y, 0)));
+            for (int x = 0; x < w; x++) {
+                double ra = (x + 0.5) / w * 360, dec = 90 - (y + 0.5) / h * 180;
+                double m = img.getRaster().getSample(x, y, 0) / 255.0, mc = StarCatalog.magellanic(ra, dec);
+                double v = Math.sqrt(m * m + mc * mc);
+                bb.put((byte) (int) Math.round(Math.min(1, v) * 255));
+            }
         bb.flip();
         int[] t = new int[1];
         gl.glGenTextures(1, t, 0);

@@ -91,6 +91,14 @@ public final class SceneView extends JPanel {
 
     public void stop() { if (animator != null) animator.stop(); }
 
+    /** Kinomodus: den Mauszeiger über der Szene verbergen oder zeigen. */
+    public void zeigerVerbergen(boolean weg) {
+        if (weg) {
+            java.awt.image.BufferedImage leer = new java.awt.image.BufferedImage(16, 16, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+            canvas.setCursor(java.awt.Toolkit.getDefaultToolkit().createCustomCursor(leer, new java.awt.Point(0, 0), "kino"));
+        } else canvas.setCursor(java.awt.Cursor.getDefaultCursor());
+    }
+
     @Override
     public boolean requestFocusInWindow() { return canvas.requestFocusInWindow(); }
 
@@ -124,6 +132,7 @@ public final class SceneView extends JPanel {
                 canvas.requestFocusInWindow();
             }
             @Override public void mouseDragged(MouseEvent e) {
+                if (renderer.kino.laeuft()) return;   // Kinomodus: die Regie führt die Kamera
                 int dx = e.getX() - lx, dy = e.getY() - ly;
                 lx = e.getX(); ly = e.getY();
                 double hgt = Math.max(1, canvas.getHeight());
@@ -138,7 +147,7 @@ public final class SceneView extends JPanel {
                     c.pan(dx / hgt, dy / hgt);
                 }
             }
-            @Override public void mouseWheelMoved(MouseWheelEvent e) { renderer.camera.zoom(e.getPreciseWheelRotation()); }
+            @Override public void mouseWheelMoved(MouseWheelEvent e) { if (!renderer.kino.laeuft()) renderer.camera.zoom(e.getPreciseWheelRotation()); }
         };
         canvas.addMouseListener(m);
         canvas.addMouseMotionListener(m);
@@ -159,6 +168,17 @@ public final class SceneView extends JPanel {
             }
             @Override public void keyReleased(KeyEvent e) { moveKey(e, false); }
             @Override public void keyPressed(KeyEvent e) {
+                // Kinomodus: nur Esc (heraus), Leertaste (anhalten), F12 (Foto mit Balken), F5
+                if (renderer.kino.laeuft()) {
+                    switch (e.getKeyCode()) {
+                        case KeyEvent.VK_ESCAPE -> renderer.kinoVerlassen();
+                        case KeyEvent.VK_SPACE -> renderer.frozen = !renderer.frozen;
+                        case KeyEvent.VK_F12 -> renderer.photoRequest = true;
+                        case KeyEvent.VK_F5 -> renderer.requestShaderReload();
+                        default -> { }
+                    }
+                    return;
+                }
                 if (moveKey(e, true)) return;
                 Camera c = renderer.camera;
                 switch (e.getKeyCode()) {
@@ -201,7 +221,7 @@ public final class SceneView extends JPanel {
             java.awt.Component fo = java.awt.KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
             if (fo instanceof javax.swing.text.JTextComponent) return false;
             int kc = ev.getKeyCode();
-            boolean ours = kc == KeyEvent.VK_W || kc == KeyEvent.VK_A || kc == KeyEvent.VK_S || kc == KeyEvent.VK_D || kc == KeyEvent.VK_Q
+            boolean ours = (renderer.kino.laeuft() && (kc == KeyEvent.VK_ESCAPE || kc == KeyEvent.VK_SPACE)) || kc == KeyEvent.VK_W || kc == KeyEvent.VK_A || kc == KeyEvent.VK_S || kc == KeyEvent.VK_D || kc == KeyEvent.VK_Q
                     || kc == KeyEvent.VK_E || kc == KeyEvent.VK_SHIFT || kc == KeyEvent.VK_F || kc == KeyEvent.VK_R || kc == KeyEvent.VK_H
                     || kc == KeyEvent.VK_F12 || kc == KeyEvent.VK_F5 || kc == KeyEvent.VK_HOME || keyActions.containsKey(kc);
             if (!ours) return false;

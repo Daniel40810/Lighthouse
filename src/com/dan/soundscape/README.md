@@ -33,6 +33,27 @@ Erzeugter Ton ohne Audiodateien: Wind mit Äolstönen an Stäben und Seilen, See
   - **Raum** `Room.LONGHOUSE`: Langhaus aus Flechtwerk und Lehm unter Reet, −13 dB, bis 1,1 kHz, Hall 0,55 s.
 - **Presets:** `calm()`, `breeze()`, `gale()`, `storm()`, `beaufort(n)` (Wind, Seegang, Regen). **Reproduzierbar:** gleicher `seed`, gleicher Ton. **Stufen:** `Quality.LOW` bis `ULTRA` (22,05 bis 48 kHz, 12 bis 48 Stimmen, 2 bis 10 Äolskörper, Hall ab MEDIUM).
 
+## Eis und See (seit Glacier Phase 12)
+
+Erzeugt und nach Gehör gebaut [G]. Ausgelöst wird mit `event(Kind, x, y, z, Stärke, tone)`.
+
+- **Knacken** (`KNACKEN`): ein bis sechs scharfe Schläge durch kurze Eigentöne des Eises (700 bis 3 300 Hz), darunter ein leiser dumpfer Stoß. Stark wie ein Schuss, 104 + 22 · Stärke dB in 1 m.
+- **Ächzen** (`AECHZEN`): tiefes Stöhnen (28 bis 70 Hz, gleitend), stoßweise durch Haften und Gleiten. 96 + 12 · Stärke dB.
+- **Aufschlag** (`AUFSCHLAG`, tone = Volumen in m³): dumpfer Schlag, umso tiefer, je größer (45 → 18 Hz), Krachen, das zurückfallende Wasser. 112 + 9 · lg(V / 100) dB, 100 bis 140.
+- **Auflaufen** (`AUFLAUFEN`, Stärke 0..1 = 0 bis 2 m): das Wasser rauscht das Ufer hinauf und läuft über Kies zurück. 82 + 14 · lg(h / 0,2) dB.
+- **Kondor** (`KONDOR`): Luft durch die gespreizten Handschwingen, selten ein Zischen, 70 dB.
+- **Donner einer Kalbung** (`calving(Weg, Volumen)`): Der Weg des Risses ist der Kanal wie beim Blitz. Jedes Stück sendet eine N-Welle, die Summe rollt nach den Abständen zum Ohr. Pegel 136 + 6 · lg(V / 1 000) dB in 1 m.
+- Prüfung (`SoundscapeCheck`): Schwerpunkt und Pegel jedes Klangs, Laufzeit des Kalbungsdonners.
+
+## Wildwasser (seit Glacier Phase 13)
+
+`Torrent` ist ein tosender Durchfluss, etwa ein Dammbruch, die Ruptura oder ein Wasserfall. Die App setzt Ort und Durchfluss je Bild (`soundscape.torrents`).
+
+- **Pegel in 1 m:** 70 + 12 · lg(Q) dB [G]. Bei 8 000 m³/s sind das 117 dB, in 150 m rund 74 dB.
+- **Drei Teile:** Rollen unter 300 Hz, Rauschen um 1 kHz, Zischen der Gischt (nur nah).
+- **Dazu:** Schläge, wenn Eis oder Steine aneinanderstoßen.
+- Hörbar bis 3 km; der Pegel zählt zum Teil „See“.
+
 ## Benutzung
 
 ```java

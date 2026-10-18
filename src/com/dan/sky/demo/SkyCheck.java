@@ -294,7 +294,11 @@ public final class SkyCheck {
                 f("Beteigeuze rötlich (R/B %.2f, %.0f K), Rigel bläulich (B/R %.2f, %.0f K)", cb[0] / cb[2], StarCatalog.temperature(cat.bv[bet]),
                         cr[2] / cr[0], StarCatalog.temperature(cat.bv[rig])));
         boolean wagen = cat.figures.stream().anyMatch(fg -> fg.name().equals("Großer Wagen") && fg.lines().length == 7);
-        check(cat.figures.size() == 23 && wagen, f("Sternbildfiguren aus Sternbild: %d (die Plejaden haben keine Linien), Großer Wagen mit 7 Linien", cat.figures.size()));
+        check(cat.figures.size() == 27 && wagen, f("Sternbildfiguren: %d (23 aus Sternbild, die Plejaden ohne Linien, dazu 4 des Südhimmels), Großer Wagen mit 7 Linien", cat.figures.size()));
+        boolean kreuz = cat.figures.stream().anyMatch(fg -> fg.code().equals("Cru") && fg.lines().length == 2);
+        double lmc = StarCatalog.magellanic(80.9, -69.8), smc = StarCatalog.magellanic(13.2, -72.8), off = StarCatalog.magellanic(80.9, -40);
+        check(kreuz && lmc > 0.5 && smc > 0.35 && off < 0.01,
+                f("Südhimmel (seit Glacier Phase 3): Kreuz des Südens mit 2 Balken; Magellansche Wolken in der Milchstraßenkarte (LMC %.2f, SMC %.2f, daneben %.3f)", lmc, smc, off));
         // Jeder Linienendpunkt liegt auf einem Katalogstern
         int miss = 0, total = 0;
         for (StarCatalog.Figure fg : cat.figures)

@@ -124,3 +124,11 @@ Mit `forest.leaves.water` lassen sich Blätter, die auf Wasser landen, an ein Wa
 - Blätter werden als gezackte Büschel gezeichnet, nicht als einzelne Blätter. Nadelbäume bekommen Nadelbürsten.
 - Die Artwerte sind nach Augenmaß angenähert und nicht vermessen.
 - Die Bewegung ist ein Modell für kleine Winkel und keine Physik. Sturmbruch gibt es nicht.
+
+## Seit Glacier Phase 2: Südbuchen
+
+`Species.lenga()` (Nothofagus pumilio, Waldbaum bis zur Baumgrenze), `Species.nire()` (Nothofagus antarctica,
+krumm, an lichten, trockenen Rändern), `Species.guindo()` (Nothofagus betuloides, immergrün, am feuchten Hang) [G].
+Alle drei stehen in `Species.ALL`. Ihre Jahresdaten (Austrieb, Herbstfarbe, Laubfall) sind wie bei allen Arten
+nordhemisphärisch angegeben; eine App auf der Südhalbkugel verschiebt den Tag im Jahr um 182 Tage (Glacier:
+`Wiring.northernDay`). Lenga und Ñire färben sich im Herbst rot bis orange. Rückfluss in Phase 16.

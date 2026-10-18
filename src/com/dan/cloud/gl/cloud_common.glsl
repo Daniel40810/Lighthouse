@@ -11,6 +11,9 @@ uniform vec4 uType2;    // Auslöschung je m, Amboss, Kachel der Karte, Kachel d
 uniform vec4 uMisc;     // Kachel der Feinheit, Schwelle, Zeit · Formwandel, Schwelle der hohen Schicht
 uniform float uCore;    // Dichte im Kern einer Haufenzelle
 uniform vec4 uOff;      // Drift x, Drift z, hohe Schicht, Niederschlag
+uniform vec4 uLens;     // seit Glacier Phase 3: Lentikularis 0..1, Richtung der Strömung (Bogenmaß, woher), –, –
+const float LENS_HEIGHT = 4600.0, LENS_STEP = 320.0, LENS_WAVE = 9000.0, LENS_CELL = 12000.0, LENS_TAU = 3.0;
+const int LENS_SLICES = 3;
 
 float smooth01(float a, float b, float x) { return smoothstep(a, b, x); }
 float remap(float v, float lo, float hi, float a, float b) { return a + (v - lo) / max(1e-6, hi - lo) * (b - a); }
@@ -80,6 +83,35 @@ float highTau(vec2 xz) {
     vec4 w = textureLod(uWeather, vec2(q.x / (HIGH_TILE * 3.0), q.y / HIGH_TILE), 0.0);
     vec4 f = textureLod(uWeather, vec2(q.x / (HIGH_TILE * 2.0), q.y / (HIGH_TILE * 0.12)), 0.0);
     return HIGH_TAU * smooth01(uMisc.w, uMisc.w + 0.2, w.a) * (0.35 + 0.65 * f.b);
+}
+
+// Ganzzahliges Rauschen 0..1 je Kamm und Abschnitt (bitgleich mit Clouds.lensHash)
+float lensHash(int k, int j) {
+    uint h = uint(k) * 374761393u + uint(j) * 668265263u;
+    h = (h ^ (h >> 13)) * 1274126177u;
+    h ^= h >> 16;
+    return float(h & 0xFFFFFFu) / 16777216.0;
+}
+
+// Lentikularis: optische Dicke der Lage i senkrecht an xz (wie Clouds.lensTau). Kämme der stehenden Welle längs des
+// Winds, Abschnitte quer dazu aus einem Rauschen je Kamm als Mandeln, obere Lagen kleiner; ortsfest.
+float lensTau(vec2 xz, int i) {
+    if (uLens.x <= 0.0) return 0.0;
+    vec2 to = vec2(-sin(uLens.y), cos(uLens.y));
+    float u = dot(xz, to), v = -xz.x * to.y + xz.y * to.x;
+    float cu = 0.5 + 0.5 * cos(2.0 * PI * u / LENS_WAVE);
+    if (cu < 0.68) return 0.0;
+    int k = int(floor(u / LENS_WAVE + 0.5));
+    float q = v / LENS_CELL;
+    int j = int(floor(q));
+    float f = q - float(j), n = mix(lensHash(k, j), lensHash(k, j + 1), f * f * (3.0 - 2.0 * f));
+    // Mandelform: breit und dick, wo das Rauschen hoch ist, spitz zu den Enden
+    float thr = 1.0 - 0.55 * uLens.x + 0.07 * float(i);
+    float b2 = clamp((n - thr) / 0.4, 0.0, 1.0);
+    if (b2 <= 0.0) return 0.0;
+    float c0 = 1.0 - (0.30 - 0.06 * float(i)) * sqrt(b2);
+    float bu = clamp((cu - c0) / max(1e-6, 1.0 - c0), 0.0, 1.0);
+    return LENS_TAU * sqrt(uLens.x) * pow(bu, 0.6) * sqrt(b2);
 }
 
 // Abstände (t0, t1) zwischen den Höhen h0 und h1 entlang d vom Punkt o; x < 0: kein Schnitt. Wie Clouds.shell.

@@ -14,6 +14,22 @@ Alles, was auf dem Wasser schwimmt: Leuchttonnen an einem Fahrwasser und gelegen
 - **Netze aus Code:** `Mesh` baut Rumpf mit Sprung und Wasserpass, Lukendeckel, Back, Deckshaus mit Fenstern, Brückennocken, Schornstein, Masten und Lampen, die Brücke von innen mit Pult und Anzeigen, den Wischer und die vier Tonnen mit Gittergerüst und Toppzeichen.
 - **Presets:** `calm()`, `breeze()`, `gale()`, `storm()`, `beaufort(n)`. **Reproduzierbar:** gleicher `seed`, gleiche Schiffe. **Stufen:** `Quality.LOW` bis `ULTRA` regeln, wie oft das Meer abgefragt wird, und wie viele Schiffe gleichzeitig fahren.
 
+## Eisberge (seit Glacier Phase 9)
+
+- **`Berg`:** ein beliebiger geschlossener Körper (Dreiecksnetz) als Starrkörper mit sechs Freiheiten. Beim Anlegen wird er in Proben zerlegt (ein Raster im Inneren, 40 bis 120 Würfel, Volumen genau wie das Netz). Je Probe Auftrieb nach dem Anteil unter Wasser, Widerstand im Wasser (senkrecht linear, an der Oberfläche quadratisch) und Wind über Wasser; daraus Schwimmen, Rollen und Kentern von selbst. Gletschereis 900 kg/m³ im Süßwasser: 90 % unter Wasser.
+- **Schmelze mit wanderndem Schwerpunkt:** Proben an der Oberfläche verlieren Volumen (m je Tag unter Wasser, an der Wasserlinie, an der Luft); Masse, Schwerpunkt und Trägheit werden neu gerechnet. `pose()` gibt die Modellmatrix mit der Schrumpfung.
+- **Grund:** `Sea.bed(x, z)` (neu, Vorgabe: keiner). Proben unter dem Grund werden höchstens eine Probe tief zurückgedrückt (Stranden, an einer Wand nicht hinaufschleudern).
+- **`Bergs`:** alle Berge eines Sees mit festem Schritt (1/60 s), Stößen zwischen den Proben an der Oberfläche (Feder und Dämpfer, nach Hüllkugeln sortiert), Höchstzahl, Ereignissen `onCapsize`, `onMelted`.
+- **`BrashField`:** Treibeis als Feld (bedeckter Anteil je Zelle), treibt mit 3 % des Winds und der Strömung, schmilzt in Stunden, über Land keins. `gl/BrashGl` lädt es als Textur hoch.
+- **Prüfung** `demo/BergCheck`: Schwimmlage 90,0 %, eine stehende Platte 40 × 40 × 8 m kentert nach rund 20 s (Handrechnung BM 0,15 m < BG 2,0 m), Treiben mit 1,4 % des Winds, zwei Tage Schmelze, Stöße, Stranden, Treibeis, 200 Berge in 0,4 ms je Schritt. `BergCheck --bild datei.png` zeigt das Kentern von der Seite.
+
+## Katamaran und mehr (seit Glacier Phase 10)
+
+- **`Catamaran`:** ein Ausflugskatamaran 26 × 9,2 m mit zwei Rümpfen (je 2,3 m breit, 6,9 m zwischen den Mitten), Tiefgang 1,4 m, 132 t, GM 5,8 m (die große Formstabilität eines Katamarans), Tauchen 3,1 s, Rollen 3,7 s. Fährt eine Route aus Wegpunkten mit eigener Fahrt je Punkt (`via(x, z, m/s)`), lenkt mit begrenzter Drehrate ein, wird in engen Kurven langsamer und treibt mit der Strömung aus `Sea.velocity` (die lange Welle eines Abbruchs schiebt ihn). `step(sea, dt)` rechnet alles, das Wasser wird alle 0,05 s abgefragt (`sampleInterval`). `moor` legt ihn fest, `start` legt ab. `eye(port)` und `pose(port)` geben das Auge eines Gasts auf dem Sonnendeck mit Kurs, Stampfen und Rollen; `motion()` Hub und Winkel seit dem Start.
+- **`Mesh.catamaran`:** Rümpfe (weiß, unter Wasser rotbraun, blauer Streifen), Brückendeck, Netz vorn, Salon mit Fensterband, Sonnendeck mit Geländer, Steuerhaus, Treppe. **`Mesh.beam(a, b, w, h)`:** ein Balken zwischen zwei Punkten (Geländer, Pfosten, Roste).
+- **`BuoyancyGl.drawMeshes`:** beliebige Netze mit Modellmatrix (oder in Weltkoordinaten), einmal hochgeladen; `forget` gibt eines frei.
+- **`Berg.topVertex()`, `Berg.vertexWorld(i)`:** die höchste Ecke eines Bergs in der Welt (für Möwen, die auf ihm sitzen).
+
 ## Benutzung
 
 ```java

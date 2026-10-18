@@ -7,7 +7,8 @@ import java.util.Map;
 
 /**
  * Die Wolken als Zahlen: eine untere Schicht einer {@link CloudType Wolkenart} mit Bedeckung in Achteln, darüber auf
- * Wunsch eine hohe Schicht (Altostratus/Cirrostratus als dünner Schleier), Drift mit dem Wind in Wolkenhöhe und
+ * Wunsch eine hohe Schicht (Altostratus/Cirrostratus als dünner Schleier), seit Glacier Phase 3 Lentikularis als
+ * ortsfeste Linsen einer Leewelle ({@link #lens}), Drift mit dem Wind in Wolkenhöhe und
  * langsamer Formwandel. Die Dichte an jedem Punkt, der Schatten am Boden, die Bedeckung und das Regenfeld lassen sich
  * ohne Grafikkarte fragen; {@code gl/CloudGl} zeichnet mit denselben Formeln und denselben Rauschtexturen.
  * <p>
@@ -27,6 +28,14 @@ public final class Clouds {
     static final double ANVIL_R = 0.35 / 16;
     /** Hohe Schicht: Höhe, Kachelgröße der Karte, Dicke (optisch) bei voller Bedeckung. */
     public static final double HIGH_HEIGHT = 6500, HIGH_TILE = 60_000, HIGH_TAU = 0.6;
+    /**
+     * Seit Glacier Phase 3: Lentikularis (Altocumulus lenticularis) im Lee eines Gebirges – glatte Linsen auf den Kämmen
+     * einer stehenden Leewelle, oft als Stapel. Untere Höhe der Linsen, Abstand der Lagen, Wellenlänge längs des Winds,
+     * Länge der Rauschzellen quer dazu (m), optische Dicke im Kern, Zahl der Lagen [G]. Die Linsen ziehen nicht mit dem
+     * Wind: sie stehen über dem Gebirge, die Luft strömt durch sie hindurch.
+     */
+    public static final double LENS_HEIGHT = 4600, LENS_STEP = 320, LENS_WAVE = 9000, LENS_CELL = 12_000, LENS_TAU = 3.0;
+    public static final int LENS_SLICES = 3;
     /** Schatten werden durch Mehrfachstreuung weicher: τ wirkt nur zu diesem Anteil. */
     public static final double SHADOW_SOFT = 0.6;
 
@@ -52,6 +61,8 @@ public final class Clouds {
     /** Formwandel: 1 = Haufen wachsen und vergehen in rund 10 Minuten. */
     public volatile double evolve = 1;
     public volatile Quality quality = Quality.HIGH;
+    /** Seit Glacier Phase 3: Lentikularis 0..1 (0 = keine) und die Richtung der Strömung, aus der die Leewelle kommt (Grad). */
+    public volatile double lens, lensFromDeg = 270;
     /** Wie weit gerechnet wird (m); dahinter verschwinden die Wolken im Dunst. */
     public volatile double maxDistance = 60_000;
 
@@ -168,7 +179,7 @@ public final class Clouds {
     /** Ein fester Stand für Abfragen und die Grafikkarte. */
     public record Snapshot(CloudType type, double oktas, double threshold, double highCover, double highThreshold, double offX,
                            double offZ, double time, double precipitation, double evolve, Quality quality, double maxDistance,
-                           double windSpeed, double windFromDeg) {
+                           double windSpeed, double windFromDeg, double lens, double lensFromDeg) {
         public double tile() { return type.cell * 16; }
         /** Kachel der Grundform: Haufen und Türme mit Blumenkohl von etwa 1 km, Schichten mit der Zelle wachsend. */
         public double noiseTile() { return 4000 + (type.cell * 2.2 - 4000) * type.strat * type.strat; }
@@ -179,7 +190,7 @@ public final class Clouds {
 
     public synchronized Snapshot snapshot() {
         return new Snapshot(type, oktas, threshold(), highCover, highThreshold(), offX, offZ, time, precipitation, evolve, quality,
-                maxDistance, windSpeed, windFromDeg);
+                maxDistance, windSpeed, windFromDeg, Math.max(0, Math.min(1, lens)), lensFromDeg);
     }
 
     // ------------------------------------------------------------------ Dichte (wie cloud_common.glsl)
@@ -278,6 +289,37 @@ public final class Clouds {
         return HIGH_TAU * smooth(s.highThreshold(), s.highThreshold() + 0.2, w[3]) * (0.35 + 0.65 * f[2]);
     }
 
+    /**
+     * Seit Glacier Phase 3: optische Dicke der Linsenlage {@code slice} (0 unten) senkrecht an (x, z). Längs des Winds
+     * die Kämme der stehenden Welle (Kosinus, nur die Spitzen), quer dazu Abschnitte aus einem Rauschen je Kamm; obere Lagen sind kleiner (Stapel). Ortsfest, ohne Drift. Wie lensTau in cloud_common.glsl.
+     */
+    public static double lensTau(Snapshot s, double x, double z, int slice) {
+        if (s.lens() <= 0) return 0;
+        double a = Math.toRadians(s.lensFromDeg()), tx = -Math.sin(a), tz = Math.cos(a);
+        double u = x * tx + z * tz, v = -x * tz + z * tx;
+        double cu = 0.5 + 0.5 * Math.cos(2 * Math.PI * u / LENS_WAVE);
+        if (cu < 0.68) return 0;
+        int k = (int) Math.floor(u / LENS_WAVE + 0.5);
+        double q = v / LENS_CELL;
+        int j = (int) Math.floor(q);
+        double f = q - j, n = lensHash(k, j) + (lensHash(k, j + 1) - lensHash(k, j)) * f * f * (3 - 2 * f);
+        // Mandelform: wo das Rauschen hoch ist, ist die Linse breit und dick, zu den Enden läuft sie spitz aus
+        double thr = 1 - 0.55 * s.lens() + 0.07 * slice;
+        double b2 = Math.max(0, Math.min(1, (n - thr) / 0.4));
+        if (b2 <= 0) return 0;
+        double c0 = 1 - (0.30 - 0.06 * slice) * Math.sqrt(b2);
+        double bu = Math.max(0, Math.min(1, (cu - c0) / Math.max(1e-6, 1 - c0)));
+        return LENS_TAU * Math.sqrt(s.lens()) * Math.pow(bu, 0.6) * Math.sqrt(b2);
+    }
+
+    /** Ganzzahliges Rauschen 0..1 je Kamm k und Abschnitt j (bitgleich mit lensHash in cloud_common.glsl). */
+    static double lensHash(int k, int j) {
+        int h = k * 374761393 + j * 668265263;
+        h = (h ^ (h >>> 13)) * 1274126177;
+        h ^= h >>> 16;
+        return (h & 0xFFFFFF) / 16777216.0;
+    }
+
     /** Abstände t0, t1 entlang d (Einheitsvektor) vom Punkt o, in denen der Strahl zwischen den Höhen h0 und h1 läuft. */
     public static double[] shell(double[] o, double[] d, double h0, double h1) {
         double ox = o[0], oy = o[1] + EARTH_R, oz = o[2];
@@ -319,6 +361,10 @@ public final class Clouds {
         }
         double th = (HIGH_HEIGHT) / d[1];
         tau += highTau(s, x + d[0] * th, z + d[2] * th) / d[1];
+        for (int i = 0; i < LENS_SLICES && s.lens() > 0; i++) {
+            double tl = (LENS_HEIGHT + i * LENS_STEP) / d[1];
+            tau += lensTau(s, x + d[0] * tl, z + d[2] * tl, i) / d[1];
+        }
         return Math.exp(-tau * SHADOW_SOFT);
     }
 
@@ -339,7 +385,7 @@ public final class Clouds {
         // Standort über die Drift verschieben und am Ursprung messen: die Szene ist eine Tangentialebene, weit draußen
         // läge das Auge sonst schon Hunderte Meter über dem Meer
         Snapshot s = new Snapshot(s0.type(), s0.oktas(), s0.threshold(), s0.highCover(), s0.highThreshold(), s0.offX() + x,
-                s0.offZ() + z, s0.time(), s0.precipitation(), s0.evolve(), s0.quality(), s0.maxDistance(), s0.windSpeed(), s0.windFromDeg());
+                s0.offZ() + z, s0.time(), s0.precipitation(), s0.evolve(), s0.quality(), s0.maxDistance(), s0.windSpeed(), s0.windFromDeg(), s0.lens(), s0.lensFromDeg());
         int hit = 0, all = 0;
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++) {
@@ -377,6 +423,7 @@ public final class Clouds {
                 oktas, t.base, t.top(), windSpeed, windFromDeg);
         if (highCover > 0) s += String.format(Locale.GERMAN, " · hoher Schleier %.0f %%", highCover * 100);
         if (precipitation > 0) s += String.format(Locale.GERMAN, " · Niederschlag %.0f %%", precipitation * 100);
+        if (lens > 0.02) s += String.format(Locale.GERMAN, " · Lentikularis %.0f %%", lens * 100);
         return s;
     }
 }

@@ -203,6 +203,7 @@ public final class CloudGl {
         m.put("uMisc", U.f(s.detailTile(), s.threshold(), s.time() * s.evolve(), s.highThreshold()));
         m.put("uOff", U.f(s.offX(), s.offZ(), s.highCover(), s.precipitation()));
         m.put("uCore", U.f(s.core()));
+        m.put("uLens", U.f(s.lens(), Math.toRadians(s.lensFromDeg()), 0, 0));
         float[] sun = new float[24];
         for (int i = 0; i < 8; i++) for (int k = 0; k < 3; k++) sun[i * 3 + k] = (float) l.colorAt[i][k];
         m.put("uSunE", new U("v3a", sun));

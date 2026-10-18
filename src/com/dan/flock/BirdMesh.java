@@ -27,11 +27,12 @@ public final class BirdMesh {
     public int count() { return n; }
 
     /** Zahl der Spielarten je Art (Stockente: Erpel und Weibchen). */
-    public static int variants(Species sp) { return sp == Species.ENTE || sp == Species.SCHWAN || sp == Species.KORMORAN ? 2 : 1; }
+    public static int variants(Species sp) { return sp == Species.ENTE || sp == Species.SCHWAN || sp == Species.KORMORAN || sp == Species.MOEWE ? 2 : 1; }
 
     /** Spielart eines Vogels jetzt: Erpel oder Weibchen; Schwan und Kormoran fliegen mit gestrecktem Hals (Spielart 1). */
     public static int variantOf(Flock.Gull g) {
         if (g.species == Species.ENTE) return g.id % 2;
+        if (g.species == Species.MOEWE) return g.kelp ? 1 : 0;
         if (g.species == Species.SCHWAN || g.species == Species.KORMORAN) {
             Flock.State s = g.state;
             return s == Flock.State.FLY || s == Flock.State.TAKEOFF || s == Flock.State.LAND || s == Flock.State.LEAVE ? 1 : 0;
@@ -89,7 +90,10 @@ public final class BirdMesh {
 
     static Colors colors(Species sp, int variant) {
         return switch (sp) {
-            case MOEWE -> new Colors(GullMesh.WHITE, GullMesh.WHITE, GullMesh.WHITE, GullMesh.MANTLE, GullMesh.MANTLE, GullMesh.BLACK, GullMesh.WHITE, GullMesh.BEAK, GullMesh.LEG, GullMesh.WHITE);
+            case MOEWE -> variant == 1
+                    // Dominikanermöwe (seit Glacier Phase 10): Mantel und Flügel oben schwarzbraun
+                    ? new Colors(GullMesh.WHITE, GullMesh.WHITE, GullMesh.WHITE, c(0.05, 0.05, 0.06), c(0.05, 0.05, 0.06), GullMesh.BLACK, GullMesh.WHITE, GullMesh.BEAK, GullMesh.LEG, GullMesh.WHITE)
+                    : new Colors(GullMesh.WHITE, GullMesh.WHITE, GullMesh.WHITE, GullMesh.MANTLE, GullMesh.MANTLE, GullMesh.BLACK, GullMesh.WHITE, GullMesh.BEAK, GullMesh.LEG, GullMesh.WHITE);
             case KRAEHE -> new Colors(c(0.30, 0.30, 0.31), c(0.26, 0.26, 0.27), c(0.02, 0.02, 0.025), c(0.30, 0.30, 0.31), c(0.025, 0.025, 0.03),
                     c(0.02, 0.02, 0.025), c(0.03, 0.03, 0.035), c(0.02, 0.02, 0.02), c(0.03, 0.03, 0.03), c(0.02, 0.02, 0.025));
             case SCHWALBE -> new Colors(c(0.02, 0.03, 0.07), c(0.55, 0.48, 0.38), c(0.02, 0.03, 0.07), c(0.02, 0.03, 0.07), c(0.02, 0.025, 0.05),
@@ -103,6 +107,9 @@ public final class BirdMesh {
                     c(0.45, 0.40, 0.32), c(0.45, 0.28, 0.06), c(0.65, 0.33, 0.08), c(0.22, 0.15, 0.08));
             case SCHWAN -> new Colors(c(0.80, 0.80, 0.78), c(0.74, 0.74, 0.72), c(0.80, 0.80, 0.78), c(0.80, 0.80, 0.78), c(0.80, 0.80, 0.78), c(0.78, 0.78, 0.76),
                     c(0.74, 0.74, 0.72), c(0.80, 0.30, 0.04), c(0.04, 0.04, 0.04), c(0.78, 0.78, 0.76));
+            // Kondor: schwarz, weiße Halskrause, weißes Feld auf den Armschwingen oben, nackter grauer Kopf
+            case KONDOR -> new Colors(c(0.03, 0.03, 0.035), c(0.035, 0.035, 0.04), c(0.30, 0.22, 0.20), c(0.04, 0.04, 0.045), c(0.62, 0.62, 0.60),
+                    c(0.025, 0.025, 0.03), c(0.04, 0.04, 0.045), c(0.55, 0.50, 0.42), c(0.25, 0.24, 0.24), c(0.03, 0.03, 0.035));
             case KORMORAN -> new Colors(c(0.035, 0.04, 0.035), c(0.03, 0.03, 0.03), c(0.04, 0.045, 0.04), c(0.09, 0.075, 0.05), c(0.07, 0.06, 0.045),
                     c(0.03, 0.03, 0.03), c(0.03, 0.03, 0.03), c(0.30, 0.28, 0.25), c(0.02, 0.02, 0.02), c(0.03, 0.03, 0.03));
         };
@@ -166,13 +173,13 @@ public final class BirdMesh {
                 {-0.06 * sl * bw, 0.07 * sl * bh, 0.16 * sl}}, k.mantle(), k.belly(), 0);
         // Flügel
         double sy = 0.03 * sl * bh, x0 = 0.06 * sl * bw, xw = Math.max(x0 + 0.02, 0.44 * sx), xt = Math.max(xw + 0.02, 0.70 * sx);
-        double cf = -0.09 * sl, cb = 0.15 * sl, chord = sp == Species.SCHWALBE ? 0.7 : sp == Species.ENTE ? 0.75 : sp == Species.KRAEHE ? 1.15 : 1.0;
+        double cf = -0.09 * sl, cb = 0.15 * sl, chord = sp == Species.SCHWALBE ? 0.7 : sp == Species.ENTE ? 0.75 : sp == Species.KRAEHE ? 1.15 : sp == Species.KONDOR ? 1.3 : 1.0;
         m.shoulder[0] = x0; m.shoulder[1] = sy; m.shoulder[2] = -0.04 * sl;
         m.wrist = xw;
         for (int s = -1; s <= 1; s += 2) {
             double[][] inner = {{s * x0, sy, cf}, {s * xw, sy, -0.07 * sl}, {s * xw, sy, -0.07 * sl + 0.20 * sl * chord}, {s * x0, sy, cf + 0.24 * sl * chord}};
             double[][] outer;
-            if (sp == Species.KRAEHE)       // gefingerte Handschwingen: breit und stumpf
+            if (sp == Species.KRAEHE || sp == Species.KONDOR)       // gefingerte Handschwingen: breit und stumpf
                 outer = new double[][]{{s * xw, sy, -0.07 * sl}, {s * (xw + 0.6 * (xt - xw)), sy, -0.04 * sl}, {s * xt, sy, 0.05 * sl}, {s * (xw + 0.7 * (xt - xw)), sy, 0.14 * sl}, {s * xw, sy, 0.15 * sl}};
             else if (sp == Species.SCHWALBE)  // sichelförmig, spitz nach hinten
                 outer = new double[][]{{s * xw, sy, -0.07 * sl}, {s * (xw + 0.5 * (xt - xw)), sy, -0.03 * sl}, {s * xt, sy, 0.12 * sl}, {s * xw, sy, 0.07 * sl}};

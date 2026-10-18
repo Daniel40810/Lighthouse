@@ -61,6 +61,8 @@ public final class Startbild extends JDialog {
     public static volatile Einrichter.Ergebnis letzteEinrichtung;
     /** Wahl im Startbild: weiter wie zuletzt. */
     public static volatile boolean weiterWieZuletzt;
+    /** Kinomodus (Rückfluss aus Glacier): das Regiebuch, das gleich im Kino laufen soll, oder null. */
+    public static volatile com.dan.weather.Scenario kino;
     private volatile boolean richtetEin;
 
     private final JLabel dbLine = new JLabel(" "), noteLine = new JLabel(" "), countLine = new JLabel(" ");
@@ -163,9 +165,36 @@ public final class Startbild extends JDialog {
         south.add(weiter);
         south.add(einrichten);
         south.add(ohne);
-        root.add(south, BorderLayout.SOUTH);
+        // Kinomodus: ein mitgeliefertes Regiebuch gleich im Kino
+        java.util.List<com.dan.weather.Scenario> buecher = new java.util.ArrayList<>();
+        try {
+            buecher.add(com.dan.weather.Scenario.stormDay());
+            buecher.add(com.dan.weather.Scenario.fogDay());
+            buecher.add(com.dan.weather.Scenario.autumnFogMorning());
+            buecher.add(com.dan.weather.Scenario.calmDays());
+        } catch (RuntimeException ex) { buecher.clear(); }
+        JPanel unten = new JPanel(new BorderLayout(0, 10));
+        unten.setOpaque(false);
+        if (!buecher.isEmpty()) {
+            String[] namen = buecher.stream().map(com.dan.weather.Scenario::name).toArray(String[]::new);
+            com.dan.fcombobox.FComboBox buch = new com.dan.fcombobox.FComboBox(namen);
+            FButton kinoKnopf = new FButton("Im Kino");
+            kinoKnopf.setToolTipText("Das Regiebuch im Kinomodus: ganzer Bildschirm, Vor- und Abspann, Untertitel; Esc beendet das Kino, Leertaste hält an");
+            kinoKnopf.addActionListener(e -> {
+                kino = buecher.get(Math.max(0, buch.getSelectedIndex()));
+                weiterWieZuletzt = false;
+                schliessen();
+            });
+            JPanel kr = new JPanel(new BorderLayout(10, 0));
+            kr.setOpaque(false);
+            kr.add(buch, BorderLayout.CENTER);
+            kr.add(kinoKnopf, BorderLayout.EAST);
+            unten.add(kr, BorderLayout.NORTH);
+        }
+        unten.add(south, BorderLayout.CENTER);
+        root.add(unten, BorderLayout.SOUTH);
         setContentPane(root);
-        setPreferredSize(new Dimension(820, 380));
+        setPreferredSize(new Dimension(820, 430));
         pack();
         setLocationRelativeTo(null);
         setIconImages(AppIcon.images());

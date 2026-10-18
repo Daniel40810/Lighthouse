@@ -8,8 +8,9 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Die Wetterregie: ein Zustandsautomat über acht Lagen (klar → aufziehend → Front → Sturm → Gewitter → abklingend →
- * aufklarend, dazu seit Phase 13 Seenebel bei ruhigem Hochdruck), der nur Zahlen liefert: Wind, Richtung, Böen, Bedeckung in Achteln, hohe Schicht, Wolkenart, Regen,
+ * Die Wetterregie: ein Zustandsautomat über neun Lagen (klar → aufziehend → Front → Sturm → Gewitter → abklingend →
+ * aufklarend, dazu seit Phase 13 Seenebel bei ruhigem Hochdruck und seit Glacier Phase 3 der Föhnsturm, den nur eine
+ * App mit eigenem Klima erreicht: {@link #transitions}, {@link #targets}), der nur Zahlen liefert: Wind, Richtung, Böen, Bedeckung in Achteln, hohe Schicht, Wolkenart, Regen,
  * Sicht, Nebel, Luftdruck, Temperatur, Taupunkt, Dünung und Gewitterstärke.
  * <p>
  * <b>Zeitleiste:</b> Die Regie legt Abschnitte (Lage, Beginn, Dauer) hintereinander, frei gewürfelt (Markow-Kette mit
@@ -32,10 +33,16 @@ import java.util.Random;
  */
 public final class Weather {
 
-    /** Die acht Lagen des Automaten (Seenebel seit Phase 13). */
+    /** Die neun Lagen des Automaten (Seenebel seit Phase 13, Föhnsturm seit Glacier Phase 3). */
     public enum Phase {
         KLAR("klar"), AUFZIEHEND("aufziehend"), FRONT("Front"), STURM("Sturm"), GEWITTER("Gewitter"), ABKLINGEND("abklingend"), AUFKLAREND("aufklarend"),
-        NEBEL("Seenebel");
+        NEBEL("Seenebel"),
+        /**
+         * Seit Glacier Phase 3: Föhnsturm im Lee eines Gebirges – stürmischer, trockener, warmer Fallwind, böig, klare
+         * Luft mit großer Sicht, wenig tiefe Wolken (die Föhnmauer bleibt über dem Kamm). Die Standardkette erreicht
+         * ihn nicht; eine App gibt ihn über {@link #transitions} frei.
+         */
+        FOEHN("Föhnsturm");
         public final String label;
         Phase(String l) { label = l; }
     }
@@ -69,21 +76,23 @@ public final class Weather {
             {18.0, 265, 0.30, 7.0, 0.00, 4, 14.0, 4, 0.0, 992, 10, 94, 3.0, 3},   // Gewitter
             {11.0, 295, 0.18, 5.0, 0.10, 1, 0.8, 16, 0.0, 1004, 9, 85, 2.4, 0},   // abklingend
             {6.5, 310, 0.15, 3.0, 0.10, 0, 0.0, 40, 0.0, 1015, 9, 75, 1.4, 0},    // aufklarend
-            {2.5, 200, 0.08, 1.0, 0.25, 0, 0.0, 14, 0.9, 1022, 12, 99, 0.5, 0}};  // Seenebel: schwacher Wind, feuchte Luft über kühlerem Wasser
+            {2.5, 200, 0.08, 1.0, 0.25, 0, 0.0, 14, 0.9, 1022, 12, 99, 0.5, 0},   // Seenebel: schwacher Wind, feuchte Luft über kühlerem Wasser
+            {19.0, 285, 0.36, 2.0, 0.10, 0, 0.0, 90, 0.0, 1002, 17, 35, 0.6, 0}}; // Föhnsturm: böiger Fallwind, trocken, warm, große Sicht [G]
 
     /** Mittlere Verweildauer je Lage in Stunden (freie Regie). */
-    static final double[] DWELL = {16, 6, 4, 7, 2, 5, 4, 6};
+    static final double[] DWELL = {16, 6, 4, 7, 2, 5, 4, 6, 8};
 
     /** Übergangswahrscheinlichkeiten der freien Regie (Zeile: von, Spalte: nach). */
     static final double[][] MARKOV = {
-            {0, 0.82, 0, 0, 0, 0, 0, 0.18},
-            {0.2, 0, 0.8, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0.5, 0.2, 0.3, 0, 0},
-            {0, 0, 0, 0, 0.4, 0.6, 0, 0},
-            {0, 0, 0, 0, 0, 1, 0, 0},
-            {0, 0, 0, 0, 0, 0, 1, 0},
-            {0.85, 0, 0, 0, 0, 0, 0, 0.15},
-            {0.6, 0.4, 0, 0, 0, 0, 0, 0}};
+            {0, 0.82, 0, 0, 0, 0, 0, 0.18, 0},
+            {0.2, 0, 0.8, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0.5, 0.2, 0.3, 0, 0, 0},
+            {0, 0, 0, 0, 0.4, 0.6, 0, 0, 0},
+            {0, 0, 0, 0, 0, 1, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 1, 0, 0},
+            {0.85, 0, 0, 0, 0, 0, 0, 0.15, 0},
+            {0.6, 0.4, 0, 0, 0, 0, 0, 0, 0},
+            {0.6, 0.4, 0, 0, 0, 0, 0, 0, 0}};
 
     /** Ein Abschnitt der Zeitleiste: Lage, Beginn (s seit 1970), Dauer (s), Schritt eines Szenarios oder null. */
     public record Segment(Phase phase, double t0, double dur, Scenario.Step step, int index) {
@@ -110,6 +119,14 @@ public final class Weather {
     public volatile double[] climate;
     /** Abweichung des Tags vom Monatsmittel (K), etwa aus einem gewürfelten Jahr (nur mit {@link #climate}). */
     public volatile double anomaly;
+    /**
+     * Seit Glacier Phase 3: eine App kann das Klima der Regie ersetzen – eigene Übergänge ({@code transitions}, je Zeile
+     * eine Lage, Spalten wie {@link Phase}), eigene Zielwerte ({@code targets}, je Zeile eine Lage, Spalten wie
+     * {@link Var}) und eigene mittlere Verweildauern ({@code dwellHours}). null: die Werte der Deutschen Bucht. Gilt ab
+     * dem nächsten Start der Regie und für alle Abschnitte, die danach gewürfelt werden.
+     */
+    public volatile double[][] transitions, targets;
+    public volatile double[] dwellHours;
     /** Mittel der Temperaturen in {@link #TARGET} (°C), um das die Lagen ohne Jahreszeit liegen. */
     public static final double TARGET_MEAN = 11.5;
 
@@ -284,14 +301,16 @@ public final class Weather {
     // ------------------------------------------------------------------ Zeitleiste
 
     private double dwell(Phase p) {
-        double m = DWELL[p.ordinal()];
+        double[] dw = dwellHours;
+        double m = dw != null && dw.length == Phase.values().length ? dw[p.ordinal()] : DWELL[p.ordinal()];
         return Math.max(0.75, m * Math.exp(0.35 * rnd.nextGaussian() - 0.06)) * 3600;
     }
 
     private void extend(double until) {
         while (timeline.get(timeline.size() - 1).t1() < until) {
             Segment last = timeline.get(timeline.size() - 1);
-            double[] row = seasonal(MARKOV[last.phase().ordinal()], last.t1());
+            double[][] mk = transitions != null && transitions.length == Phase.values().length ? transitions : MARKOV;
+            double[] row = seasonal(mk[last.phase().ordinal()], last.t1());
             double u = rnd.nextDouble(), acc = 0;
             int next = 0;
             for (int j = 0; j < row.length; j++) { acc += row[j]; if (u < acc) { next = j; break; } }
@@ -317,9 +336,15 @@ public final class Weather {
     }
 
     /** Zielwert der Lage eines Abschnitts (mit den Vorgaben des Szenarios). */
-    static double base(Segment s, Var v) {
+    double base(Segment s, Var v) {
         double o = s.step() != null ? s.step().value(v) : Double.NaN;
-        return Double.isNaN(o) ? TARGET[s.phase().ordinal()][v.ordinal()] : o;
+        return Double.isNaN(o) ? targetRow(s.phase())[v.ordinal()] : o;
+    }
+
+    /** Zielwerte einer Lage mit dem Klima der App ({@link #targets}) oder dem der Deutschen Bucht. */
+    double[] targetRow(Phase p) {
+        double[][] t = targets;
+        return t != null && t.length == Phase.values().length && t[p.ordinal()].length == N ? t[p.ordinal()] : TARGET[p.ordinal()];
     }
 
     /** Zielwert der Regie zur Zeit t, an den Grenzen weich überblendet. */
@@ -375,14 +400,20 @@ public final class Weather {
     double seasonShift(double t, Phase p) {
         double[] c = climate;
         if (c == null || c.length != 12) return 0;
-        double doy = dayOfYear(t), win = 1 - summerness(doy);
+        double doy = dayOfYear(t), win = 1 - summer(doy);
         double flip = switch (p) {
             case KLAR, AUFKLAREND, NEBEL -> -2.5;
-            case FRONT, STURM, ABKLINGEND -> 1.5;
+            case FRONT, STURM, ABKLINGEND, FOEHN -> 1.5;
             default -> 0;
         };
         return climateAt(c, doy) - TARGET_MEAN + anomaly + flip * win * win;
     }
+
+    /** Seit Glacier Phase 11: Tag im Jahr mitten im Sommer (Vorgabe 196 für den Norden, 15 für die Südhalbkugel). */
+    public volatile int summerDay = 196;
+
+    /** 1 mitten im Sommer … 0 mitten im Winter, nach {@link #summerDay}. */
+    double summer(double doy) { return 0.5 + 0.5 * Math.cos(2 * Math.PI * (doy - summerDay) / 365); }
 
     /** 1 Mitte Juli … 0 Mitte Januar. */
     static double summerness(double doy) { return 0.5 + 0.5 * Math.cos(2 * Math.PI * (doy - 196) / 365); }
@@ -390,7 +421,7 @@ public final class Weather {
     /** Übergänge der freien Regie nach der Jahreszeit gewichtet (ohne {@link #climate} unverändert). */
     double[] seasonal(double[] row, double t) {
         if (climate == null) return row;
-        double doy = dayOfYear(t), su = summerness(doy), au = 0.5 + 0.5 * Math.cos(2 * Math.PI * (doy - 305) / 365);
+        double doy = dayOfYear(t), su = summer(doy), au = 0.5 + 0.5 * Math.cos(2 * Math.PI * (doy - summerDay - 109) / 365);
         double[] w = row.clone();
         w[Phase.GEWITTER.ordinal()] *= 0.04 + 0.96 * su * su;
         w[Phase.NEBEL.ordinal()] *= 0.6 + 1.2 * au;
@@ -418,7 +449,7 @@ public final class Weather {
     double diurnal(double t, double oktas) {
         var lt = Instant.ofEpochMilli((long) (t * 1000)).atZone(zone);
         double h = lt.getHour() + lt.getMinute() / 60.0;
-        double amp = climate == null ? 3 : 3 * (0.55 + 0.75 * summerness(dayOfYear(t)));    // Januar ±1,7, Juli ±3,9 °C
+        double amp = climate == null ? 3 : 3 * (0.55 + 0.75 * summer(dayOfYear(t)));    // Januar ±1,7, Juli ±3,9 °C
         return amp * Math.cos(2 * Math.PI * (h - 15) / 24) * (1 - 0.7 * Math.min(1, oktas / 8));
     }
 

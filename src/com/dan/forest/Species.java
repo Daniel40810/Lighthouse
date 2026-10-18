@@ -343,11 +343,74 @@ public final class Species {
         return s;
     }
 
-    /** Alle fertigen Arten: erst die drei aus Yellowstone, dann Eiche, Buche, Birke, Fichte, dann die weiteren Nadelbäume, zuletzt die Schwarzerle. */
+    // ------------------------------------------------------------ seit Glacier: Südbuchen Patagoniens
+    // Die Tage im Laubjahr gelten wie bei allen Arten für die Nordhalbkugel; eine Szene im Süden gibt den Tag
+    // um ein halbes Jahr versetzt herein (Austrieb im Oktober = Tag 118 hier, Färbung im April = Tag 277 hier).
+
+    /**
+     * Lenga (Nothofagus pumilio): der Waldbaum Patagoniens bis an die Baumgrenze, 15 bis 25 m, die Äste in waagerechten
+     * Stockwerken, kleine gekerbte Blätter; im Herbst (April) leuchtend rot, orange und gelb.
+     */
+    public static Species lenga() {
+        Species s = new Species("Lenga", "Nothofagus pumilio");
+        s.deciduous = true; s.heightMin = 12; s.heightMax = 24; s.trunkRatio = 0.022f; s.trunkEnd = 0.8f; s.crownBase = 0.35f;
+        s.crown = Crown.SPREADING; s.trunkWobble = 0.07f; s.levels = 3;
+        s.count = new float[]{0, 14, 8, 6}; s.angle = new float[]{0, 72, 45, 40}; s.angleVar = new float[]{0, 10, 18, 18};
+        s.lengthRatio = new float[]{0, 0.42f, 0.5f, 0.45f}; s.start = new float[]{0, 0.05f, 0.2f, 0.25f};
+        s.tropism = new float[]{0, -0.005f, -0.02f, 0.02f}; s.radiusRatio = new float[]{0, 0.55f, 0.5f, 0.5f};
+        s.leafLevel = 3; s.leafDensity = 16; s.leaf = Leaf.SMALL; s.leafSize = 0.035f; s.leafAspect = 0.65f; s.cluster = 0.55f;
+        s.flexTrunk = 0.6f; s.flexBranch = 0.9f; s.flutter = 1.0f;
+        s.bark = new float[]{0.11f, 0.10f, 0.09f}; s.barkMarks = 0.15f; s.barkMark = new float[]{0.05f, 0.05f, 0.045f};
+        s.spring = new float[]{0.16f, 0.36f, 0.06f}; s.summer = new float[]{0.05f, 0.15f, 0.03f};
+        s.autumn = new float[][]{{0.48f, 0.07f, 0.03f}, {0.58f, 0.18f, 0.03f}, {0.62f, 0.33f, 0.04f}, {0.40f, 0.06f, 0.04f}};
+        s.leafOut = 118; s.colorStart = 268; s.colorFull = 285; s.bare = 305;
+        return s;
+    }
+
+    /**
+     * Ñire (Nothofagus antarctica): Strauch oder kleiner, krummer Baum von 3 bis 8 m, oft mehrstämmig, an trockenen
+     * Rändern und in Senken; kleine, gewellte, duftende Blätter; im Herbst rot bis rostbraun.
+     */
+    public static Species nire() {
+        Species s = new Species("Ñire", "Nothofagus antarctica");
+        s.deciduous = true; s.heightMin = 3; s.heightMax = 8; s.trunkRatio = 0.03f; s.trunkEnd = 0.4f; s.crownBase = 0.15f;
+        s.crown = Crown.SPREADING; s.trunkWobble = 0.14f; s.trunkSegments = 8; s.levels = 3;
+        s.count = new float[]{0, 8, 7, 5}; s.angle = new float[]{0, 45, 50, 45}; s.angleVar = new float[]{0, 22, 25, 22};
+        s.lengthRatio = new float[]{0, 0.6f, 0.5f, 0.45f}; s.start = new float[]{0, 0.05f, 0.15f, 0.2f};
+        s.tropism = new float[]{0, 0.02f, -0.03f, 0.02f}; s.radiusRatio = new float[]{0, 0.65f, 0.5f, 0.5f};
+        s.leafLevel = 3; s.leafDensity = 18; s.leaf = Leaf.SMALL; s.leafSize = 0.025f; s.leafAspect = 0.7f; s.cluster = 0.45f;
+        s.flexTrunk = 0.5f; s.flexBranch = 0.8f; s.flutter = 1.1f;
+        s.bark = new float[]{0.09f, 0.085f, 0.08f}; s.barkMarks = 0.25f; s.barkMark = new float[]{0.16f, 0.17f, 0.12f};
+        s.spring = new float[]{0.15f, 0.32f, 0.06f}; s.summer = new float[]{0.055f, 0.14f, 0.035f};
+        s.autumn = new float[][]{{0.42f, 0.09f, 0.04f}, {0.35f, 0.14f, 0.05f}, {0.28f, 0.10f, 0.05f}};
+        s.leafOut = 120; s.colorStart = 262; s.colorFull = 280; s.bare = 300;
+        return s;
+    }
+
+    /**
+     * Guindo oder Coigüe de Magallanes (Nothofagus betuloides): immergrüne Südbuche der feuchten Westseite, nah am Eis,
+     * 15 bis 25 m, dichte, gerundete Krone aus kleinen, ledrigen, dunkel glänzenden Blättern.
+     */
+    public static Species guindo() {
+        Species s = new Species("Guindo", "Nothofagus betuloides");
+        s.deciduous = false; s.heightMin = 12; s.heightMax = 22; s.trunkRatio = 0.022f; s.trunkEnd = 0.85f; s.crownBase = 0.3f;
+        s.crown = Crown.OVOID; s.trunkWobble = 0.05f; s.levels = 3;
+        s.count = new float[]{0, 18, 8, 6}; s.angle = new float[]{0, 55, 45, 40}; s.lengthRatio = new float[]{0, 0.36f, 0.5f, 0.45f};
+        s.tropism = new float[]{0, 0.03f, 0.0f, 0.03f}; s.radiusRatio = new float[]{0, 0.5f, 0.5f, 0.5f};
+        s.leafLevel = 3; s.leafDensity = 20; s.leaf = Leaf.SMALL; s.leafSize = 0.022f; s.leafAspect = 0.6f; s.cluster = 0.5f;
+        s.flexTrunk = 0.5f; s.flexBranch = 0.7f; s.flutter = 0.6f;
+        s.bark = new float[]{0.10f, 0.085f, 0.07f};
+        s.spring = new float[]{0.06f, 0.14f, 0.04f}; s.summer = new float[]{0.022f, 0.065f, 0.022f};
+        s.leafOut = 120;
+        return s;
+    }
+
+    /** Alle fertigen Arten: erst die drei aus Yellowstone, dann Eiche, Buche, Birke, Fichte, dann die weiteren Nadelbäume, die Schwarzerle, zuletzt die drei Südbuchen aus Glacier. */
     public static final List<java.util.function.Supplier<Species>> ALL = List.of(Species::lodgepolePine, Species::aspen, Species::douglasFir,
             Species::oak, Species::beech, Species::birch, Species::spruce,
             Species::engelmannSpruce, Species::subalpineFir, Species::whitebarkPine,
-            Species::silverFir, Species::scotsPine, Species::larch, Species::stonePine, Species::alder);
+            Species::silverFir, Species::scotsPine, Species::larch, Species::stonePine, Species::alder,
+            Species::lenga, Species::nire, Species::guindo);
 
     /** Die Art mit diesem deutschen oder lateinischen Namen (oder null). */
     public static Species byName(String n) {

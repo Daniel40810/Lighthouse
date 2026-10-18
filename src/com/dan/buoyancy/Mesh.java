@@ -99,6 +99,110 @@ public final class Mesh {
     static double[] sph(double t, double a) { return new double[]{Math.sin(t) * Math.sin(a), Math.cos(t), Math.sin(t) * Math.cos(a)}; }
     static double[] add(double x, double y, double z, double[] d, double r) { return new double[]{x + d[0] * r, y + d[1] * r, z + d[2] * r}; }
 
+    /**
+     * Seit Glacier Phase 10: ein Balken von a nach b (Mitte der Unterkante), w breit und h hoch, die Höhe nach oben (y),
+     * die Breite waagerecht quer zum Balken; ein senkrechter Balken bekommt die Breite in x und Tiefe in z.
+     */
+    public void beam(double[] a, double[] b, double w, double h, double[] col, float m) {
+        double dx = b[0] - a[0], dy = b[1] - a[1], dz = b[2] - a[2], l = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        if (l < 1e-6) return;
+        double[] t = {dx / l, dy / l, dz / l}, side, up;
+        if (Math.abs(t[1]) > 0.95) { side = new double[]{w / 2, 0, 0}; up = new double[]{0, 0, h}; double[] o = {a[0], a[1], a[2] - h / 2}, e = {b[0], b[1], b[2] - h / 2}; a = o; b = e; }
+        else {
+            double sx = -t[2], sz = t[0], sl = Math.hypot(sx, sz);
+            side = new double[]{sx / sl * w / 2, 0, sz / sl * w / 2};
+            // Höhe: senkrecht zu Balken und Quere, nach oben
+            double cx = side[1] * t[2] - side[2] * t[1], cy = side[2] * t[0] - side[0] * t[2], cz = side[0] * t[1] - side[1] * t[0], cl = Math.sqrt(cx * cx + cy * cy + cz * cz);
+            if (cy < 0) { cx = -cx; cy = -cy; cz = -cz; }
+            up = new double[]{cx / cl * h, cy / cl * h, cz / cl * h};
+        }
+        double[] a0 = sub(a, side), a1 = plus(a, side), b0 = sub(b, side), b1 = plus(b, side);
+        double[] a2 = plus(a1, up), a3 = plus(a0, up), b2 = plus(b1, up), b3 = plus(b0, up);
+        quad(a0, b0, b1, a1, col, m);   // unten
+        quad(a3, a2, b2, b3, col, m);   // oben
+        quad(a1, b1, b2, a2, col, m);
+        quad(b0, a0, a3, b3, col, m);
+        quad(a0, a1, a2, a3, col, m);
+        quad(b1, b0, b3, b2, col, m);
+    }
+
+    static double[] plus(double[] a, double[] b) { return new double[]{a[0] + b[0], a[1] + b[1], a[2] + b[2]}; }
+    static double[] sub(double[] a, double[] b) { return new double[]{a[0] - b[0], a[1] - b[1], a[2] - b[2]}; }
+
+    /**
+     * Seit Glacier Phase 10: der Ausflugskatamaran ({@link Catamaran}) in Modellkoordinaten (Wasserlinie y = 0):
+     * zwei Rümpfe (weiß, unter Wasser rotbraun), das Brückendeck, der Salon mit Fensterband, das Sonnendeck mit Geländer
+     * und das Steuerhaus darauf, vorn das Netz zwischen den Rümpfen.
+     */
+    public static Mesh catamaran(Catamaran c) {
+        Mesh m = new Mesh();
+        double L = c.length, hs = c.hullSpacing / 2, hb = c.hullBeam / 2, T = c.draftDesign, D = c.deck;
+        double[] white = WHITE, red = ANTIFOUL, stripe = {0.02, 0.10, 0.32}, glass = GLASSCOL, deck = {0.20, 0.20, 0.19}, rail = {0.55, 0.56, 0.56};
+        int ns = 24;
+        for (int side = -1; side <= 1; side += 2) {
+            double q0 = side * hs;
+            double[][] prev = null;
+            for (int i = 0; i <= ns; i++) {
+                double s = -L / 2 + L * i / ns, u = s / (L / 2);
+                double w = hb * (u > 0.4 ? Math.sqrt(Math.max(0, 1 - Math.pow((u - 0.4) / 0.6, 2))) : u < -0.9 ? 0.9 : 1);
+                double t = T * (u > 0.6 ? 1 - 0.5 * (u - 0.6) / 0.4 : 1), top = D + (u > 0.7 ? 0.5 * (u - 0.7) / 0.3 : 0);
+                // Schnitt: oben bei +x, Wasserlinie, Kiel, Wasserlinie, oben bei −x
+                double[][] sec = {{q0 + w, top, -s}, {q0 + w * 0.95, 0, -s}, {q0 + w * 0.25, -t, -s}, {q0 - w * 0.25, -t, -s}, {q0 - w * 0.95, 0, -s}, {q0 - w, top, -s}};
+                if (prev != null)
+                    for (int k = 0; k + 1 < sec.length; k++) {
+                        double[] col = k == 0 || k == 4 ? white : red;
+                        // der Schnitt läuft von +x nach −x; so zeigen die Flächen nach außen
+                        m.quad(prev[k + 1], sec[k + 1], sec[k], prev[k], col, PAINT);
+                    }
+                if (prev != null) {
+                    // Deck des Rumpfs
+                    m.quad(prev[0], sec[0], sec[5], prev[5], deck, PAINT);
+                }
+                prev = sec;
+            }
+            // blauer Streifen außen und Heckspiegel
+            m.beam(p(q0 + side * (hb + 0.01), D - 0.45, L / 2 - 0.2), p(q0 + side * (hb * 0.95 + 0.01), D - 0.45, -L * 0.2), 0.04, 0.25, stripe, PAINT);
+            m.quad(p(q0 - hb * 0.22, -T, L / 2), p(q0 + hb * 0.22, -T, L / 2), p(q0 + hb * 0.9, D, L / 2), p(q0 - hb * 0.9, D, L / 2), white, PAINT);
+        }
+        // Brückendeck zwischen den Rümpfen
+        // 4 cm über dem Deck der Rümpfe, sonst liegen zwei Flächen in einer Ebene und flackern (Befund Phase 10)
+        m.box(0, D - 0.13, -(-L / 2 + 1.5 + (L * 0.75 - 1.5) / 2), c.beam / 2, 0.17, (L * 0.75 - 1.5) / 2, white, PAINT);
+        // Netz vorn (dunkel, flach)
+        m.box(0, D - 0.05, -(L * 0.375 + L * 0.06), hs - hb, 0.03, L * 0.06, DARK, PAINT);
+        // Salon: Brüstung, Fensterband, Dach
+        double sa = -L / 2 + 2.2, sb = L * 0.22, sm = -(sa + sb) / 2, sh = (sb - sa) / 2, bw = c.beam / 2 - 0.35;
+        m.box(0, D + 0.45, sm, bw, 0.45, sh, white, PAINT);
+        m.box(0, (D + 0.9 + c.sunDeck - 0.4) / 2, sm, bw - 0.05, (c.sunDeck - 0.4 - D - 0.9) / 2, sh - 0.05, glass, GLASS);   // bis unter das Dach
+        m.box(0, c.sunDeck - 0.2, sm, c.beam / 2 - 0.15, 0.2, sh + 0.4, white, PAINT);
+        // Steuerhaus vorn auf dem Sonnendeck
+        double wa = sb - 4.2, wb = sb - 1.2;
+        m.box(0, c.sunDeck + 0.5, -(wa + wb) / 2, 1.7, 0.5, (wb - wa) / 2, white, PAINT);
+        m.box(0, c.sunDeck + 1.5, -(wa + wb) / 2, 1.65, 0.5, (wb - wa) / 2 - 0.05, glass, GLASS);
+        m.box(0, c.sunDeck + 2.1, -(wa + wb) / 2, 1.85, 0.1, (wb - wa) / 2 + 0.3, white, PAINT);
+        m.cylinder(0, -(wa + 0.6), 0.06, 0.04, c.sunDeck + 2.2, c.sunDeck + 4.4, 6, new double[][]{rail}, PAINT, false);
+        // Geländer ums Sonnendeck: Pfosten alle 1,5 m, Handlauf und Mittelstab
+        double x0 = -(c.beam / 2 - 0.25), x1 = c.beam / 2 - 0.25, z0 = -(sb + 0.3), z1 = -(sa - 0.3), y = c.sunDeck, yr = c.rail;
+        double[][] ring = {{x0, z0}, {x1, z0}, {x1, z1}, {x0, z1}, {x0, z0}};
+        for (int k = 0; k + 1 < ring.length; k++) {
+            double ax = ring[k][0], az = ring[k][1], bx = ring[k + 1][0], bz = ring[k + 1][1], l = Math.hypot(bx - ax, bz - az);
+            int posts = Math.max(1, (int) Math.round(l / 1.5));
+            for (int j = 0; j < posts; j++) {
+                double f = j / (double) posts, px = ax + (bx - ax) * f, pz = az + (bz - az) * f;
+                m.beam(p(px, y, pz), p(px, yr, pz), 0.05, 0.05, rail, PAINT);
+            }
+            m.beam(p(ax, yr - 0.03, az), p(bx, yr - 0.03, bz), 0.05, 0.05, rail, PAINT);
+            m.beam(p(ax, y + 0.5, az), p(bx, y + 0.5, bz), 0.025, 0.025, rail, PAINT);
+        }
+        // Treppe achtern (schräger Balken) und Geländer vorn am Brückendeck
+        m.beam(p(x1 - 0.6, D, z1 + 1.4), p(x1 - 0.6, c.sunDeck, z1 - 0.4), 0.8, 0.12, deck, PAINT);
+        for (int side = -1; side <= 1; side += 2) {
+            double q = side * (hs + hb * 0.55);
+            m.beam(p(q, D + 1.0, -sb), p(q, D + 1.0, -L * 0.36), 0.04, 0.04, rail, PAINT);
+            for (double sp = sb; sp <= L * 0.36 + 0.01; sp += (L * 0.36 - sb) / 3) m.beam(p(q, D, -sp), p(q, D + 1.0, -sp), 0.04, 0.04, rail, PAINT);
+        }
+        return m;
+    }
+
     // ------------------------------------------------------------------ Farben (linear)
     static final double[] RED = {0.42, 0.03, 0.02}, GREEN = {0.02, 0.22, 0.06}, WHITE = {0.72, 0.72, 0.7}, BLACK = {0.03, 0.03, 0.035},
             YELLOW = {0.65, 0.42, 0.02}, GREY = {0.18, 0.19, 0.2}, DARK = {0.06, 0.065, 0.07}, ANTIFOUL = {0.22, 0.045, 0.03},

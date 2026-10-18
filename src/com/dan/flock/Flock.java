@@ -84,6 +84,10 @@ public final class Flock {
         public double dabble, spread, walkPhase;
         double homeX, homeZ;
         int area = -1;
+        /** Seit Glacier Phase 10: Dominikanermöwe (schwarzer Mantel) statt Silbermöwe; nur das Netz unterscheidet sich. */
+        public boolean kelp;
+        /** Winkel auf dem Kreis in der Thermik (Kondor). */
+        double orbit;
         public final double[] pos = new double[3], vel = new double[3];
         public volatile State state = State.FLY;
         /** Flügel: Phase des Schlags (rad), wie stark sie schlägt 0..1, Querneigung (rad), Faltung beim Sitzen 0..1. */
@@ -131,6 +135,15 @@ public final class Flock {
     public final List<double[]> disturbers = new CopyOnWriteArrayList<>();
     /** Tag im Jahr (Schwalben nur im Sommer). */
     public volatile int dayOfYear = 200;
+    /**
+     * Seit Glacier Phase 10: die Möwen sind Dominikanermöwen (Larus dominicanus, Patagonien: schwarzer Mantel); Verhalten
+     * wie die Silbermöwe.
+     */
+    public volatile boolean kelpGulls;
+    /** Seit Glacier Phase 10: Thermik für die Kondore (Kreise über sonnigen Hängen); leer: Kreise im Revier. */
+    public final List<Area> thermals = new CopyOnWriteArrayList<>();
+    /** Höhenband der Kondore über dem Boden darunter (m) und ihr Revier um (condorX, condorZ). */
+    public volatile double condorFloor = 80, condorCeiling = 650, condorX = Double.NaN, condorZ = Double.NaN, condorRadius = 2500;
 
     // ------------------------------------------------------------------ Zustand
     private final List<Gull> gulls = new CopyOnWriteArrayList<>();
@@ -221,6 +234,7 @@ public final class Flock {
         int n = quality.birds;
         for (int i = 0; i < n; i++) {
             Gull g = new Gull(i, seed);
+            g.kelp = kelpGulls;
             double a = r.nextDouble() * 2 * Math.PI, rr = homeRadius * (0.3 + 0.6 * r.nextDouble());
             g.pos[0] = homeX + Math.sin(a) * rr;
             g.pos[2] = homeZ - Math.cos(a) * rr;
@@ -271,7 +285,7 @@ public final class Flock {
             for (Gull g : gulls) next = Math.max(next, g.id + 1);
             while (have < want) {
                 Gull g = sp == Species.MOEWE ? new Gull(next, seed) : spawn(sp, next);
-                if (sp == Species.MOEWE) { g.state = State.AWAY; g.timer = 5 + g.rnd.nextDouble() * 60; }
+                if (sp == Species.MOEWE) { g.state = State.AWAY; g.timer = 5 + g.rnd.nextDouble() * 60; g.kelp = kelpGulls; }
                 gulls.add(g);
                 next++;
                 have++;
@@ -650,6 +664,15 @@ public final class Flock {
             g.state = State.SWIM;
             g.fold = 1;
             g.timer = 20 + g.rnd.nextDouble() * 120;
+        } else if (sp == Species.KONDOR) {
+            double cx = Double.isNaN(condorX) ? homeX : condorX, cz = Double.isNaN(condorZ) ? homeZ : condorZ;
+            double an = g.rnd.nextDouble() * 6.283, rr = condorRadius * 0.7 * Math.sqrt(g.rnd.nextDouble());
+            g.pos[0] = cx + Math.sin(an) * rr; g.pos[2] = cz - Math.cos(an) * rr;
+            g.pos[1] = groundOf(g.pos[0], g.pos[2]) + condorFloor + (condorCeiling - condorFloor) * (0.3 + 0.5 * g.rnd.nextDouble());
+            g.vel[0] = Math.sin(an) * sp.vCruise; g.vel[2] = -Math.cos(an) * sp.vCruise;
+            g.state = State.FLY;
+            g.approach = 0;
+            pickThermal(g);
         } else if (sp == Species.KRAEHE && !feeding.isEmpty()) {
             int ai = g.rnd.nextInt(feeding.size());
             Area a = feeding.get(ai);
@@ -812,6 +835,7 @@ public final class Flock {
             g.wanderX = fresh.wanderX; g.wanderY = fresh.wanderY; g.wanderZ = fresh.wanderZ;
             return;
         }
+        if (sp == Species.KONDOR) { stepCondor(g, h, night); return; }
         double[] wind = windAt(g.pos[0], g.pos[1] - groundOf(g.pos[0], g.pos[2]), g.pos[2]);
         switch (g.state) {
             case SWIM -> {
@@ -1003,6 +1027,89 @@ public final class Flock {
         if (g.state == State.FLY && !night) maybeCall(g, h, sp == Species.KRAEHE ? 1 / 25.0 : sp == Species.SCHWALBE ? 1 / 15.0 : 1 / 90.0);
     }
 
+    // ------------------------------------------------------------------ Glacier Phase 10: Kondore
+
+    /** Steigen in der Thermik (m/s): mit der Sonne (Helligkeit) und als Hangwind mit dem Wind; nachts nichts. */
+    public double condorLift() {
+        double sun = Math.max(0, Math.min(1, ambientLux / 60_000));
+        return 0.4 + 2.4 * sun + 0.06 * Math.min(windSpeed, 15);
+    }
+
+    /** Nächste Thermik: eine der {@link #thermals} (bevorzugt eine andere als die letzte) oder ein Punkt im Revier. */
+    private void pickThermal(Gull g) {
+        double cx = Double.isNaN(condorX) ? homeX : condorX, cz = Double.isNaN(condorZ) ? homeZ : condorZ;
+        if (!thermals.isEmpty()) {
+            int k = g.rnd.nextInt(thermals.size());
+            if (k == g.area && thermals.size() > 1) k = (k + 1) % thermals.size();
+            Area a = thermals.get(k);
+            g.area = k;
+            double an = g.rnd.nextDouble() * 6.283, rr = a.r() * 0.5 * Math.sqrt(g.rnd.nextDouble());
+            g.wanderX = a.x() + Math.sin(an) * rr;
+            g.wanderZ = a.z() - Math.cos(an) * rr;
+        } else {
+            double an = g.rnd.nextDouble() * 6.283, rr = condorRadius * Math.sqrt(g.rnd.nextDouble());
+            g.wanderX = cx + Math.sin(an) * rr;
+            g.wanderZ = cz - Math.cos(an) * rr;
+        }
+        g.slotDist = 38 + g.rnd.nextDouble() * 30;            // Halbmesser des Kreises
+        g.slotSide = g.rnd.nextBoolean() ? 1 : -1;             // Drehsinn
+        g.timer = 60 + g.rnd.nextDouble() * 140;
+    }
+
+    /**
+     * Der Kondor: gleitet von Thermik zu Thermik (16 m/s, sinkt dabei), kreist in ihr mit 40 bis 70 m Halbmesser und
+     * steigt mit {@link #condorLift} minus seinem Sinken bis an die Decke. Schlägt nur, wenn er zu tief ist. Nachts sitzt
+     * er außerhalb der Szene an seinem Felsen.
+     */
+    private void stepCondor(Gull g, double h, boolean night) {
+        Species sp = g.species;
+        if (night) { release(g); g.state = State.AWAY; g.timer = 300 + g.rnd.nextDouble() * 900; return; }
+        if (g.state != State.FLY) { g.state = State.FLY; g.approach = 0; pickThermal(g); }
+        double ground = groundOf(g.pos[0], g.pos[2]), above = g.pos[1] - ground;
+        double[] wind = windAt(Math.min(above, 200));
+        double ox = g.vel[0], oz = g.vel[2], vy;
+        if (g.approach == 0) {
+            // Gleiten zur Thermik
+            double dx = g.wanderX - g.pos[0], dz = g.wanderZ - g.pos[2], d = Math.hypot(dx, dz);
+            if (d < g.slotDist * 1.2) { g.approach = 1; g.orbit = Math.atan2(g.pos[2] - g.wanderZ, g.pos[0] - g.wanderX); }
+            double v = 16;
+            double tx = dx / Math.max(1e-6, d) * v, tz = dz / Math.max(1e-6, d) * v;
+            g.vel[0] += (tx - g.vel[0]) * Math.min(1, h * 0.6);
+            g.vel[2] += (tz - g.vel[2]) * Math.min(1, h * 0.6);
+            vy = -sp.sink * 1.4;
+        } else {
+            // Kreisen: der Mittelpunkt treibt mit dem Wind
+            g.wanderX += wind[0] * 0.8 * h;
+            g.wanderZ += wind[2] * 0.8 * h;
+            double r = g.slotDist, v = sp.vCruise, om = v / r * g.slotSide;
+            g.orbit += om * h;
+            double px = g.wanderX + Math.cos(g.orbit) * r, pz = g.wanderZ + Math.sin(g.orbit) * r;
+            double tvx = -Math.sin(g.orbit) * v * g.slotSide + wind[0] * 0.8, tvz = Math.cos(g.orbit) * v * g.slotSide + wind[2] * 0.8;
+            g.vel[0] = tvx + (px - g.pos[0]) * 0.5;
+            g.vel[2] = tvz + (pz - g.pos[2]) * 0.5;
+            vy = condorLift() - sp.sink;
+            if (above > condorCeiling) vy = Math.min(vy, -0.2);
+            if (g.timer <= 0 || above > condorCeiling + 20) { g.approach = 0; pickThermal(g); }
+        }
+        // nie zu tief: dann schlägt er (langsam, schwer) und steigt
+        double flap = 0;
+        if (above < condorFloor * 0.5) { flap = 0.8; vy = Math.max(vy, sp.climb); }
+        if (above < 15) { g.pos[1] = ground + 15; vy = Math.max(vy, 0); }
+        g.vel[1] += (vy - g.vel[1]) * Math.min(1, h * 1.5);
+        g.pos[0] += g.vel[0] * h;
+        g.pos[1] += g.vel[1] * h;
+        g.pos[2] += g.vel[2] * h;
+        g.airspeed = Math.hypot(g.vel[0] - wind[0], g.vel[2] - wind[2]);
+        g.flap += (flap - g.flap) * Math.min(1, h * 2);
+        if (g.flap > 0.05) g.wingPhase = (g.wingPhase + 2 * Math.PI * sp.flapHz * h) % (2 * Math.PI);
+        if (Math.hypot(g.vel[0], g.vel[2]) > 0.5) g.facing = Math.toDegrees(Math.atan2(g.vel[0], -g.vel[2]));
+        double lat = ((g.vel[0] - ox) * -g.vel[2] + (g.vel[2] - oz) * g.vel[0]) / Math.max(1e-6, Math.hypot(g.vel[0], g.vel[2])) / h;
+        double bank = Math.atan(Math.max(-8, Math.min(8, lat)) / 9.81);
+        g.bank += (bank - g.bank) * Math.min(1, h * 1.5);
+        g.fold = 0;
+        if (g.rnd.nextDouble() < h / 600) fire(g);   // Kondore sind fast stumm; selten ein Zischen
+    }
+
     // ------------------------------------------------------------------ Anzeige
 
     /** Zahl der Möwen je Zustand. */
@@ -1045,7 +1152,7 @@ public final class Flock {
     }
 
     static String plural(Species sp) {
-        return switch (sp) { case MOEWE -> "Möwen"; case KRAEHE -> "Krähen"; case SCHWALBE -> "Schwalben"; case ENTE -> "Enten"; case SCHWAN -> "Schwäne"; case KORMORAN -> "Kormorane"; };
+        return switch (sp) { case MOEWE -> "Möwen"; case KRAEHE -> "Krähen"; case SCHWALBE -> "Schwalben"; case ENTE -> "Enten"; case SCHWAN -> "Schwäne"; case KORMORAN -> "Kormorane"; case KONDOR -> "Kondore"; };
     }
 
     private String describeGulls() {

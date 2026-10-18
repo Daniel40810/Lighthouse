@@ -98,8 +98,7 @@ public final class FlockGl {
         meshOf.put(key(Species.MOEWE, 0), 0);
         int tris = count / 3;
         for (Species sp : Species.values()) {
-            if (sp == Species.MOEWE) continue;
-            for (int k = 0; k < BirdMesh.variants(sp); k++) {
+            for (int k = sp == Species.MOEWE ? 1 : 0; k < BirdMesh.variants(sp); k++) {   // Möwe 0 ist das GullMesh oben
                 BirdMesh bm = BirdMesh.build(sp, k);
                 meshOf.put(key(sp, k), meshes.size());
                 meshes.add(upload(gl, bm.vertices(), bm.count()));

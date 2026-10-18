@@ -45,6 +45,10 @@ gl.draw(gl4, v, l, s.strength);
 
 `View.depthTexture` ist eine Kopie der Tiefe der Szene; damit bekommen Tropfen und Nebel weiche Ränder, wo sie in Wasser oder Wand stecken. Die Ausgabe ist vormultipliziert (`ONE, ONE_MINUS_SRC_ALPHA`), die Farben sind linear und vorbelichtet wie der Rest der Szene. `View.lodPixels` (seit Phase 13, Vorgabe 110) dünnt Nebel- und Weißwasserbälle aus, die im Bild größer als so viele Bildpunkte sind: gezeichnet wird ein Ball mit Wahrscheinlichkeit (lodPixels / Durchmesser)², Nebel höchstens auf ein Achtel, Weißwasser höchstens auf die Hälfte (es deckt schon bis 45 %), und er deckt dafür entsprechend mehr; die Schwelle für unsichtbare Ränder gilt vor dem Ausdünnen. Die mittlere Trübung bleibt (gemessen: Helligkeit vor dem Turm bei Bft 10 aus 60 m 181,3 gegen 181,4, Streuung 33,0 gegen 32,0), die Gischt kostet dort gut die Hälfte; 0 schaltet es ab.
 
+### Aufschlag (Phase 7)
+
+`s.impact(x, h, z, volumen, tempo)` – ein Stück schlägt ins Wasser, ohne dass es als Körper in der Gischt steht: ein Ring von Spritzern um die Stelle, die Strahlhöhe wächst mit dem Tempo und schwach mit dem Volumen (höchstens 60 m). `impacts()` zählt sie.
+
 ## Aufbau
 
 | Klasse | Aufgabe |

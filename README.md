@@ -21,15 +21,48 @@ Jedes Package folgt demselben Vertrag: Der Kern braucht nur Java 21 (`java.*`), 
 | `com.dan.wetglass` | Tropfen auf der Scheibe: haften, laufen, verschmelzen, Beschlag, Salz, Überspülung, auch auf runden Flächen | [wetglass](src/com/dan/wetglass/README.md) |
 | `com.dan.beacon` | Leuchtfeuer aus einer Kennung: Sektoren, Drehlinse, Strahl im Regen, Lichtpunkt am Horizont, Lichtflecken im Laternenraum | [beacon](src/com/dan/beacon/README.md) |
 | `com.dan.lightning` | Leitblitz in Stufen, Hauptschläge, Nachleuchten, Wolkenblitz, Donner aus dem Kanal | [lightning](src/com/dan/lightning/README.md) |
-| `com.dan.weather` | Die Regie: acht Lagen, Markow-Kette, Trägheiten, Barometer, Regiebücher als Text | [weather](src/com/dan/weather/README.md) |
+| `com.dan.weather` | Die Regie: acht Lagen (dazu der Föhnsturm aus Glacier, den Lighthouse nicht nutzt), Markow-Kette, Trägheiten, Barometer, Regiebücher als Text | [weather](src/com/dan/weather/README.md) |
 | `com.dan.fog` | Seenebel in Bänken, Licht im Nebel, Nebelschallsignale mit Kennung | [fog](src/com/dan/fog/README.md) |
 | `com.dan.buoyancy` | Tonnen und ein Küstenmotorschiff auf beliebigem Wasser: Tauchen, Stampfen, Rollen, Lichter, Wischer | [buoyancy](src/com/dan/buoyancy/README.md) |
 | `com.dan.flock` | Silbermöwen: Schwarm, Aufwind, Landen gegen den Wind, Schlafen am Turm | [flock](src/com/dan/flock/README.md) |
 | `com.dan.soundscape` | Erzeugter Klang ohne Audiodateien: Wind, Äolstöne, Brandung, Regen, Horn, Möwen, Donner, Diesel, Räume, Ohr | [soundscape](src/com/dan/soundscape/README.md) |
+| `com.dan.kino` | Kinomodus aus Glacier: Regiebücher mit Balken, Vor- und Abspann, Untertiteln, Überblendung, Schwenk und Filmkorn | [kino](src/com/dan/kino/README.md) |
 | `com.dan.muster` | Die Vorlage für ein Element-Package | [muster](src/com/dan/muster/README.md) |
 | `com.dan.lighthouse` | Die App: Szene, Verdrahtung, Renderer, Bedienfeld, Datenbank | [lighthouse](src/com/dan/lighthouse/README.md) |
 
 Dazu liegen `forest`, `ground`, `river` und `road` aus dem Vorgänger Geyser im Projekt; die App nutzt sie nicht.
+
+## Kino und Rückfluss aus Glacier
+
+Ein Regiebuch lässt sich wie im Kino zeigen. Starten geht auf zwei Wegen:
+
+- im Startbild: Regiebuch wählen, „Im Kino“;
+- im Block WETTER unter „Regiebuch“: Haken „Im Kino zeigen“, dann „Starten“.
+
+Bedienfeld, Statuszeile und Titelleiste verschwinden. Die Szene füllt den Bildschirm mit Balken auf 2,39 : 1, und es gibt:
+
+- einen Vorspann mit dem Namen des Regiebuchs,
+- Untertitel aus den Texten der Schritte,
+- eine Überblendung bei jedem Wechsel der Kamera,
+- einen langsamen Schwenk um den Turm,
+- Filmkorn,
+- einen Abspann, wenn das Regiebuch zu Ende ist.
+
+Der Ton blendet mit dem Bild. **Esc** beendet das Kino (das Regiebuch läuft weiter), die **Leertaste** hält an, **F12** fotografiert mit Balken.
+
+Mit dem Kino kamen die Erweiterungen der gemeinsamen Packages aus Glacier zurück:
+
+- `sky`: der Südhimmel.
+- `weather`: der Föhnsturm, eigenes Klima je App, Sommer auf der Südhalbkugel.
+- `cloud`: die Lentikularis.
+- `ocean`: Gletschersee (`Ocean.lago`).
+- `buoyancy`: Eisberge, Treibeis, Katamaran.
+- `flock`: der Andenkondor.
+- `forest`, `ground`, `river`: von der älteren Fassung auf den Stand von Glacier (mit Lenga, Ñire, Guindo und dem Coirón).
+- `soundscape`: Gletscher, Wildwasser.
+- `spray`: Einschlag ohne Körper.
+
+Alle Erweiterungen sind abwärtsgleich, ihre Vorgaben bleiben wie zuvor; Lighthouse übersetzt ohne eine Änderung an der App.
 
 ## Bilder
 

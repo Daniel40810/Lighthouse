@@ -148,6 +148,7 @@ public final class FlockCheck {
                 f("Flügel: ausgebreitet reicht die Spitze %.2f m zur Seite (Spannweite gut 1,4 m), angelegt liegt sie %.2f m hinter der Schulter am Rumpf", spread[0], folded[2]));
 
         species();
+        glacier();
         lines.add(bad == 0 ? "Alles in Ordnung." : bad + " Prüfungen fehlgeschlagen.");
         return lines;
     }
@@ -261,4 +262,55 @@ public final class FlockCheck {
     }
 
     public int failures() { return bad; }
+
+    /** Seit Glacier Phase 10: Kondore in der Thermik, Dominikanermöwen, Möwen auf treibenden Plätzen (Eisberge). */
+    private void glacier() {
+        com.dan.flock.Species K = com.dan.flock.Species.KONDOR;
+        Flock f = Flock.beaufort(3);
+        f.seed = 5;
+        f.quality = Flock.Quality.LOW;
+        f.kelpGulls = true;
+        f.ambientLux = 50_000;
+        f.ground = (x, z) -> Math.max(0, 0.15 * (x - 300));            // Hang im Osten, See im Westen
+        f.condorX = 800; f.condorZ = 0; f.condorRadius = 1200;
+        f.thermals.add(new Flock.Area(700, -300, 80));
+        f.thermals.add(new Flock.Area(1100, 400, 80));
+        int[] m = new int[com.dan.flock.Species.values().length];
+        m[K.ordinal()] = 3;
+        f.mix = m;
+        // Eisberg: ein Platz, der treibt (0,3 m/s nach Osten)
+        double[] berg = {-100, 6.0, 40};
+        f.perches.add(new Flock.Perch("Eisberg", () -> new double[]{berg[0], berg[1], berg[2]}).appeal(4));
+        f.step(0.01);
+        double minAbove = 1e9, maxAbove = 0, flapT = 0, circleT = 0, t = 0, climbSum = 0;
+        int sat = 0;
+        for (int i = 0; i < 30 * 600; i++) {
+            berg[0] += 0.3 / 30;
+            f.step(1 / 30.0);
+            t += 1 / 30.0;
+            for (Flock.Gull g : f.gulls()) {
+                if (g.species == K && g.state == Flock.State.FLY) {
+                    double above = g.pos[1] - f.ground.height(g.pos[0], g.pos[2]);
+                    if (t > 20) { minAbove = Math.min(minAbove, above); maxAbove = Math.max(maxAbove, above); }
+                    if (g.flap > 0.3) flapT += 1 / 30.0;
+                    if (Math.abs(g.bank) > 0.2) { circleT += 1 / 30.0; climbSum += g.vel[1] / 30.0; }
+                }
+                if (g.species == com.dan.flock.Species.MOEWE && g.state == Flock.State.PERCH && g.perch() != null && g.perch().name.equals("Eisberg")) {
+                    sat++;
+                    if (Math.abs(g.pos[0] - berg[0]) > 0.01) sat = -1_000_000;
+                }
+            }
+        }
+        double share = flapT / (3 * 600), circ = circleT / (3 * 600), climb = circleT > 0 ? climbSum / circleT : 0;
+        check(minAbove > 20 && maxAbove < 700 && share < 0.05 && circ > 0.3 && climb > 0.5,
+                f("Kondore: %.0f bis %.0f m über Grund, %.0f %% der Zeit im Kreis (steigen dort %.1f m/s), schlagen %.1f %% der Zeit", minAbove, maxAbove, 100 * circ, climb, 100 * share));
+        check(sat > 30 * 20, f("Eine Möwe sitzt auf dem treibenden Eisberg und treibt mit (%.0f s)", sat / 30.0));
+        boolean kelp = true;
+        for (Flock.Gull g : f.gulls()) if (g.species == com.dan.flock.Species.MOEWE) kelp &= com.dan.flock.BirdMesh.variantOf(g) == 1;
+        com.dan.flock.BirdMesh km = com.dan.flock.BirdMesh.build(com.dan.flock.Species.MOEWE, 1);
+        check(kelp && km.count() > 100, "Dominikanermöwen: eigenes Netz mit schwarzem Mantel (" + km.count() / 3 + " Dreiecke)");
+        f.ambientLux = 5;
+        for (int i = 0; i < 30 * 5; i++) f.step(1 / 30.0);
+        check(f.present(K) == 0, "Nachts sind die Kondore an ihren Felsen (außerhalb der Szene)");
+    }
 }

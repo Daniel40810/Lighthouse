@@ -46,6 +46,7 @@ public final class CloudCheck {
         shape();
         drift();
         shadowAndRain();
+        lens();
         gpuContract();
         return lines;
     }
@@ -147,6 +148,44 @@ public final class CloudCheck {
     }
 
     // ------------------------------------------------------------------ Form
+
+    /** Seit Glacier Phase 3: Lentikularis als ortsfeste Linsen einer Leewelle. */
+    void lens() {
+        lines.add("Lentikularis");
+        Clouds c = Clouds.fair();
+        c.lens = 0.9;
+        c.lensFromDeg = 270;
+        Clouds.Snapshot s0 = c.snapshot();
+        c.step(600);
+        Clouds.Snapshot s1 = c.snapshot();
+        int hit = 0, hitTop = 0, n = 0;
+        boolean fixed = true;
+        double maxTau = 0;
+        for (int i = 0; i < 4000; i++) {
+            double x = (i * 7919) % 40_000 - 20_000, z = (i * 104_729) % 40_000 - 20_000;
+            double t0 = Clouds.lensTau(s0, x, z, 0), t2 = Clouds.lensTau(s0, x, z, 2);
+            fixed &= Math.abs(t0 - Clouds.lensTau(s1, x, z, 0)) < 1e-12;
+            if (t0 > 0.5) hit++;
+            if (t2 > 0.5) hitTop++;
+            maxTau = Math.max(maxTau, t0);
+            n++;
+        }
+        // Wind aus West: die Kämme liegen quer zum Wind, also Nord-Süd; eine Linse reicht quer weiter als längs
+        int base = 0, keepAlong = 0, keepAcross = 0;
+        for (int i = 0; i < 6000; i++) {
+            double x = (i * 7919) % 60_000 - 30_000, z = (i * 104_729) % 60_000 - 30_000;
+            if (Clouds.lensTau(s0, x, z, 0) <= 0.5) continue;
+            base++;
+            if (Clouds.lensTau(s0, x + 1500, z, 0) > 0.5) keepAlong++;
+            if (Clouds.lensTau(s0, x, z + 1500, 0) > 0.5) keepAcross++;
+        }
+        double along = keepAlong / (double) Math.max(1, base), across = keepAcross / (double) Math.max(1, base);
+        c.lens = 0;
+        boolean none = Clouds.lensTau(c.snapshot(), 0, 0, 0) == 0;
+        check(hit > n * 0.03 && hit < n * 0.4 && hitTop < hit && fixed && none && maxTau > 1,
+                f("Linsen auf %.0f %% der Fläche (obere Lage %.0f %%, Stapel), τ bis %.1f, ortsfest beim Ziehen der Wolken, aus bei 0", hit * 100.0 / n, hitTop * 100.0 / n, maxTau));
+        check(across > 2 * along, f("Linsen quer zum Wind gestreckt: 1,5 km weiter noch Linse quer %.0f %%, längs %.0f %%", across * 100, along * 100));
+    }
 
     void shape() {
         lines.add("Form");

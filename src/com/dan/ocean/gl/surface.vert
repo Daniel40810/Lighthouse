@@ -28,6 +28,12 @@ void main() {
     vec2 flatPos = rest + d.xz;
     float dist = length(flatPos - uCam.xz);
     vec3 world = vec3(flatPos.x, uLevel + d.y - dist * dist / (2.0 * EARTH_R), flatPos.y);
+    // seit Glacier Phase 8: die lange Welle hebt den Spiegel; wo sie den Grund freilegt, taucht die Fläche unter ihn
+    vec3 lw = longWave(rest);
+    if (lw.z > 0.0) {
+        if (lw.y > 0.0) world.y += lw.x;
+        else if (depth >= 0.0 && depth < 6.0) world.y -= depth + 0.3;
+    }
     vRest = rest;
     vWorld = world;
     vHeight = d.y;

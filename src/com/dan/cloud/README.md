@@ -68,3 +68,12 @@ int schatten = gl.shadowTexture();         // R16F, Rechteck aus gl.shadowRect()
 - Blitzlicht (seit Phase 10, `Light.flashPos`, `flashRgb`, `flashCount`, `flashDiffusion`) wird beim Auflegen am mittleren Ort der Wolke im Blick gerechnet: Licht, das durch die Wolke wandert (Diffusion), und Licht von unten. Es zieht nicht nach (ein Blitz dauert nur wenige Bilder), wirft aber keine Schatten in der Wolke.
 - Regen fällt noch nicht sichtbar; `Clouds.rain` liefert das Maß für Phase 7.
 - Die Schattenkarte deckt 24 km; dahinter gilt der Rand.
+
+## Seit Glacier Phase 3: Lentikularis
+
+`Clouds.lens` (0..1) und `Clouds.lensFromDeg`: Altocumulus lenticularis im Lee eines Gebirges als bis zu drei
+Linsenlagen ab 4,6 km (Abstand 320 m, Stapel). Längs des Winds liegen die Linsen auf den Kämmen einer stehenden
+Leewelle (Wellenlänge 9 km), quer dazu als Mandeln aus einem ganzzahligen Rauschen je Kamm (bitgleich in Java und
+GLSL). Die Linsen ziehen nicht mit dem Wind. `Clouds.lensTau` gibt die optische Dicke ohne Grafikkarte; Schatten
+(`shadow`, `shadow.frag`), Hauptbild und Rundumbild (`clouds.frag`) rechnen sie mit. Die Prüfung misst Anteil,
+Stapel, Ortsfestigkeit und die Streckung quer zum Wind. Rückfluss in Phase 16.

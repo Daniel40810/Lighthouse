@@ -1,7 +1,8 @@
 // clouds.frag — Raymarching durch die Wolkenschicht in halber (oder viertel) Auflösung. Je Schritt die Dichte; wo
 // Wolke ist, ein kurzer Weg zum Licht (6 wachsende Schritte), Streuung mit zwei Keulen (vorwärts: Silberrand,
 // rückwärts: helle Seite), Mehrfachstreuung in vier Oktaven (Wrenninge), Pulvereffekt an den Rändern, Himmelslicht
-// von oben und Meerlicht von unten. Danach die hohe Schicht als dünne Fläche, zum Schluss Dunst nach der Entfernung.
+// von oben und Meerlicht von unten. Danach die Linsen der Lentikularis und die hohe Schicht als dünne Flächen, zum
+// Schluss Dunst nach der Entfernung.
 // Ausgabe 0: eingestreutes Licht (vorbelichtet) und Durchlässigkeit; Ausgabe 1: mittlere Entfernung (für die
 // Wiederverwendung im nächsten Bild). Mit PANORAMA: Rundumbild (Azimut von Nord, Höhe), ohne Zittern.
 #include "cloud_common.glsl"
@@ -136,6 +137,26 @@ void main() {
         L += T * uDeck.w * uDeck.rgb;
         if (distW <= 1e-4) dist = uMaxDist;
         T *= 1.0 - uDeck.w;
+    }
+    // Lentikularis (seit Glacier Phase 3): bis zu drei glatte Linsenlagen über 4,6 km, von unten nach oben
+    if (uLens.x > 0.0 && T > 0.01) {
+        for (int i = 0; i < LENS_SLICES; i++) {
+            float hl = LENS_HEIGHT + float(i) * LENS_STEP;
+            vec2 ls = shell(uCam, d, hl - 1.0, hl + 1.0);
+            if (ls.x < 0.0 || ls.x > uMaxDist * 2.0) continue;
+            vec3 p = uCam + d * ls.x;
+            float slant = 1.0 / max(0.08, abs(dot(normalize(vec3(p.x, p.y + EARTH_R, p.z)), d)));
+            float tau = lensTau(p.xz, i) * slant;
+            if (tau <= 0.0) continue;
+            float th = exp(-tau);
+            // glatt und hell; die Seite vom Licht weg liegt im Eigenschatten der Linse
+            float self = exp(-0.8 * lensTau(p.xz + uLightDir.xz / max(0.15, uLightDir.y) * 150.0, i));
+            vec3 Ll = (sunAt(hl) * (hg(c, 0.6) * 0.6 + 0.12) * (0.35 + 0.65 * self) + uAmbTop * 0.7 + uAmbBot * 0.1) * (1.0 - th);
+            float fl = exp(-hazeDepth(uHaze, uCam.y, d, ls.x));
+            L += T * Ll * fl;
+            T *= mix(1.0, th, fl);
+            if (distW <= 1e-4) dist = ls.x;
+        }
     }
     // hohe Schicht: dünne Fläche in 6,5 km, hinter der unteren
     if (uOff.z > 0.0 && T > 0.01) {
