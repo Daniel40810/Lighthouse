@@ -105,7 +105,7 @@ public final class Startdaten {
                 "Rückseite: klare Luft, weite Sicht, Wind auf Nordwest",
                 "Schwacher Wind, feuchte Luft über kühlerem Wasser, dichter Nebel"};
         Weather.Phase[] ph = Weather.Phase.values();
-        for (int i = 0; i < ph.length; i++) {
+        for (int i = 0; i < Math.min(ph.length, namen.length); i++) {   // ohne ORKAN aus Rungholt (Rückfluss Phase 17)
             double[] w = Weather.target(ph[i]);
             l.add(new Daten.Wetterlage(namen[i], (double) Weather.beaufort(w[0]), ph[i].name(), w, text[i], Daten.MITGELIEFERT));
         }

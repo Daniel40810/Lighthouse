@@ -1,6 +1,6 @@
 # com.dan.lighthouse.scene – Turm, Ort, Uhr und das Innere
 
-Dieser Teil der App beschreibt, was am Roten Sand steht: den Ort (`Site`), die Uhr (`SceneClock`, `Sun`), die Gezeiten (`Tide`), den Turm von außen (`Turm`, Phase 5) und seit Phase 11 sein Inneres (`Innenraum`, `Treppenhaus`). Er braucht nur Java 21; gezeichnet wird in `gl/Renderer` mit `tower.vert` und `tower.frag`.
+Dieser Teil der App beschreibt, was am Roten Sand steht: den Ort (`Site`), die Uhr (`SceneClock`, `Sun`), die Gezeiten (`Tide`, seit Rungholt Phase 17 aus `com.dan.tide`: Pegel Bremerhaven, eine Stunde früher [G]), den Turm von außen (`Turm`, Phase 5) und seit Phase 11 sein Inneres (`Innenraum`, `Treppenhaus`). Er braucht nur Java 21; gezeichnet wird in `gl/Renderer` mit `tower.vert` und `tower.frag`.
 
 ## Das Innere (Phase 11, nach Innen2)
 

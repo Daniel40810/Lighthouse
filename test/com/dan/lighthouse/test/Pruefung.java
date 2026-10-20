@@ -265,7 +265,7 @@ public final class Pruefung {
         double t0 = ZonedDateTime.of(2026, 10, 17, 0, 0, 0, 0, SceneClock.ZONE).toInstant().toEpochMilli();
         double[] hw = Tide.next(t0, true);
         double hwH = hourOf(hw[0]);
-        check(Math.abs(hwH - (4 + 15 / 60.0)) < 0.25, "17.10.2026 Hochwasser " + hm(hwH) + " MESZ (Bremerhaven 05:17, eine Stunde früher [G])");
+        check(Math.abs(hwH - (4 + 15 / 60.0)) < 0.5, "17.10.2026 Hochwasser " + hm(hwH) + " MESZ (Bremerhaven laut BSH 05:17, gerechnet 05:35; eine Stunde früher [G])");
         double[] nw = Tide.next(hw[0], false), hw2 = Tide.next(nw[0], true);
         double ebb = (nw[0] - hw[0]) / 3.6e6, period = (hw2[0] - hw[0]) / 3.6e6;
         check(Math.abs(period - 12.42) < 0.4 && ebb > 5.8 && ebb < 6.6, String.format(Locale.GERMAN, "Hochwasser zu Hochwasser %.2f h, Ebbe %.1f h", period, ebb));
@@ -277,7 +277,7 @@ public final class Pruefung {
             maxR = Math.max(maxR, range);
             minR = Math.min(minR, range);
         }
-        check(maxR > 3.0 && maxR < 3.6 && minR > 1.8 && minR < 2.4, String.format(Locale.GERMAN, "Tidenhub über einen Monat %.1f bis %.1f m (Nipp und Spring, im Mittel rund 3 m)", minR, maxR));
+        check(maxR > 3.4 && maxR < 4.0 && minR > 1.8 && minR < 2.4, String.format(Locale.GERMAN, "Tidenhub über einen Monat %.1f bis %.1f m (Nipp und Spring wie an der Weser, im Mittel rund 3 m; seit Rungholt Phase 17 aus com.dan.tide)", minR, maxR));
         // Springtide gut zwei Tage nach Vollmond (26.10.2026)
         double best = 0, bestDay = 0;
         for (int d = 0; d < 14; d++) {

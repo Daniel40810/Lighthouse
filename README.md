@@ -27,6 +27,7 @@ Jedes Package folgt demselben Vertrag: Der Kern braucht nur Java 21 (`java.*`), 
 | `com.dan.flock` | Silbermöwen: Schwarm, Aufwind, Landen gegen den Wind, Schlafen am Turm | [flock](src/com/dan/flock/README.md) |
 | `com.dan.soundscape` | Erzeugter Klang ohne Audiodateien: Wind, Äolstöne, Brandung, Regen, Horn, Möwen, Donner, Diesel, Räume, Ohr | [soundscape](src/com/dan/soundscape/README.md) |
 | `com.dan.kino` | Kinomodus aus Glacier: Regiebücher mit Balken, Vor- und Abspann, Untertiteln, Überblendung, Schwenk und Filmkorn | [kino](src/com/dan/kino/README.md) |
+| `com.dan.tide` | Seit Rungholt: der Pegel aus zehn Partialtiden mit Spring und Nipp, Kalender, Windstau; hier `Tide.roterSand()` für die Gezeiten am Turm | [tide](src/com/dan/tide/README.md) |
 | `com.dan.muster` | Die Vorlage für ein Element-Package | [muster](src/com/dan/muster/README.md) |
 | `com.dan.lighthouse` | Die App: Szene, Verdrahtung, Renderer, Bedienfeld, Datenbank | [lighthouse](src/com/dan/lighthouse/README.md) |
 
@@ -63,6 +64,21 @@ Mit dem Kino kamen die Erweiterungen der gemeinsamen Packages aus Glacier zurüc
 - `spray`: Einschlag ohne Körper.
 
 Alle Erweiterungen sind abwärtsgleich, ihre Vorgaben bleiben wie zuvor; Lighthouse übersetzt ohne eine Änderung an der App.
+
+## Rückfluss aus Rungholt
+
+Mit Rungholt (Phase 17, 20.10.2026) kamen zurück:
+
+- `tide` (neu): die echte Tide am Turm. `scene.Tide` rechnet jetzt mit `com.dan.tide.Tide.roterSand()`: zehn Partialtiden des Pegels Bremerhaven, angepasst an 112 Hoch- und Niedrigwasser (20.10. bis 17.11.2026, nicht amtlich, im Mittel 10 min genau), eine Stunde früher, Hub 3,0 m im Mittel [G]. Spring und Nipp sind damit kräftiger als mit den drei Teiltiden vorher: Nipp rund 2,0 m, Spring bis 3,8 m; bei Springniedrigwasser ragt die Plattform des Caissons fast 2 m aus dem Wasser (vorher rund 1,5 m).
+- `weather`: der Orkan aus Westnordwest (`Phase.ORKAN`), den die Standardkette nicht erreicht; Tabellen mit weniger Zeilen bleiben gültig.
+- `ocean`: Strömung als Textur, weicher Rand der langen Welle, Grund außerhalb des Rechtecks, gegen das Kachelmuster (alles abgeschaltet, solange die App es nicht setzt).
+- `flock`: die Wattvögel (`Waders`, sieben Arten) neben den Möwen.
+- `buoyancy`: die Kogge, `Mesh` mit mehr Formen.
+- `ground`: Deich, Salzwiese und Marsch der Nordsee.
+- `soundscape`: Watt, Priel und Sturmnacht (`Wadden`, `Stream`).
+- `kino`: nur die README.
+
+Dabei fiel ein alter Fehler auf: `db.Startdaten.wetterlagen()` lief seit dem Föhnsturm aus Glacier über das Feld der acht Namen hinaus. Die Schleife nimmt jetzt nur die Lagen mit Namen.
 
 ## Bilder
 
