@@ -1,0 +1,64 @@
+# Regiebuch „Sturmnacht auf der Galerie“ (Avatar Phase 15, F22 A): der Wärter geht im Sturm um die Laterne,
+# tritt an die Reling im Luv, schaut auf die See und hinauf ins Feuer und geht zurück ins Lee.
+# Jede Zeile ein Stichwort; der Teil nach „ | “ ist der Untertitel. Befehle mit Namen vor dem Punkt gehen an die Person.
+# Szene: person, kamera (Einstellung auf eine Person oder eine Ansicht von Lighthouse), ansicht, rund (warte rund), wetter, uhr.
+titel   Die Galerie | Sturmnacht am Roten Sand
+abspann Hauke | der Wärter, seed 19 aus der Datenbank AVATAR (AV_API.WUERFELN)
+abspann Turm, See, Wetter und Feuer | Lighthouse
+abspann Mensch | com.dan.avatar · com.dan.hair · com.dan.portrait
+abspann Regie | com.dan.avatar.Regie · Kino aus com.dan.kino
+abspann Werkbuch | Avatar · Phase 15
+
+uhr     22:40
+wetter  Sturm wind=19 regen=6
+person  hauke Regenjacke seed=19 ort=Lee nass=8
+ansicht Aussen1
+warte   vorspann
+warte   3 s
+
+# Um die Laterne ins Luv
+kamera  Halbtotale hauke winkel=35 | Jede Stunde geht er einmal um die Laterne.
+rund    hauke Luv
+warte   4 s
+kamera  Amerikanisch hauke winkel=-30
+warte   rund
+
+# An die Reling, die See
+hauke.gehe     Reling_Luv 0.8
+kamera  Halbnah hauke winkel=25
+warte   hauke.gehe
+hauke.blick    See
+hauke.gefuehl  nachdenklich 0.6 | Draußen läuft die See gegen den Turm.
+warte   hauke.blick
+kamera  Nah hauke winkel=-25 hoehe=0.05
+warte   5 s
+
+# Im Gegenlicht des Feuers, dann hinauf ins Licht
+kamera  Halbnah hauke winkel=8 hoehe=-0.3
+warte   3 s
+hauke.blick    Kamera
+hauke.gefuehl  ruhig 0.8
+kamera  Nah hauke winkel=12
+warte   hauke.blick
+warte   1 s
+hauke.sage     "Heute Nacht kommt keiner mehr raus."
+warte   hauke.sage
+warte   1 s
+hauke.dreh     Feuer
+kamera  Halbnah hauke winkel=75 hoehe=-0.2
+warte   hauke.dreh
+hauke.blick    Feuer | Das Feuer brennt, bis es hell wird.
+warte   hauke.blick
+warte   4 s
+
+# Zurück ins Lee
+hauke.blick    frei
+hauke.gehe     Luv 0.9
+kamera  Amerikanisch hauke winkel=150
+warte   hauke.gehe
+rund    hauke Lee
+kamera  Halbtotale hauke winkel=200
+warte   3 s
+ansicht Aussen1
+warte   rund
+warte   2 s

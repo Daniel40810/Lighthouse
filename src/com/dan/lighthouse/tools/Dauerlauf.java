@@ -12,7 +12,9 @@ import com.dan.lighthouse.scene.SceneClock;
 import com.dan.lighthouse.wiring.Wiring;
 import com.dan.weather.Scenario;
 import com.dan.weather.Weather;
+import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLCapabilities;
+import com.jogamp.opengl.GLRunnable;
 import com.jogamp.opengl.GLDrawableFactory;
 import com.jogamp.opengl.GLOffscreenAutoDrawable;
 import com.jogamp.opengl.GLProfile;
@@ -47,6 +49,9 @@ public final class Dauerlauf {
     private Dauerlauf() { }
 
     static final List<String> FEHLER = new ArrayList<>();
+    /** Beginn des laufenden Bildes (für den Wächter, der bei langen Bildern den Stapel ins Protokoll schreibt). */
+    static volatile long frameStart;
+    static final String[] EREIGNIS = {"Ansicht", "Regiebuch", "Blitz", "Ansicht", "Brecher", "Turmwechsel", "Ansicht", "Stufenwechsel", "freies Wetter", "Ansicht", "Wind von Hand", "Kreisen"};
 
     public static void main(String[] a) throws Exception {
         double minuten = a.length > 0 ? Double.parseDouble(a[0].replace(',', '.')) : 30;
@@ -94,8 +99,38 @@ public final class Dauerlauf {
         DateiSpeicher ds = new DateiSpeicher(daten);
         long sid = ds.sitzungBeginnen(Renderer.VERSION, r.glInfo(), r.quality().name());
 
+        final Thread gl = Thread.currentThread();
+        Thread waechter = new Thread(() -> {
+            long gemeldet = 0;
+            while (true) {
+                try { Thread.sleep(200); } catch (InterruptedException e) { return; }
+                long fs = frameStart;
+                if (fs != 0 && fs != gemeldet && System.nanoTime() - fs > 800_000_000L) {
+                    gemeldet = fs;
+                    StringBuilder b = new StringBuilder("  Bild hängt seit 0,8 s in:");
+                    StackTraceElement[] tr = gl.getStackTrace();
+                    for (int i = 0; i < Math.min(8, tr.length); i++) b.append("\n    ").append(tr[i]);
+                    say.accept(b.toString());
+                }
+            }
+        }, "Wächter");
+        waechter.setDaemon(true);
+        waechter.start();
+        // Avatar-Phase 19: höchstens zwei Bilder in Arbeit, wie im Fenster der Tausch der Puffer. Ohne diesen Takt lief der
+        // Prozessor der Grafikkarte weit voraus, und der erste Abgleich (glReadPixels) wartete Sekunden auf sie.
+        final long[] fences = new long[2];
+        final int[] fenceI = {0};
+        GLRunnable takt = drawable -> {
+            GL4 g = drawable.getGL().getGL4();
+            int k = fenceI[0]++ % fences.length;
+            if (fences[k] != 0) { g.glClientWaitSync(fences[k], GL4.GL_SYNC_FLUSH_COMMANDS_BIT, 5_000_000_000L); g.glDeleteSync(fences[k]); }
+            fences[k] = g.glFenceSync(GL4.GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+            return true;
+        };
         long start = System.nanoTime(), ende = start + (long) (minuten * 60e9), lastMinute = start, lastShot = start;
         long frames = 0;
+        String lastEvent = "Start";
+        long lastEventAt = start;
         double worst = 0, worstAll = 0, worstSwitch = 0;
         long switchUntil = 0;
         long heap5 = -1, heapEnd = -1;
@@ -105,13 +140,18 @@ public final class Dauerlauf {
         long lastNanos = System.nanoTime();
         while (System.nanoTime() < ende) {
             long t0 = System.nanoTime();
+            frameStart = t0;
             d.display();
+            d.invoke(true, takt);
+            frameStart = 0;
             long t1 = System.nanoTime();
             double ms = (t1 - t0) / 1e6;
             frames++;
-            // die zwei Sekunden nach einem Stufenwechsel zählen getrennt (Texturen und FFT werden neu angelegt)
-            if (frames > 30 && t1 < switchUntil) worstSwitch = Math.max(worstSwitch, ms);
+            // die zwei Sekunden nach einem Stufenwechsel zählen getrennt (Texturen und FFT werden neu angelegt); maßgeblich ist der
+            // Beginn des Bildes (bis Avatar-Phase 19 das Ende: ein Wechselbild über 2 s zählte dann als gewöhnliches Bild)
+            if (frames > 30 && t0 < switchUntil) worstSwitch = Math.max(worstSwitch, ms);
             else if (frames > 30) { worst = Math.max(worst, ms); worstAll = Math.max(worstAll, ms); }
+            if (frames > 30 && ms > 1000) say.accept(String.format(Locale.GERMAN, "  langes Bild %.0f ms, %.1f s nach „%s“", ms, (t0 - lastEventAt) / 1e9, lastEvent));
             // Klang wie die Ausgabe
             double dt = (t1 - lastNanos) / 1e9;
             lastNanos = t1;
@@ -122,6 +162,8 @@ public final class Dauerlauf {
             if (t1 - lastShot > 12_000_000_000L) {
                 lastShot = t1;
                 int k = scenes++ % 12;
+                lastEvent = EREIGNIS[k];
+                lastEventAt = t1;
                 switch (k) {
                     case 0, 3, 6, 9 -> r.applyView(views[rnd.nextInt(views.length)]);
                     case 1 -> { Scenario sc = rnd.nextBoolean() ? Scenario.stormDay() : Scenario.fogDay(); wiring.weather.start(sc, clock.epochMillis() / 1000.0); }

@@ -11,6 +11,7 @@ Die App „Roter Sand bei jedem Wetter“ stellt die Element-Packages unter `com
 | `camera/` | Kamera (Kreisen, Frei, Fahrt, Folgen) und Fahrten aus Stützpunkten (`Aufstieg`, Rundflug, eigene) |
 | `ui/` | `ControlPanel` (acht Klappblöcke), `DatenSteuerung`, `RegieDialog`, `Startbild`, `AppIcon`, `Theme` |
 | `db/` | `Speicher` mit `DbSpeicher` (Oracle) und `DateiSpeicher` (`daten/`), `Einrichter`, `Startdaten`, `Felder`, `Zustand`, `Dienst`, `Protokoll` ([README](../../../../db/README.md)) |
+| `person/` | Seit Avatar Phase 15: der Wärter auf der Galerie aus `com.dan.avatar` und `com.dan.hair` ([README](person/README.md)) |
 | `tools/` | Statusbilder ohne Fenster je Phase, `Klangprobe`, `StartdatenSql`, `Symbol`, `Dauerlauf` |
 
 ## Der Bildlauf

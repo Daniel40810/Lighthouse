@@ -66,6 +66,7 @@ public final class Pruefung {
         wetter();
         leben();
         klang();
+        PruefungPersonen.alles();   // Avatar Phase 15
         isolation();
         datenbank();
         PruefungDaten.alles();
@@ -1218,7 +1219,8 @@ public final class Pruefung {
                     files++;
                     String rel = pkg.toPath().relativize(p).toString().replace('\\', '/');
                     boolean gl = rel.startsWith("gl/"), demo = rel.startsWith("demo/");
-                    for (String b : foreignImports(p.toFile(), "com.dan." + name, gl || demo, demo)) bad.add(rel + ": " + b);
+                    for (String b : foreignImports(p.toFile(), "com.dan." + name, gl || demo, demo))
+                        if (!(name.equals("avatar") && (b.equals("com.dan.gltf") || b.startsWith("com.dan.gltf.")))) bad.add(rel + ": " + b);   // Avatar Phase 15: avatar nutzt gltf
                 }
             }
             check(bad.isEmpty(), "com.dan." + name + " (" + files + " Dateien) hält den Paketvertrag ein (Importe)" + (bad.isEmpty() ? "" : " – " + bad));

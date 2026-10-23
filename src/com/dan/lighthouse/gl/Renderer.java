@@ -256,6 +256,11 @@ public final class Renderer implements GLEventListener {
     private double[][] inWinL = new double[Innenraum.WINDOWS.size()][3];
     private double[] inAmbS = new double[3], inAmbR = new double[3];
     private double inLumS, inLumR, inTimer, inBlend;
+    /**
+     * Avatar Phase 15: wie nah das Auge nachts an der leuchtenden Laterne steht (0 … 1, voll unter 6 m, nichts über
+     * 11 m vom Glas). Dort passt sich das Auge an das helle Glas und das Gesicht davor an und sieht mit den Zapfen.
+     */
+    private double lanBlend;
     private int shadowTex, shadowFbo, shadowSize, castTex, castFbo, sprayDepthW, sprayDepthH;
     static final int CAST = 1024;
     private float[] lightVP;
@@ -640,6 +645,7 @@ public final class Renderer implements GLEventListener {
         stepBeacon(st, dt);
         stepLightning(dt);
         stepLife(st, dt);
+        stepPersonen(dt);   // Avatar Phase 15
         stepSound();
         double level = wiring != null ? wiring.waterLevel.level() : 0;
         // die Kamera bleibt über der Welle unter ihr; gefragt wird nur, wenn ein Kamm sie erreichen könnte
@@ -673,6 +679,13 @@ public final class Renderer implements GLEventListener {
             target = Math.max(1e-6, inLumS + (inLumR - inLumS) * yb) * 1.2;
         }
         inBlend = frozen || dt > 0.5 ? (in ? 1 : 0) : inBlend + ((in ? 1 : 0) - inBlend) * Math.min(1, dt / 1.5);
+        // Avatar Phase 15: nah an der leuchtenden Laterne (Galerie bei Nacht) zählt ihr Glas mit [G, am Bild abgestimmt]
+        double sa = skyOk && st != null ? st.sunAlt : clock.sun()[0];
+        double glowU = lampOn && !in && !insideLantern() ? 1.5e-3 * (1 - smooth(-1, 2, sa)) : 0;
+        double dl = Math.hypot(Math.hypot(camera.eye[0], camera.eye[2]) - Turm.LANTERN_R, camera.eye[1] - (Turm.GLASS_BOTTOM + Turm.GLASS_TOP) / 2);
+        double lb = glowU > 0 ? 1 - smooth(6, 11, dl) : 0;
+        lanBlend = frozen || dt > 0.5 ? lb : lanBlend + (lb - lanBlend) * Math.min(1, dt / 1.5);
+        if (lanBlend > 1e-3) target = Math.exp(Math.log(Math.max(1e-14, target)) * (1 - lanBlend) + Math.log(Math.max(target, 0.07 * glowU)) * lanBlend);
         if (adaptLum <= 0 || frozen || dt > 0.5) adaptLum = target;
         else adaptLum = Math.exp(Math.log(adaptLum) + (Math.log(target) - Math.log(adaptLum)) * Math.min(1, dt / 1.0));
     }
@@ -2344,6 +2357,14 @@ public final class Renderer implements GLEventListener {
         gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, hdrFbo);
         gl.glViewport(0, 0, w, h);
         gl.glBindVertexArray(emptyVao);
+        // 7b Personen (Avatar Phase 15): der Wärter auf der Galerie; schreiben Tiefe wie das Leben (Zeit im Durchgang 7)
+        if (personen.an || !personen.figuren.isEmpty()) {
+            personen.zeichnen(gl, vp, camera.eye.clone(), fovy(), w, h, reversedZ, hdrFbo, personLight(st, sun, pre), quality.ordinal(), clock.t());
+            gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, hdrFbo);
+            gl.glViewport(0, 0, w, h);
+            gl.glUseProgram(0);
+            gl.glBindVertexArray(emptyVao);
+        }
         mark(gl, 7);
 
         // 8 Gischt: Tiefe kopieren (für weiche Ränder), dann Tropfen und Nebel über die Szene
@@ -2408,7 +2429,7 @@ public final class Renderer implements GLEventListener {
         post.set(gl, "uHdr", 0);
         post.set(gl, "uExposure", skyOk ? 1f : (float) exposure());
         // Phase 11: im beleuchteten Turm sieht das Auge mit den Zapfen
-        post.set(gl, "uScotopic", (float) (skyOk ? st.scotopic() * (1 - inBlend) : 0));
+        post.set(gl, "uScotopic", (float) (skyOk ? st.scotopic() * (1 - inBlend) * (1 - lanBlend) : 0));
         double[] wb = whiteBalance();
         post.set(gl, "uWhite", (float) wb[0], (float) wb[1], (float) wb[2]);
         gl.glBindVertexArray(emptyVao);
@@ -2424,6 +2445,165 @@ public final class Renderer implements GLEventListener {
         gl.glUseProgram(0);
         mark(gl, 15);
     }
+
+    // ------------------------------------------------------------------ Avatar Phase 15: Personen auf der Galerie
+    /** Der Wärter auf der Galerie (com.dan.avatar mit com.dan.hair; die App verbindet sie in {@code person/}). */
+    public final com.dan.lighthouse.person.Personen personen = new com.dan.lighthouse.person.Personen();
+    private volatile boolean personenFilm, personenEnde;
+
+    /** Wind, Regen, Temperatur und Kamera an die Galerie, dann Regie und Bewegung einen Schritt weiter. */
+    private void stepPersonen(double dt) {
+        com.dan.lighthouse.person.Galerie g = personen.galerie;
+        if (wiring != null) {
+            g.windFromDeg = wiring.wind.fromDeg();
+            g.windSpeed = wiring.wind.speed();
+            com.dan.weather.Weather.Snapshot ws = wiring.weather.snapshot();
+            if (ws != null) { g.tempC = ws.temperature(); g.humidity = Math.max(0.2, Math.min(1, ws.humidity() / 100.0)); }
+        }
+        g.rain = rainOk && showRain ? rain.rate : wiring != null ? wiring.rainRate : 0;
+        personen.schritt(dt);
+        if (personenFilm) {
+            com.dan.avatar.Regie rg = personen.regie;
+            if (rg != null && rg.finished() && !personenEnde) {
+                personenEnde = true;
+                java.util.List<String> cr = new java.util.ArrayList<>();
+                cr.add(rg.title);
+                for (String c : rg.credits) cr.add(c.replace(" | ", ": "));
+                if (kino.laeuft()) kino.beenden(cr);
+            }
+            // zu Ende oder mit Esc verlassen: das Regiebuch läuft im Fenster weiter, ohne Kino
+            if (!kino.laeuft()) personenFilm = false;
+        }
+    }
+
+    /** Ein Regiebuch der Personen im Kino (Vorspann mit Titel, Untertitel aus den Zeilen, Abspann). */
+    public void kinoPersonen(com.dan.avatar.Regie r) {
+        frozen = false;
+        kinoSchritt = -2;
+        kinoBuch = null;
+        personen.an = true;
+        personenFilm = true;
+        personenEnde = false;
+        kino.beginnen("Lighthouse · Avatar", r.title, r.subtitle);
+        startPersonen(r);
+    }
+
+    /** Ein Regiebuch der Personen ohne Kino (Bedienfeld, Werkzeuge). */
+    public void startPersonen(com.dan.avatar.Regie r) {
+        personen.an = true;
+        personen.starten(r, new com.dan.lighthouse.person.GalerieStage(personen, galerieSzene()));
+        java.util.function.Consumer<String> t = r.onText;
+        r.onText = s -> { t.accept(s); if (kino.laeuft()) kino.untertitel(s); };
+    }
+
+    /** Was die Regie der Galerie von der Szene braucht (Kamera, Ansichten, Wetter, Uhr, Kino). */
+    public com.dan.lighthouse.person.GalerieStage.Szene galerieSzene() {
+        return new com.dan.lighthouse.person.GalerieStage.Szene() {
+            @Override public void schnitt(Runnable r) { if (kino.schnitt()) kinoSchnitte.add(r); else r.run(); }
+            @Override public void personKamera(com.dan.lighthouse.person.PersonKamera k) {
+                k.kino = kino.laeuft();
+                zoom = k.zoom();
+                if (k.target != null) camera.follow(k.target.person.name, k);
+            }
+            @Override public boolean ansicht(String name) {
+                if (!java.util.List.of("Aussen1", "Drohne", "Brecher", "Sturmnacht", "Aussen3", "Laternenraum", "Regenbogen", "Möwenflug", "Schiffsbrücke").contains(name)) return false;
+                applyView(name);
+                return true;
+            }
+            @Override public boolean wetter(String lage, Double windMs, Double regenMmH) {
+                if (wiring == null) return false;
+                if (lage != null) {
+                    com.dan.weather.Weather.Phase p = null;
+                    for (com.dan.weather.Weather.Phase x : com.dan.weather.Weather.Phase.values())
+                        if (x.name().equalsIgnoreCase(lage) || x.label.equalsIgnoreCase(lage)) p = x;
+                    if (p == null) return false;
+                    wiring.resumeRegie();
+                    wiring.regie = true;
+                    wiring.weather.startFree(clock.epochMillis() / 1000.0, p);
+                    wiring.weather.running = true;
+                }
+                if (windMs != null) wiring.hand(com.dan.weather.Weather.Var.WIND, windMs);
+                if (regenMmH != null) wiring.hand(com.dan.weather.Weather.Var.RAIN, regenMmH);
+                return true;
+            }
+            @Override public void uhr(double stunde) { clock.setHour(stunde); }
+            @Override public int monat() { return clock.date().getMonthValue(); }
+            @Override public boolean nachVorspann() { return !kino.laeuft() || kino.lage() != com.dan.kino.Kino.Lage.VORSPANN; }
+        };
+    }
+
+    /**
+     * Licht für die Personen, vorbelichtet wie Turm und Leben. Führungslicht: am Tag die Sonne, nachts das Feuer im
+     * Nahfeld der Linse (com.dan.beacon {@code nearIrradiance} am Kopf: die Lampe und die Strahlen, die vorbeiziehen)
+     * und der Schein der Raumlampe durch das Laternenglas. Kantenlicht: der Mond. Aufhellung: der Himmel oben und an der
+     * Kimm; Blitze hellen auf. Das Avatar-Licht rechnet {@code Farbe / d²} ohne π, die Szene Strahldichte = Albedo·E/π.
+     */
+    private com.dan.avatar.gl.AvatarGl.Light personLight(Sky.State st, double[] sun, double pre) {
+        com.dan.avatar.gl.AvatarGl.Light l = new com.dan.avatar.gl.AvatarGl.Light();
+        double[][] L = lifeLight(st, sun, pre);
+        double[] h = personen.kopf();
+        if (h == null) h = new double[]{0, Turm.GALLERY_TOP + 1.6, -2.6};
+        for (int k = 0; k < 3; k++) l.fillCol[k] = (float) (0.5 * L[2][k] + 0.5 * L[3][k]);
+        boolean day = sun[1] > 0.02;
+        if (day) {
+            double d = 400;
+            for (int k = 0; k < 3; k++) { l.keyPos[k] = (float) (h[k] + sun[k] * d); l.keyDir[k] = (float) -sun[k]; l.keyCol[k] = (float) (L[0][k] * d * d / Math.PI); }
+            l.keyConeInner = 3; l.keyConeOuter = 6;
+        } else {
+            double[] lens = {0, Turm.LENS_Y, 0};
+            double dx = lens[0] - h[0], dy = lens[1] - h[1], dz = lens[2] - h[2], d = Math.max(0.5, Math.sqrt(dx * dx + dy * dy + dz * dz));
+            double[] E = new double[3];
+            if (beaconOk && beacon.isOn()) {
+                Beacon.Snapshot bs = beacon.snapshot();
+                E = bs.nearIrradiance(h[0], h[1], h[2], dx / d, dy / d, dz / d);
+            }
+            double sunAlt = skyOk ? st.sunAlt : clock.sun()[0];
+            double glow = lampOn ? 1.5e-3 * (1 - smooth(-1, 2, sunAlt)) * (skyOk ? 1 : 300) : 0;
+            for (int k = 0; k < 3; k++) {
+                // Glas der Laterne als Fläche: von der Galerie aus rund 0,8 sr [G]
+                double e = E[k] * beaconUnit * (skyOk ? pre : 1) + glow * (skyOk ? pre : 1) * 0.8;
+                l.keyPos[k] = (float) lens[k];
+                l.keyDir[k] = (float) -((lens[k] - h[k]) / d);
+                l.keyCol[k] = (float) (e * d * d / Math.PI);
+                // Rückstrahlung von Galerieboden und Brüstung, die das Laternenglas beleuchtet [G, am Bild abgestimmt]: so bleibt
+                // das Gesicht nicht ganz schwarz, wenn das Feuer hinter der Person steht
+                l.fillCol[k] += (float) (0.16 * glow * (skyOk ? pre : 1));   // Phase 19 (Avatar): 0,08 ließ das Gesicht unter der Kapuze zu dunkel
+            }
+            l.keyConeInner = 70; l.keyConeOuter = 89;
+        }
+        // Kantenlicht: der Mond, sonst nichts
+        if (skyOk && st.moonDir[1] > 0.02) {
+            double d = 400;
+            for (int k = 0; k < 3; k++) { l.rimPos[k] = (float) (h[k] + st.moonDir[k] * d); l.rimCol[k] = (float) (L[1][k] * d * d / Math.PI); }
+        } else for (int k = 0; k < 3; k++) l.rimCol[k] = 0;
+        // Blitze: als Aufhellung von überall
+        if (lightningOk && showLightning && lightningGl.active()) {
+            int n = lightningGl.lightCount();
+            for (int i = 0; i < n; i++) {
+                double[] lp = lightningGl.lightPos(i), lr = lightningGl.lightRgb(i);
+                double q = (lp[0] - h[0]) * (lp[0] - h[0]) + (lp[1] - h[1]) * (lp[1] - h[1]) + (lp[2] - h[2]) * (lp[2] - h[2]);
+                for (int k = 0; k < 3; k++) l.fillCol[k] += (float) (lr[k] * (skyOk ? pre : 1) / Math.max(1, q) / Math.PI);
+            }
+        }
+        l.gain = 1;
+        return l;
+    }
+
+    /** Kamera auf die erste Person (Halbnah, 20° von vorn links), ohne Regiebuch. */
+    public void zumWaerter() {
+        com.dan.lighthouse.person.Figur f = personen.erste();
+        if (f == null) return;
+        com.dan.lighthouse.person.PersonKamera k = personen.kamera;
+        k.target = f;
+        k.shot = com.dan.portrait.Shot.HALBNAH;
+        k.angleDeg = 20;
+        k.lift = 0;
+        k.snap = true;
+        galerieSzene().personKamera(k);
+    }
+
+    /** Zeile der Personen für HUD und Bedienfeld. */
+    public String personLine() { return personen.zeile(); }
 
     /** Phase 10: Blick für die Blitze (Ziel ist das HDR-Bild; ohne Tiefentest, die Szene verdeckt später). */
     private LightningGl.View lightningView(float[] vp, float[] inv, int w, int h, double pre, double[] air) {
@@ -2516,7 +2696,7 @@ public final class Renderer implements GLEventListener {
 
     private void drawSpray(GL4 gl, Sky.State st, float[] vp, int w, int h, double pre) {
         sprayGl.update(gl, spray);
-        if (sprayCheck.isEmpty() && spray.parcels().size() > 8) sprayCheck = sprayGl.selfCheck(gl, spray.parcels(), spray.time());
+        if (sprayCheck.isEmpty()) { sprayCheck = sprayGl.selfCheckPoll(gl); if (sprayCheck.isEmpty() && spray.parcels().size() > 8) sprayGl.selfCheckStart(gl, spray.parcels(), spray.time()); }   // ohne Warten (Avatar-Phase 19)
         gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, hdrFbo);
         gl.glViewport(0, 0, w, h);
         SprayGl.View v = new SprayGl.View();

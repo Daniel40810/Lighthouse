@@ -77,6 +77,7 @@ public final class SprayGl {
         info = "Tropfen aus Bündeln im Vertex-Shader";
     }
 
+
     /** Lädt die Bündel hoch (Alter relativ zur Zeit des Kerns), nach Art sortiert. */
     public void update(GL4 gl, Spray spray) {
         update(gl, spray.parcels(), spray.time(), spray.quality, spray.bodies());
@@ -186,8 +187,25 @@ public final class SprayGl {
      * {@link Parcel#particle}. „Grafikkarte = Prozessor: Tropfen ± 0,3 mm (Median), größte 2 mm, 4 096 Proben“
      */
     public String selfCheck(GL4 gl, List<Parcel> list, double time) {
+        if (!selfCheckStart(gl, list, time)) return "";
+        gl.glFinish();
+        String r = "";
+        while (r.isEmpty() && pendFence != 0) r = selfCheckPoll(gl);
+        return r;
+    }
+
+    // Avatar-Phase 19: der Abgleich in der App liest über einen Pufferspeicher mit Zaun zurück, statt im Bild auf die
+    // Grafikkarte zu warten (glReadPixels hielt beim ersten Brecher auf „Ultra“ das Bild 2,4 s an).
+    private long pendFence;
+    private int pendPbo, pendN, pendStep;
+    private double pendTime;
+    private List<Parcel> pendSel;
+
+    /** Startet den Abgleich: rechnet auf der Grafikkarte, liest in einen Pufferspeicher; false, wenn nichts da ist. */
+    public boolean selfCheckStart(GL4 gl, List<Parcel> list, double time) {
+        if (pendFence != 0) return true;
         int nP = Math.min(64, list.size());
-        if (nP == 0) return "";
+        if (nP == 0) return false;
         List<Parcel> sel = new ArrayList<>(list.subList(0, nP));
         float[] data = new float[nP * FLOATS];
         for (int i = 0; i < nP; i++) put(data, i * FLOATS, sel.get(i), time);
@@ -216,8 +234,14 @@ public final class SprayGl {
         gl.glBindBufferBase(GL4.GL_SHADER_STORAGE_BUFFER, 0, buf);
         gl.glBindVertexArray(vao);
         gl.glDrawArrays(GL.GL_TRIANGLES, 0, 3);
-        FloatBuffer fb = Buffers.newDirectFloatBuffer(64 * nP * 4);
-        gl.glReadPixels(0, 0, 64, nP, GL4.GL_RGBA, GL.GL_FLOAT, fb);
+        gl.glGenBuffers(1, v, 2);
+        int pbo = v[2];
+        gl.glBindBuffer(GL4.GL_PIXEL_PACK_BUFFER, pbo);
+        gl.glBufferData(GL4.GL_PIXEL_PACK_BUFFER, 64L * nP * 16, null, GL4.GL_STREAM_READ);
+        gl.glReadPixels(0, 0, 64, nP, GL4.GL_RGBA, GL.GL_FLOAT, 0L);
+        gl.glBindBuffer(GL4.GL_PIXEL_PACK_BUFFER, 0);
+        pendFence = gl.glFenceSync(GL4.GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+        gl.glFlush();
         gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, prev[0]);
         gl.glViewport(vp[0], vp[1], vp[2], vp[3]);
         gl.glBindVertexArray(0);
@@ -226,6 +250,27 @@ public final class SprayGl {
         gl.glDeleteFramebuffers(1, new int[]{fbo}, 0);
         gl.glDeleteTextures(1, new int[]{tex}, 0);
         gl.glDeleteBuffers(1, new int[]{buf}, 0);
+        pendPbo = pbo; pendN = nP; pendStep = step; pendTime = time; pendSel = sel;
+        return true;
+    }
+
+    /** Ergebnis des Abgleichs, sobald die Grafikkarte fertig ist; sonst "" (wartet nicht). */
+    public String selfCheckPoll(GL4 gl) {
+        if (pendFence == 0) return "";
+        int st = gl.glClientWaitSync(pendFence, 0, 0L);
+        if (st != GL4.GL_ALREADY_SIGNALED && st != GL4.GL_CONDITION_SATISFIED) return "";
+        gl.glDeleteSync(pendFence);
+        pendFence = 0;
+        int nP = pendN, step = pendStep;
+        double time = pendTime;
+        List<Parcel> sel = pendSel;
+        FloatBuffer fb = Buffers.newDirectFloatBuffer(64 * nP * 4);
+        gl.glBindBuffer(GL4.GL_PIXEL_PACK_BUFFER, pendPbo);
+        gl.glGetBufferSubData(GL4.GL_PIXEL_PACK_BUFFER, 0L, 64L * nP * 16, fb);
+        gl.glBindBuffer(GL4.GL_PIXEL_PACK_BUFFER, 0);
+        gl.glDeleteBuffers(1, new int[]{pendPbo}, 0);
+        pendPbo = 0;
+        pendSel = null;
         List<Double> err = new ArrayList<>();
         int aliveMismatch = 0;
         for (int j = 0; j < nP; j++)

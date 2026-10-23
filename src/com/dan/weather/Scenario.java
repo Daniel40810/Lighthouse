@@ -123,8 +123,8 @@ public record Scenario(String name, double startHour, double lapse, List<Step> s
     public String toText() {
         StringBuilder b = new StringBuilder();
         b.append("Szenario: ").append(name).append('\n');
-        b.append(String.format(Locale.ROOT, "Beginn: %02d:%02d%n", (int) startHour, (int) Math.round((startHour - (int) startHour) * 60)));
-        b.append(String.format(Locale.ROOT, "Zeitraffer: %s%n", num(lapse)));
+        b.append(String.format(Locale.ROOT, "Beginn: %02d:%02d\n", (int) startHour, (int) Math.round((startHour - (int) startHour) * 60)));
+        b.append(String.format(Locale.ROOT, "Zeitraffer: %s\n", num(lapse)));
         for (Step s : steps) {
             b.append("Schritt: ").append(num(s.hours())).append(" | ").append(s.phase().name()).append(" | ").append(s.text()).append(" |");
             for (Weather.Var v : Weather.Var.values()) if (!Double.isNaN(s.value(v))) b.append(' ').append(v.name()).append('=').append(num(s.value(v)));

@@ -51,7 +51,7 @@ public final class ControlPanel extends JPanel implements javax.swing.Scrollable
     final DatenSteuerung daten;
     private final JLabel dateLbl = label(""), timeLbl = label(""), sunLbl = small(""), windLbl = label(""), dirLbl = label(""),
             camLbl = small(""), seaLbl = small(""), seaCheckLbl = small(""), skyLbl = small(""), skyCheckLbl = small(""), visLbl = label(""), coverLbl = label(""),
-            cloudLbl = small(""), cloudCheckLbl = small(""), towerLbl = small(""), innerLbl = small(""), towerCheckLbl = small(""), sprayLbl = small(""), sprayCheckLbl = small(""), sprayStrLbl = label(""), rainLbl = small(""), rainCheckLbl = small(""), rainRateLbl = label(""), rainStrLbl = label(""), glassLbl = small(""), lifeLbl = small(""), soundLbl = small(""), soundVolLbl = label(""), fogLbl = small(""), fogStrLbl = label(""), glassCheckLbl = small(""), glassStrLbl = label(""), beaconLbl = small(""), beaconFeedback = small(""), beaconCheckLbl = small(""), stormLbl = small(""), stormCheckLbl = small(""), beamStrLbl = label(""), levelLbl = label(""), rustLbl = label(""),
+            cloudLbl = small(""), cloudCheckLbl = small(""), towerLbl = small(""), innerLbl = small(""), towerCheckLbl = small(""), sprayLbl = small(""), sprayCheckLbl = small(""), sprayStrLbl = label(""), rainLbl = small(""), rainCheckLbl = small(""), rainRateLbl = label(""), rainStrLbl = label(""), glassLbl = small(""), lifeLbl = small(""), personLbl = small(""), soundLbl = small(""), soundVolLbl = label(""), fogLbl = small(""), fogStrLbl = label(""), glassCheckLbl = small(""), glassStrLbl = label(""), beaconLbl = small(""), beaconFeedback = small(""), beaconCheckLbl = small(""), stormLbl = small(""), stormCheckLbl = small(""), beamStrLbl = label(""), levelLbl = label(""), rustLbl = label(""),
             algaeLbl = label(""), saltLbl = label(""), highLbl = label(""), swellLbl = label(""), perfLbl = small(""), computeLbl = small(""), glLbl = small(""), linksLbl = small(""), dbLbl = small("");
     private final FSlider time = new FSlider(0, 24 * 60 - 1, 20 * 60), wind = new FSlider(0, 12, 4), windDir = new FSlider(0, 359, 240),
             swellH = new FSlider(0, 40, 6), swellT = new FSlider(60, 160, 95), swellDir = new FSlider(0, 359, 290),
@@ -575,6 +575,38 @@ public final class ControlPanel extends JPanel implements javax.swing.Scrollable
         });
         lp2.add(shipCome); lp2.add(wiper);
         put(lp2);
+        // Avatar Phase 15: der Wärter auf der Galerie (com.dan.avatar, F22 A)
+        sub("Wärter auf der Galerie");
+        put(personLbl);
+        FCheckBox personBox = new FCheckBox("Wärter zeigen");
+        FButton personFilm = new FButton("Sturmnacht im Kino"), toPerson = new FButton("Zum Wärter");
+        personBox.addActionListener(e -> {
+            if (personBox.isSelected()) {
+                r.personen.bereit();
+                if (r.personen.figuren.isEmpty()) r.startPersonen(new com.dan.avatar.Regie("Galerie", "person hauke seed=" + com.dan.lighthouse.person.Personen.WAERTER_SEED + " ort=Lee"));
+                r.personen.an = true;
+            } else { r.personen.an = false; r.personen.leeren(); }
+            view.requestFocusInWindow();
+        });
+        personFilm.addActionListener(e -> {
+            try {
+                personBox.setSelected(true);
+                r.kinoPersonen(com.dan.avatar.Regie.resource(com.dan.lighthouse.person.Personen.class, "galerie_sturmnacht.txt"));
+            } catch (java.io.IOException ex) { personLbl.setText("Regiebuch fehlt: " + ex.getMessage()); }
+            view.requestFocusInWindow();
+        });
+        toPerson.addActionListener(e -> {
+            personBox.setSelected(true);
+            r.personen.an = true;
+            if (r.personen.figuren.isEmpty())
+                r.startPersonen(new com.dan.avatar.Regie("Galerie", "person hauke seed=" + com.dan.lighthouse.person.Personen.WAERTER_SEED + " ort=Lee\nkamera Halbnah hauke winkel=20"));
+            else r.zumWaerter();
+            view.requestFocusInWindow();
+        });
+        put(personBox);
+        JPanel waerterKnoepfe = grid(2);
+        waerterKnoepfe.add(personFilm); waerterKnoepfe.add(toPerson);
+        put(waerterKnoepfe);
         sub("Klang");
         put(soundLbl);
         FCheckBox soundBox = new FCheckBox("Ton an"), earBox = new FCheckBox("Ohr passt sich an");
@@ -744,6 +776,7 @@ public final class ControlPanel extends JPanel implements javax.swing.Scrollable
         soundLbl.setText("<html><body style='width:215px'>" + Startbild.esc(r.soundLine()) + "</body></html>");
         soundVolLbl.setText(String.format(Locale.GERMAN, "Lautstärke %d %%", soundVol.getValue()));
         lifeLbl.setText("<html><body style='width:215px'>" + Startbild.esc(r.lifeLine()) + "</body></html>");
+        personLbl.setText("<html><body style='width:215px'>" + Startbild.esc(r.personLine()) + "</body></html>");
         fogLbl.setText("<html><body style='width:215px'>" + Startbild.esc(r.fogLine()) + "</body></html>");
         fromScene = true;
         if (!fogSl.getValueIsAdjusting()) fogSl.setValue((int) Math.round(wiring.fogAmount * 100));

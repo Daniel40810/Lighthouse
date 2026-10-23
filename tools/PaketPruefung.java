@@ -70,9 +70,23 @@ public final class PaketPruefung {
                     (rel.startsWith("gl/") ? gl : rel.startsWith("demo/") ? demo : core).add(p.toFile());
                 });
             }
-            String rCore = compile(javac, core, "", name + " Kern", reports);
-            List<File> cg = new ArrayList<>(core);
+            // Avatar Phase 15: erlaubte Nachbarn (avatar nutzt gltf) werden mitübersetzt und gelten nicht als fremd
+            List<File> nCore = new ArrayList<>(), nGl = new ArrayList<>();
+            for (String nb : NACHBARN.getOrDefault(name, List.of())) {
+                File nd = new File(base, nb);
+                try (Stream<Path> s = Files.walk(nd.toPath())) {
+                    s.filter(p -> p.toString().endsWith(".java")).sorted().forEach(p -> {
+                        String rel = nd.toPath().relativize(p).toString().replace('\\', '/');
+                        if (rel.startsWith("gl/")) nGl.add(p.toFile()); else if (!rel.startsWith("demo/")) nCore.add(p.toFile());
+                    });
+                }
+            }
+            List<File> kern = new ArrayList<>(core);
+            kern.addAll(nCore);
+            String rCore = compile(javac, kern, "", name + " Kern", reports);
+            List<File> cg = new ArrayList<>(kern);
             cg.addAll(gl);
+            cg.addAll(nGl);
             String rGl = gl.isEmpty() ? "–" : compile(javac, cg, jogl, name + " gl", reports);
             List<File> all = new ArrayList<>(cg);
             all.addAll(demo);
@@ -82,6 +96,7 @@ public final class PaketPruefung {
             for (File f : gl) bad.addAll(scan(f, own, true, false, d));
             for (File f : demo) bad.addAll(scan(f, own, true, true, d));
             for (File f : gl) bad.addAll(shaders(f));
+            bad.removeIf(b -> nachbar(name, b));
             String rImp = bad.isEmpty() ? "ok" : "FEHLER";
             if (!bad.isEmpty()) reports.add(name + " Importe/Ressourcen:\n    " + String.join("\n    ", bad));
             boolean good = !rCore.equals("FEHLER") && !rGl.equals("FEHLER") && !rDemo.equals("FEHLER") && bad.isEmpty();
@@ -97,6 +112,19 @@ public final class PaketPruefung {
     }
 
     static final java.util.Set<String> FSTYLE = new java.util.HashSet<>();
+
+    /**
+     * Avatar Phase 15: Packages, die ein anderes Element-Package nutzen dürfen (so auch im Projekt Avatar): der Avatar liest
+     * seinen Grundkörper mit {@code com.dan.gltf}. Wer {@code avatar} herauskopiert, nimmt {@code gltf} mit.
+     */
+    static final java.util.Map<String, List<String>> NACHBARN = java.util.Map.of("avatar", List.of("gltf"));
+
+    /** Verweist die Meldung (Import oder voll qualifizierter Name am Ende) auf einen erlaubten Nachbarn? */
+    static boolean nachbar(String pkg, String meldung) {
+        String n = meldung.substring(meldung.lastIndexOf(' ') + 1);
+        for (String nb : NACHBARN.getOrDefault(pkg, List.of())) if (n.equals("com.dan." + nb) || n.startsWith("com.dan." + nb + ".")) return true;
+        return false;
+    }
 
     /** Gehört der Name (Import oder voll qualifiziert) zu einem Package aus FStyle.jar? */
     static boolean fstyle(String name) {

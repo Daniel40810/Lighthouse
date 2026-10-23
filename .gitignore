@@ -7,3 +7,6 @@ db/db.properties
 # nur der Fotoordner der App; docs/bilder (README) bleibt im Git
 *.log
 daten/
+# Avatar Phase 15: der Grundkörper des Avatars (140 MB, über der Grenze von GitHub); er kommt aus dem Projekt Avatar
+# mit "ant lighthouse-kopie"
+src/com/dan/avatar/res/avatar_base.glb

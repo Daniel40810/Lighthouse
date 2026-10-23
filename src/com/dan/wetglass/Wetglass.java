@@ -109,7 +109,7 @@ public final class Wetglass {
 
     // ------------------------------------------------------------------ Zustand (Struktur aus Feldern)
 
-    private int n;
+    private volatile int n;   // ohne Sperre lesbar (Avatar-Phase 19: count() wartete im Bild bis 2 s auf step())
     private double[] x = new double[0], y = new double[0], a = new double[0], vx = new double[0], vy = new double[0], trail = new double[0];
     private boolean[] moving = new boolean[0];
     private float[] film = new float[0], pin = new float[0], fine = new float[0], fog = new float[0], smear = new float[0], salt = new float[0];
@@ -863,7 +863,7 @@ public final class Wetglass {
 
     public Snapshot snapshot() { return snapshot; }
 
-    public synchronized int count() { return n; }
+    public int count() { return n; }
 
     public synchronized int moving() {
         int k = 0;
