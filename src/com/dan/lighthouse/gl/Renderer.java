@@ -94,7 +94,7 @@ import java.util.function.Consumer;
  */
 public final class Renderer implements GLEventListener {
     public static final int MIN_MAJOR = 4, MIN_MINOR = 3;
-    public static final String VERSION = "Phase 16";
+    public static final String VERSION = "Phase 17";
     static final String[] PASSES = {"Himmel", "Wolken", "Meer rechnen", "Schatten", "Meer", "Turm", "Leben", "Gischt", "Regen", "Nebel", "Feuer", "Blitz", "Scheiben", "Nachbearbeitung", "HUD"};
     private static final int MARKS = PASSES.length + 1;
 
@@ -105,6 +105,13 @@ public final class Renderer implements GLEventListener {
     public final Ocean ocean = new Ocean();
     private final OceanGl oceanGl = new OceanGl();
     private volatile boolean oceanOk;
+    /**
+     * Phase 17: die Brandung am Caisson und an der Steinschüttung aus {@code com.dan.surf} (Surf.sockel()); sie ersetzt
+     * den Brandungsring aus {@code ocean} am Turm. Aus: der Ring wie bis Phase 16.
+     */
+    public final com.dan.lighthouse.scene.Sockelbrandung brandung = new com.dan.lighthouse.scene.Sockelbrandung();
+    private final com.dan.surf.gl.BreakerGl brandungGl = new com.dan.surf.gl.BreakerGl();
+    private volatile boolean brandungOk;
     private volatile String oceanCheck = "";
     /** Phase 3: der Himmel (Kern ohne Grafikkarte; die Uhr gibt Zeit, die Kamera die Augenhöhe). */
     public final Sky sky = new Sky();
@@ -409,7 +416,11 @@ public final class Renderer implements GLEventListener {
         flock.quality = q.flock;
         bridgeGlass.quality = q.wetglass;
         soundscape.quality = q.sound;
+        brandung.reihen = BRANDUNG_REIHEN[q.ordinal()];
     }
+
+    /** Phase 17: Reihen der Brandung am Sockel je Stufe (Niedrig bis Ultra). */
+    static final int[] BRANDUNG_REIHEN = {24, 32, 40, 56};
 
     /**
      * Belichtung. Mit {@code com.dan.sky}: aus der geglätteten Anpassungsleuchtdichte (halb ganzer Himmel, halb
@@ -578,8 +589,15 @@ public final class Renderer implements GLEventListener {
         weathering.mapBottom = -3;
         weathering.rust = 0.5;
         weathering.salt = 0.2;
-        if (wiring != null) plateDry = wiring.feedObstacles(ocean, plateDry);
+        if (wiring != null) plateDry = wiring.feedObstacles(ocean, plateDry, !brandung.an);
         else ocean.addObstacle(new Obstacle(0, 0, Turm.SOCKEL_R0));
+        try {   // Phase 17: Brecher am Sockel
+            brandungGl.init(gl);
+            brandungOk = true;
+            System.out.println("Lighthouse: Brandung am Sockel " + brandungGl.info());
+        } catch (RuntimeException e) {
+            System.err.println("Lighthouse: Brandung am Sockel nicht verfügbar, es bleibt der Brandungsring: " + e.getMessage());
+        }
         if (compute.ok()) {
             try {
                 oceanGl.init(gl);
@@ -636,8 +654,9 @@ public final class Renderer implements GLEventListener {
         // Wolkenschatten am Turm (für Pfahl und später den Turm): wie die Schattenkarte, auf dem Prozessor
         cloudShade = cloudsOk ? Clouds.shadow(clouds.snapshot(), 0, 0, keyDir(st)) : 1;
         adapt(st, dt);
-        if (wiring != null) plateDry = wiring.feedObstacles(ocean, plateDry);
+        if (wiring != null) plateDry = wiring.feedObstacles(ocean, plateDry, !brandungAn());
         ocean.step(dt);
+        stepBrandung(dt);
         stepWeathering(st, dt);
         stepSpray(dt);
         stepRain(dt);
@@ -978,6 +997,63 @@ public final class Renderer implements GLEventListener {
     }
 
     private volatile double[] nextTide;
+
+    /** Phase 17: ob die Brandung am Sockel gezeigt wird (sonst der Brandungsring aus ocean). */
+    boolean brandungAn() { return brandung.an && brandungOk; }
+
+    /**
+     * Phase 17: die Brandung am Sockel einen Schritt weiter. Seegang und Richtung kommen aus dem Meer, der Wasserstand
+     * aus der Verdrahtung; die Lippen der Sturzbrecher werfen Gischt ({@code spray.impact}), jeder Brecher klingt.
+     */
+    private void stepBrandung(double dt) {
+        if (!brandungAn()) return;
+        if (brandung.onAufschlag == null) {
+            brandung.see = (x, z) -> ocean.heightAt(x, z);
+            brandung.onAufschlag = (x, y, z, v, sp) -> { if (showSpray) spray.impact(x, y, z, v, sp); };
+            brandung.onBrecher = (x, z, hb, art) -> {
+                SoundEvent e = wiring != null ? wiring.sound : null;
+                if (e != null) e.sound(SoundEvent.Kind.BRECHER, x, Math.max(0, hb * 0.5), z, Math.min(1, 0.25 + hb / 4));
+            };
+        }
+        Ocean.State os = ocean.state();
+        double level = wiring != null ? wiring.waterLevel.level() : 0;
+        brandung.schritt(frozen && dt > 1 ? 0 : dt, level, os.totalHs(), os.peakPeriod, ocean.windFromDeg);
+    }
+
+    /** Phase 17: für Standbilder das Stück der Brandung jetzt bauen (Seegang und Wasserstand von jetzt, im aufrufenden Faden). */
+    public void brandungJetzt() {
+        if (!brandungAn()) return;
+        if (brandung.see == null) brandung.see = (x, z) -> ocean.heightAt(x, z);
+        if (wiring != null) wiring.feed(ocean);
+        Ocean.State os = ocean.state();
+        brandung.jetzt(wiring != null ? wiring.waterLevel.level() : 0, os.totalHs(), os.peakPeriod, ocean.windFromDeg);
+    }
+
+    /** Phase 17: die Brandung am Sockel in einer Zeile (für Bilder und HUD). */
+    public String surfDescribe() {
+        if (!brandungAn()) return String.format(Locale.GERMAN, "Brandungsring aus ocean, H_s %.1f m", ocean.state().totalHs());
+        return brandung.meldung;
+    }
+
+    /** Phase 17: Licht für die Brecher, vorbelichtet, lokal zum Stück gedreht (Sonne in seinen Achsen). */
+    private com.dan.surf.gl.BreakerGl.Light brandungLicht(Sky.State st, double[] sun, double pre, com.dan.lighthouse.scene.Sockelbrandung.Stueck s) {
+        com.dan.surf.gl.BreakerGl.Light l = new com.dan.surf.gl.BreakerGl.Light();
+        double[][] L = lifeLight(st, sun, pre);
+        boolean day = sun[1] > -0.02;
+        double[] key = day ? sun : (skyOk ? st.moonDir : sun);
+        l.sunDir = new double[]{key[0] * s.ux + key[2] * s.uz, key[1], key[0] * s.ax + key[2] * s.az};
+        l.sunColor = day ? L[0] : L[1];
+        l.skyTop = L[2];
+        l.skyHorizon = L[3];
+        l.fogColor = L[3];
+        l.fogDistance = skyOk ? fogDistance(st) : 40_000;
+        // Nordsee vor der Weser: grau-grün, über der Schüttung trüb [G]
+        l.waterDeep = new double[]{0.018, 0.055, 0.060};
+        l.waterShallow = new double[]{0.06, 0.15, 0.13};
+        l.sand = new double[]{0.28, 0.26, 0.22};
+        l.display = 0;
+        return l;
+    }
 
     /** Phase 6: das Meer als Quelle, Ereignisse in Ringwellen und Nässe übersetzen. */
     private void initSpray() {
@@ -2024,6 +2100,7 @@ public final class Renderer implements GLEventListener {
 
     public String sprayCheck() { return sprayCheck; }
 
+
     /** „Gischt 3 Schwälle, … · CPU 0,4 ms · GPU = CPU ± 0,0 mm“ */
     public String sprayLine() {
         if (!sprayOk) return "!Gischt: nicht gestartet";
@@ -2327,8 +2404,22 @@ public final class Renderer implements GLEventListener {
                 }
                 if (light.pointSigma <= 0) light.pointSigma = air[0];
             }
+            // Phase 17: kein Loch – die See bleibt, die Brandung legt ihr weißes Wasser darüber (Sockelbrandung.naht)
+            double[][] loch = brandungAn() ? brandung.loch() : null;
             oceanGl.draw(gl, ocean, view, light);
             gl.glBindVertexArray(emptyVao);
+            // Phase 17: die Brecher am Sockel im Loch der See (Tiefentest; der Turm verdeckt das ruhende Wasser im Sockel)
+            com.dan.lighthouse.scene.Sockelbrandung.Stueck bs = loch != null ? brandung.stueck() : null;
+            if (bs != null) {
+                brandungGl.upload(gl, 0, bs.netz);
+                com.dan.surf.gl.BreakerGl.View bv = new com.dan.surf.gl.BreakerGl.View();
+                bv.viewProj = Mat4.mul(vp, bs.modell());
+                double[] le = bs.lokal(camera.eye[0], camera.eye[2]);
+                bv.eye = new double[]{le[0], camera.eye[1], le[1]};
+                bv.reversedZ = reversedZ;
+                brandungGl.draw(gl, 0, bv, brandungLicht(st, sun, pre, bs), ocean.time(), 99);
+                gl.glBindVertexArray(emptyVao);
+            }
         } else {
             common(gl, sea, vp, inv, sun, level);
             sea.set(gl, "uWindTo", (float) windTo[0], (float) windTo[2]);
@@ -3292,6 +3383,8 @@ public final class Renderer implements GLEventListener {
         hud.dispose(gl);
         if (kinoGl != null) kinoGl.dispose(gl);
         if (oceanOk) oceanGl.dispose(gl);
+        if (brandungOk) brandungGl.dispose(gl);
+        brandungOk = false;
         if (beaconOk) beaconGl.dispose(gl);
         if (lightningOk) lightningGl.dispose(gl);
         if (skyOk) skyGl.dispose(gl);

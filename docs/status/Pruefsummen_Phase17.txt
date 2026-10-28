@@ -1,0 +1,429 @@
+Lighthouse Phase 17 · Prüfsummen vorher (SHA-256, die ersten 16 Zeichen) · 2026-10-28
+Kopien in Lighthouse/src/com/dan gegen Renderer/src/com/dan, bevor Lighthouse auf lib/Renderer.jar umstellt (Sylt F22 A).
+„anders“ wurde Datei für Datei gelesen: überall ist der Renderer die neuere Fassung (Fortschreibungen aus Brocken, Rungholt,
+Glacier, Haithabu und Sylt), bis auf spray/gl/SprayGl.java (Avatar-Phase 19: Abgleich über Pufferspeicher mit Zaun) –
+diese Änderung ist in Phase 17 in den Renderer zurückgeführt. sky/milkyway.png liegt im Renderer-Jar (Bau).
+
+21 Packages: 290 gleich, 18 nur Zeilenenden, 66 anders, 0 nur Lighthouse, 24 nur Renderer
+
+beacon         23 Dateien in Lighthouse,   23 im Renderer:  20 gleich,   0 nur Zeilenenden,   3 anders,  0 nur Lighthouse,   0 nur Renderer
+buoyancy       33 Dateien in Lighthouse,   33 im Renderer:  33 gleich,   0 nur Zeilenenden,   0 anders,  0 nur Lighthouse,   0 nur Renderer
+cloud          15 Dateien in Lighthouse,   15 im Renderer:   8 gleich,   0 nur Zeilenenden,   7 anders,  0 nur Lighthouse,   0 nur Renderer
+flock          23 Dateien in Lighthouse,   25 im Renderer:  13 gleich,   0 nur Zeilenenden,  10 anders,  0 nur Lighthouse,   2 nur Renderer
+fog            15 Dateien in Lighthouse,   24 im Renderer:  12 gleich,   0 nur Zeilenenden,   3 anders,  0 nur Lighthouse,   9 nur Renderer
+forest         23 Dateien in Lighthouse,   24 im Renderer:  10 gleich,   0 nur Zeilenenden,  13 anders,  0 nur Lighthouse,   1 nur Renderer
+ground         14 Dateien in Lighthouse,   14 im Renderer:   9 gleich,   0 nur Zeilenenden,   5 anders,  0 nur Lighthouse,   0 nur Renderer
+kino            8 Dateien in Lighthouse,    8 im Renderer:   8 gleich,   0 nur Zeilenenden,   0 anders,  0 nur Lighthouse,   0 nur Renderer
+lightning      15 Dateien in Lighthouse,   15 im Renderer:  15 gleich,   0 nur Zeilenenden,   0 anders,  0 nur Lighthouse,   0 nur Renderer
+muster          7 Dateien in Lighthouse,    7 im Renderer:   7 gleich,   0 nur Zeilenenden,   0 anders,  0 nur Lighthouse,   0 nur Renderer
+ocean          28 Dateien in Lighthouse,   28 im Renderer:  23 gleich,   0 nur Zeilenenden,   5 anders,  0 nur Lighthouse,   0 nur Renderer
+rain           21 Dateien in Lighthouse,   21 im Renderer:  18 gleich,   0 nur Zeilenenden,   3 anders,  0 nur Lighthouse,   0 nur Renderer
+river          12 Dateien in Lighthouse,   12 im Renderer:  12 gleich,   0 nur Zeilenenden,   0 anders,  0 nur Lighthouse,   0 nur Renderer
+road           18 Dateien in Lighthouse,   18 im Renderer:   0 gleich,  18 nur Zeilenenden,   0 anders,  0 nur Lighthouse,   0 nur Renderer
+sky            39 Dateien in Lighthouse,   45 im Renderer:  34 gleich,   0 nur Zeilenenden,   5 anders,  0 nur Lighthouse,   6 nur Renderer
+soundscape     22 Dateien in Lighthouse,   28 im Renderer:  19 gleich,   0 nur Zeilenenden,   3 anders,  0 nur Lighthouse,   6 nur Renderer
+spray          19 Dateien in Lighthouse,   19 im Renderer:  18 gleich,   0 nur Zeilenenden,   1 anders,  0 nur Lighthouse,   0 nur Renderer
+tide            5 Dateien in Lighthouse,    5 im Renderer:   2 gleich,   0 nur Zeilenenden,   3 anders,  0 nur Lighthouse,   0 nur Renderer
+weather         6 Dateien in Lighthouse,    6 im Renderer:   2 gleich,   0 nur Zeilenenden,   4 anders,  0 nur Lighthouse,   0 nur Renderer
+weathering     11 Dateien in Lighthouse,   11 im Renderer:  11 gleich,   0 nur Zeilenenden,   0 anders,  0 nur Lighthouse,   0 nur Renderer
+wetglass       17 Dateien in Lighthouse,   17 im Renderer:  16 gleich,   0 nur Zeilenenden,   1 anders,  0 nur Lighthouse,   0 nur Renderer
+
+Datei                                                          Befund          Lighthouse        Renderer
+beacon/Beacon.java                                             anders          6100d0373f43490e  fb09645fb3e7b05b
+beacon/Characteristic.java                                     gleich          312bda6025adc9eb  312bda6025adc9eb
+beacon/Lens.java                                               gleich          b86241390fa71d9b  b86241390fa71d9b
+beacon/LightColour.java                                        gleich          9188f7450b7b20f8  9188f7450b7b20f8
+beacon/README.md                                               anders          8334d10209a9f891  0ad9d59a25b57e15
+beacon/Range.java                                              gleich          8cc2788e6f19b167  8cc2788e6f19b167
+beacon/Scatter.java                                            gleich          0a0ed78fc48a0200  0a0ed78fc48a0200
+beacon/ScatterGrid.java                                        gleich          39cea6bac2b05841  39cea6bac2b05841
+beacon/SectorTable.java                                        gleich          dc06942ab7f99a5f  dc06942ab7f99a5f
+beacon/demo/BeaconCheck.java                                   anders          b97b74b753361fab  52683144aee0f1fc
+beacon/demo/BeaconDemo.java                                    gleich          6b0c5e70e5b72d0d  6b0c5e70e5b72d0d
+beacon/demo/BeaconScene.java                                   gleich          8ab8e427df8c89ba  8ab8e427df8c89ba
+beacon/demo/post.frag                                          gleich          bf185bc9ae8285a7  bf185bc9ae8285a7
+beacon/demo/scene.frag                                         gleich          2a92297275d0239b  2a92297275d0239b
+beacon/gl/BeaconGl.java                                        gleich          79318d5b3ff89006  79318d5b3ff89006
+beacon/gl/beacon.glsl                                          gleich          8a548620dbf5f69b  8a548620dbf5f69b
+beacon/gl/beam.frag                                            gleich          0baec779f345a822  0baec779f345a822
+beacon/gl/check.frag                                           gleich          f8ac2254605c9d67  f8ac2254605c9d67
+beacon/gl/composite.frag                                       gleich          5be7ae9a14fd5ee3  5be7ae9a14fd5ee3
+beacon/gl/fullscreen.vert                                      gleich          224d5aacbc970793  224d5aacbc970793
+beacon/gl/glare.frag                                           gleich          9be917fa23fb1944  9be917fa23fb1944
+beacon/gl/glare.vert                                           gleich          690ce80f25d25b6c  690ce80f25d25b6c
+beacon/gl/pattern.frag                                         gleich          e34e7791553d0557  e34e7791553d0557
+buoyancy/Berg.java                                             gleich          2408ecb79b030270  2408ecb79b030270
+buoyancy/Bergs.java                                            gleich          7a906caf10dfda66  7a906caf10dfda66
+buoyancy/BrashField.java                                       gleich          823b0ce8880ac2c9  823b0ce8880ac2c9
+buoyancy/Buoy.java                                             gleich          cfeb6f1e4e81a711  cfeb6f1e4e81a711
+buoyancy/Buoyancy.java                                         gleich          3ae98785f79f0d28  3ae98785f79f0d28
+buoyancy/Catamaran.java                                        gleich          a4b790e63a5d0a09  a4b790e63a5d0a09
+buoyancy/Cog.java                                              gleich          ed8fd4326c45279b  ed8fd4326c45279b
+buoyancy/Floater.java                                          gleich          494c683cfc44451b  494c683cfc44451b
+buoyancy/LightPoint.java                                       gleich          b0c365c373a05302  b0c365c373a05302
+buoyancy/Mesh.java                                             gleich          ddabd195fd3033d5  ddabd195fd3033d5
+buoyancy/README.md                                             gleich          7b070012f197fc26  7b070012f197fc26
+buoyancy/Rhythm.java                                           gleich          cab07965e91e4d97  cab07965e91e4d97
+buoyancy/Sea.java                                              gleich          697bb46a0562548e  697bb46a0562548e
+buoyancy/Ship.java                                             gleich          e67f38b64aecfcea  e67f38b64aecfcea
+buoyancy/Wiper.java                                            gleich          eb5c7bcb9e7ad413  eb5c7bcb9e7ad413
+buoyancy/demo/BergCheck.java                                   gleich          52696bf817d7c8f3  52696bf817d7c8f3
+buoyancy/demo/BuoyancyCheck.java                               gleich          8b2b49a084729cec  8b2b49a084729cec
+buoyancy/demo/BuoyancyDemo.java                                gleich          9bfc067ce17f4243  9bfc067ce17f4243
+buoyancy/demo/BuoyancyScene.java                               gleich          8c08b17b25998255  8c08b17b25998255
+buoyancy/demo/DemoSea.java                                     gleich          6e0bee7bc1bcf7aa  6e0bee7bc1bcf7aa
+buoyancy/demo/full.vert                                        gleich          6b7f16a077dc8ce1  6b7f16a077dc8ce1
+buoyancy/demo/glow.frag                                        gleich          02b169313b99f727  02b169313b99f727
+buoyancy/demo/glow.vert                                        gleich          96b740660febaa10  96b740660febaa10
+buoyancy/demo/post.frag                                        gleich          bf185bc9ae8285a7  bf185bc9ae8285a7
+buoyancy/demo/sea.frag                                         gleich          bc16b27f5fc95b8a  bc16b27f5fc95b8a
+buoyancy/demo/sea.vert                                         gleich          63fab53d68363494  63fab53d68363494
+buoyancy/demo/sky.frag                                         gleich          1d480a28d0654ca7  1d480a28d0654ca7
+buoyancy/gl/BrashGl.java                                       gleich          ed481c0477bf8341  ed481c0477bf8341
+buoyancy/gl/BuoyancyGl.java                                    gleich          ca431c91b766bc98  ca431c91b766bc98
+buoyancy/gl/body.frag                                          gleich          c4de4ce4444e41d5  c4de4ce4444e41d5
+buoyancy/gl/body.vert                                          gleich          56ba1ded41dc873e  56ba1ded41dc873e
+buoyancy/gl/check.frag                                         gleich          10871c903d9faa92  10871c903d9faa92
+buoyancy/gl/check.vert                                         gleich          56ddb8f82c7487f4  56ddb8f82c7487f4
+cloud/CloudType.java                                           gleich          f31c6be514ec4bda  f31c6be514ec4bda
+cloud/Clouds.java                                              anders          05d107bdd842fe4a  6e93b12f16ec3feb
+cloud/Noise.java                                               gleich          a95b7eb8eb003336  a95b7eb8eb003336
+cloud/README.md                                                anders          4b6f018aef5358e9  344fea7cc5cd98d8
+cloud/demo/CloudCheck.java                                     anders          222a5ce1cdd53a50  32544111d2e9df59
+cloud/demo/CloudDemo.java                                      gleich          c07fbe6e9c29d09a  c07fbe6e9c29d09a
+cloud/demo/CloudScene.java                                     gleich          ca650f09280c348e  ca650f09280c348e
+cloud/gl/CloudGl.java                                          anders          d249ce1f58e08177  2d95e4bbbb3c89db
+cloud/gl/Glsl.java                                             gleich          eca0c3a18666de3a  eca0c3a18666de3a
+cloud/gl/cloud_common.glsl                                     gleich          afa0d842151a970d  afa0d842151a970d
+cloud/gl/clouds.frag                                           anders          124a049225222fec  dbf2b8c42a046abd
+cloud/gl/composite.frag                                        anders          2b02ed0b77d95990  bd391290088d32f1
+cloud/gl/fullscreen.vert                                       gleich          224d5aacbc970793  224d5aacbc970793
+cloud/gl/resolve.frag                                          gleich          657b9ec63e03a980  657b9ec63e03a980
+cloud/gl/shadow.frag                                           anders          7c88df48fd6f145f  19ca102501609a98
+flock/BirdMesh.java                                            anders          364b080f945f61ed  4dab15b902cffc54
+flock/Flock.java                                               anders          0d5e3e7d5fbb4e45  be14bda60a4e3bb6
+flock/GullMesh.java                                            gleich          904f0545865abf24  904f0545865abf24
+flock/README.md                                                anders          81d6f6231a0d1b04  655eea9bb2f39f11
+flock/Shorebirds.java                                          nur Renderer    ----------------  ae10b5d42d30c03a
+flock/Species.java                                             gleich          f8d3b57682eeeb7e  f8d3b57682eeeb7e
+flock/WaderMesh.java                                           anders          f68632867bb6c3d5  43cc1f94f463064b
+flock/WaderSpecies.java                                        anders          1a8a704f17f98b18  a3619234a4ddd55e
+flock/Waders.java                                              anders          53051013850c230b  df3611923a6c6f38
+flock/Wind.java                                                nur Renderer    ----------------  78ac657262c505a7
+flock/demo/DemoWatt.java                                       gleich          bc04896857cd9968  bc04896857cd9968
+flock/demo/FlockCheck.java                                     anders          79f87f2e0f304730  aaf146b1524d5f60
+flock/demo/FlockDemo.java                                      gleich          b5ba40dc178535b8  b5ba40dc178535b8
+flock/demo/FlockScene.java                                     gleich          e45ff9e489f249b7  e45ff9e489f249b7
+flock/demo/WaderCheck.java                                     anders          f912664f7d06e93f  8de322cae7697188
+flock/demo/WaderDemo.java                                      anders          f6937240fbd9ac41  6adad59440d603a4
+flock/demo/full.vert                                           gleich          6b7f16a077dc8ce1  6b7f16a077dc8ce1
+flock/demo/post.frag                                           gleich          bf185bc9ae8285a7  bf185bc9ae8285a7
+flock/demo/scene.frag                                          gleich          03a0b5f8234088c2  03a0b5f8234088c2
+flock/gl/FlockGl.java                                          gleich          c8ae3fb9f4e82a00  c8ae3fb9f4e82a00
+flock/gl/WaderGl.java                                          anders          d869dcd9e261fe8f  27b6137a2d77400e
+flock/gl/check.frag                                            gleich          05834f72a68f107e  05834f72a68f107e
+flock/gl/gull.frag                                             gleich          9c2e15e0aacfbe16  9c2e15e0aacfbe16
+flock/gl/gull.vert                                             gleich          4f0a7dbbbc230e8a  4f0a7dbbbc230e8a
+flock/gl/wader.vert                                            gleich          2c7654b65f892c62  2c7654b65f892c62
+fog/Fog.java                                                   anders          9999458c3326c4a8  3b734b4ea299ba73
+fog/README.md                                                  anders          6b17f0b66be55381  a963b2a6f74be429
+fog/Signal.java                                                gleich          129103546c9435e5  129103546c9435e5
+fog/TerrainFog.java                                            nur Renderer    ----------------  9ad64cef736a605e
+fog/Wind.java                                                  nur Renderer    ----------------  a2d5293964d988cf
+fog/demo/FogCheck.java                                         anders          e283bd265c4a2e02  291eb3be6e8ef094
+fog/demo/FogDemo.java                                          gleich          ecb2887953d3377f  ecb2887953d3377f
+fog/demo/FogScene.java                                         gleich          f23f151281591aa7  f23f151281591aa7
+fog/demo/TerrainFogDemo.java                                   nur Renderer    ----------------  6b503548bbb94f62
+fog/demo/full.vert                                             gleich          6b7f16a077dc8ce1  6b7f16a077dc8ce1
+fog/demo/post.frag                                             gleich          bf185bc9ae8285a7  bf185bc9ae8285a7
+fog/demo/scene.frag                                            gleich          c8b5a177ca21b4d1  c8b5a177ca21b4d1
+fog/gl/FogGl.java                                              gleich          975268236a3c86b9  975268236a3c86b9
+fog/gl/TerrainFogGl.java                                       nur Renderer    ----------------  0c659e6bb01ebf5f
+fog/gl/check.frag                                              gleich          3be0e416282f3df5  3be0e416282f3df5
+fog/gl/fog.frag                                                gleich          5b6623cfc06264ea  5b6623cfc06264ea
+fog/gl/fog.vert                                                gleich          797e9a7900152454  797e9a7900152454
+fog/gl/fog_common.glsl                                         gleich          c6e5962c6897b498  c6e5962c6897b498
+fog/gl/fog_map.frag                                            gleich          048b8ece7def64c1  048b8ece7def64c1
+fog/gl/terrain_fog.frag                                        nur Renderer    ----------------  7a9dd109e45b0c72
+fog/gl/terrain_fog_check.frag                                  nur Renderer    ----------------  35e8810335436d9b
+fog/gl/terrain_fog_common.glsl                                 nur Renderer    ----------------  b06e7145a596ce1d
+fog/gl/terrain_fog_march.glsl                                  nur Renderer    ----------------  f6948ab7b1e9522a
+fog/gl/terrain_fog_up.frag                                     nur Renderer    ----------------  dcfc1d7986898155
+forest/Forest.java                                             anders          26eedc8eedc3c7cd  358cb53925bc09fd
+forest/ForestField.java                                        anders          fb7b8771aa1ebe12  ad4ccf26cf33ab89
+forest/ForestPlanter.java                                      gleich          1800990bf639afdb  1800990bf639afdb
+forest/Ground.java                                             gleich          113d203f69ab838c  113d203f69ab838c
+forest/LeafFall.java                                           gleich          370eeff334ab6a41  370eeff334ab6a41
+forest/Noise2.java                                             gleich          8edcc6acbac2c32c  8edcc6acbac2c32c
+forest/README.md                                               anders          dbad0d24329d72a5  46e8bcde3221b95c
+forest/Season.java                                             gleich          acf906f2735d1baa  acf906f2735d1baa
+forest/Species.java                                            anders          0ed39270983b2fd5  5f8831137d6ada58
+forest/TreeAnimator.java                                       gleich          7eab96b0c43b5aeb  7eab96b0c43b5aeb
+forest/TreeGenerator.java                                      anders          2ff3c101c6b16bea  0bebf53864d9b781
+forest/TreeInstance.java                                       gleich          2e79b69cc8e6dbc9  2e79b69cc8e6dbc9
+forest/TreeMesh.java                                           anders          e48a4b3cdbd4ba08  80b8a7a83bd5cafc
+forest/TreeModel.java                                          anders          b0d5103d5bdc3f70  6a58e27f1cd96a80
+forest/Wind.java                                               nur Renderer    ----------------  3c2aa4de7dd74f90
+forest/WindField.java                                          anders          299582e2dddb0597  b0a900613edb936a
+forest/demo/ForestCheck.java                                   anders          25dccd231cb41c79  0e0a9fa4cf29deb1
+forest/demo/ForestDemo.java                                    gleich          d56e079a53639648  d56e079a53639648
+forest/demo/ForestGlDemo.java                                  anders          6c82c5ef12f2f084  12fa71a29a430dcc
+forest/demo/SoftRenderer.java                                  gleich          7cbe36acd7fc04c3  7cbe36acd7fc04c3
+forest/gl/ForestGl.java                                        anders          12a371c2b75b4de1  395c939afa7c0ad0
+forest/gl/forest.frag                                          anders          29257cbf0edd962c  53f987f1a5e50d5f
+forest/gl/forest.vert                                          anders          164fb2d98c7c313a  ff347f44d9484618
+forest/gl/forest_shadow.frag                                   gleich          8c137cce557375a1  8c137cce557375a1
+ground/Batch.java                                              gleich          2c184b79439218af  2c184b79439218af
+ground/Biome.java                                              anders          c70bf2ed11f48729  459982c1efaaf5c9
+ground/Breeze.java                                             gleich          f90bcc8ccf90266c  f90bcc8ccf90266c
+ground/GNoise.java                                             gleich          fddeabe57579d0b8  fddeabe57579d0b8
+ground/Meadow.java                                             anders          c198955d3afd94b1  860da0ca01944df7
+ground/Plant.java                                              anders          c3b4132bcaf0c8d0  35445a812a794141
+ground/README.md                                               anders          a343d65686cc58b9  336e898f0cce92c8
+ground/Site.java                                               gleich          9f951c3b85df8159  9f951c3b85df8159
+ground/demo/GroundCheck.java                                   anders          a1a5de4c6651607d  9ad23a6e6d796286
+ground/demo/GroundRenderer.java                                gleich          1551e03a43a6c91f  1551e03a43a6c91f
+ground/demo/MeadowDemo.java                                    gleich          87fd786b98969776  87fd786b98969776
+ground/gl/GroundGl.java                                        gleich          17a86bc179873d39  17a86bc179873d39
+ground/gl/ground.frag                                          gleich          6fb8019066d99601  6fb8019066d99601
+ground/gl/ground.vert                                          gleich          576bd087c16a81f3  576bd087c16a81f3
+kino/Kino.java                                                 gleich          4eef19ac85b16dfc  4eef19ac85b16dfc
+kino/KinoBild.java                                             gleich          b0cf4c4b0af4e6ef  b0cf4c4b0af4e6ef
+kino/KinoMaler.java                                            gleich          d39c9ebd114db16b  d39c9ebd114db16b
+kino/README.md                                                 gleich          56172bf94590883b  56172bf94590883b
+kino/demo/KinoDemo.java                                        gleich          93d127270a73e027  93d127270a73e027
+kino/gl/KinoGl.java                                            gleich          2c3df0a609f6dba0  2c3df0a609f6dba0
+kino/gl/kino.frag                                              gleich          ace89c0f7792d174  ace89c0f7792d174
+kino/gl/kino.vert                                              gleich          01d52e0edd98f69e  01d52e0edd98f69e
+lightning/Bolt.java                                            gleich          a9a14503d4e9475f  a9a14503d4e9475f
+lightning/Lightning.java                                       gleich          bb6cba89dd919196  bb6cba89dd919196
+lightning/README.md                                            gleich          3e5d5d9a50e0a817  3e5d5d9a50e0a817
+lightning/demo/LightningCheck.java                             gleich          727ffa334a3b3e01  727ffa334a3b3e01
+lightning/demo/LightningDemo.java                              gleich          22c1b230e2771d7f  22c1b230e2771d7f
+lightning/demo/LightningScene.java                             gleich          1957a4efbb98034b  1957a4efbb98034b
+lightning/demo/post.frag                                       gleich          bf185bc9ae8285a7  bf185bc9ae8285a7
+lightning/demo/scene.frag                                      gleich          4a8151c5650bc926  4a8151c5650bc926
+lightning/gl/LightningGl.java                                  gleich          74d49379e60eee66  74d49379e60eee66
+lightning/gl/bolt.frag                                         gleich          54eab2847e5da59e  54eab2847e5da59e
+lightning/gl/bolt.vert                                         gleich          51feff3b7e0db323  51feff3b7e0db323
+lightning/gl/check.frag                                        gleich          50949ba386b50c07  50949ba386b50c07
+lightning/gl/fullscreen.vert                                   gleich          bc52a8a62a04bd5f  bc52a8a62a04bd5f
+lightning/gl/glow.frag                                         gleich          fcf9fb0ebeb941a1  fcf9fb0ebeb941a1
+lightning/gl/lightning.glsl                                    gleich          e31b14f3fd3876e2  e31b14f3fd3876e2
+muster/Muster.java                                             gleich          40260926703acca3  40260926703acca3
+muster/README.md                                               gleich          c7e6952c2967492a  c7e6952c2967492a
+muster/demo/MusterCheck.java                                   gleich          17c5be3940810053  17c5be3940810053
+muster/demo/MusterDemo.java                                    gleich          8666ec6f19001d98  8666ec6f19001d98
+muster/gl/MusterGl.java                                        gleich          2bafe6e51075e76f  2bafe6e51075e76f
+muster/gl/muster.frag                                          gleich          db80b16230461f4f  db80b16230461f4f
+muster/gl/muster.vert                                          gleich          d73459bca129e492  d73459bca129e492
+ocean/CpuField.java                                            gleich          ccdd81e44c52aad3  ccdd81e44c52aad3
+ocean/Fft.java                                                 gleich          d50ddf54b2275c2d  d50ddf54b2275c2d
+ocean/HullMask.java                                            gleich          c97fe98b83043ba4  c97fe98b83043ba4
+ocean/Obstacle.java                                            gleich          0e19b52c056daf31  0e19b52c056daf31
+ocean/ObstacleField.java                                       gleich          944c67c45b1d690c  944c67c45b1d690c
+ocean/Ocean.java                                               gleich          9bd1465fb948e68f  9bd1465fb948e68f
+ocean/README.md                                                anders          5990b6d477831dcd  41cd9eeb3d6d930b
+ocean/Ripples.java                                             gleich          41f338f7f850a2d7  41f338f7f850a2d7
+ocean/SeaState.java                                            gleich          07d48b439e5909ed  07d48b439e5909ed
+ocean/Spectrum.java                                            gleich          0415b28e5527ac2c  0415b28e5527ac2c
+ocean/Swell.java                                               gleich          30ae601c1149bbcd  30ae601c1149bbcd
+ocean/demo/DemoScene.java                                      gleich          ae1546950ec0e45d  ae1546950ec0e45d
+ocean/demo/OceanCheck.java                                     gleich          a9863cee7cdc093a  a9863cee7cdc093a
+ocean/demo/OceanDemo.java                                      gleich          e61cd4e99bb10f5a  e61cd4e99bb10f5a
+ocean/gl/Backdrop.java                                         gleich          3e4beaa9c99920c2  3e4beaa9c99920c2
+ocean/gl/Glsl.java                                             gleich          b452326ef7cb3e9a  b452326ef7cb3e9a
+ocean/gl/OceanGl.java                                          anders          a534ee455520ffc2  66742eb8b72bd825
+ocean/gl/RingMesh.java                                         gleich          ab2cb87c6de296e7  ab2cb87c6de296e7
+ocean/gl/assemble.comp                                         gleich          2176131d42ec20eb  2176131d42ec20eb
+ocean/gl/backdrop.frag                                         gleich          f0c0d2187755761f  f0c0d2187755761f
+ocean/gl/backdrop.vert                                         gleich          34c575ea53c9f32c  34c575ea53c9f32c
+ocean/gl/fft.comp                                              gleich          186cdb395739fce4  186cdb395739fce4
+ocean/gl/ocean_common.glsl                                     anders          b35012f293f0076b  72d78523f538dd20
+ocean/gl/spectrum.comp                                         gleich          7f2e5b83351aa512  7f2e5b83351aa512
+ocean/gl/surface.frag                                          anders          adfe5542b3eb4b8a  b4d39d72eb73afba
+ocean/gl/surface.vert                                          anders          4e1a7303369fe38c  2d72f954792dbd58
+ocean/gl/underwater.frag                                       gleich          edd3876e7e7e208e  edd3876e7e7e208e
+ocean/gl/underwater.vert                                       gleich          403197db8e9de405  403197db8e9de405
+rain/README.md                                                 anders          71ebb77e23f51624  0f83f5d9e9f3df06
+rain/Rain.java                                                 gleich          2ce8961892372a61  2ce8961892372a61
+rain/demo/RainCheck.java                                       gleich          3ef065a762b3c145  3ef065a762b3c145
+rain/demo/RainDemo.java                                        gleich          6f0174c160fa6bcc  6f0174c160fa6bcc
+rain/demo/RainScene.java                                       gleich          9623d5a53dfe961f  9623d5a53dfe961f
+rain/demo/ShowerField.java                                     gleich          0d5d488f91c5b59f  0d5d488f91c5b59f
+rain/demo/post.frag                                            gleich          b8903e7abaeca517  b8903e7abaeca517
+rain/demo/post.vert                                            gleich          4d113da72c4ab368  4d113da72c4ab368
+rain/demo/scene.frag                                           gleich          1a36fa108d3da4ca  1a36fa108d3da4ca
+rain/demo/scene.vert                                           gleich          1bfe122cac004fdf  1bfe122cac004fdf
+rain/gl/RainGl.java                                            anders          ff34e28d082df037  aaa6bb464b7a5dc0
+rain/gl/check.frag                                             gleich          cd3ad9ccddc564e4  cd3ad9ccddc564e4
+rain/gl/check.vert                                             gleich          dbd5f62f9d42ef7b  dbd5f62f9d42ef7b
+rain/gl/crown.vert                                             anders          890eff9aef247db8  7be720c68768c692
+rain/gl/curtain.frag                                           gleich          f4b8e0f191b7cc8a  f4b8e0f191b7cc8a
+rain/gl/fullscreen.vert                                        gleich          56615246c9140d84  56615246c9140d84
+rain/gl/rain_common.glsl                                       gleich          e9ef532ec2bcbb82  e9ef532ec2bcbb82
+rain/gl/ripple.frag                                            gleich          2671d24237314ee4  2671d24237314ee4
+rain/gl/slope.frag                                             gleich          bb68ba03ca9b0c4b  bb68ba03ca9b0c4b
+rain/gl/streak.frag                                            gleich          f1fa3ba0a4b99a01  f1fa3ba0a4b99a01
+rain/gl/streak.vert                                            gleich          d18a3cd4ed612092  d18a3cd4ed612092
+river/Drift.java                                               gleich          7343d74fac767af6  7343d74fac767af6
+river/FlowField.java                                           gleich          417e4d6fa4880c3a  417e4d6fa4880c3a
+river/README.md                                                gleich          0226c4aab56909ad  0226c4aab56909ad
+river/RNoise.java                                              gleich          2cbd9a28d2edc4e2  2cbd9a28d2edc4e2
+river/RiverPath.java                                           gleich          1cfccecf2a5788e3  1cfccecf2a5788e3
+river/Rock.java                                                gleich          6bc97e7bf4a0aa4f  6bc97e7bf4a0aa4f
+river/WaterOptics.java                                         gleich          ec989cb31db566c5  ec989cb31db566c5
+river/WaterSurface.java                                        gleich          0a58e470f688de44  0a58e470f688de44
+river/demo/RiverCheck.java                                     gleich          89b46100149ef879  89b46100149ef879
+river/demo/RiverDemo.java                                      gleich          565742c5fd3c339a  565742c5fd3c339a
+river/demo/Valley.java                                         gleich          4182577fae20db02  4182577fae20db02
+river/demo/WaterRenderer.java                                  gleich          47677e00668d9358  47677e00668d9358
+road/Batch.java                                                Zeilenenden     0264c2db22688418  ff994e5cab30648e
+road/Deck.java                                                 Zeilenenden     c0342a644f0450be  2bd403a4eaea779c
+road/Dust.java                                                 Zeilenenden     a017eb08fb8bb7af  2e759b94510176ef
+road/Ground.java                                               Zeilenenden     71856d6d1aebd6c8  1fdabde77789d065
+road/Mover.java                                                Zeilenenden     b52b40d3ad5f867c  3e5a8ecd5b1b2e54
+road/Network.java                                              Zeilenenden     5eb12e5c946e02ab  945c2e2f8fc101ed
+road/README.md                                                 Zeilenenden     bfb304ce02a5a2db  a3bb1e75801aee94
+road/Roads.java                                                Zeilenenden     5af0d45a77652bb9  719ea969d14b5671
+road/Traffic.java                                              Zeilenenden     ce60455e15f1d83e  47528a552697b945
+road/Vehicle.java                                              Zeilenenden     4b5ee03f6cbfe357  80271e81c78ce31d
+road/WNoise.java                                               Zeilenenden     1f2a58764eab04bc  313dc941c8e3fef5
+road/Way.java                                                  Zeilenenden     0cfbac67a4a856de  d516ea8b2dc0fe6b
+road/WayType.java                                              Zeilenenden     23ba20911f0d0d9c  0eb7e18ea7d11f6d
+road/Weather.java                                              Zeilenenden     d2c1d0148b3b79a7  e9dcac43f828da57
+road/demo/Landscape.java                                       Zeilenenden     09ac8ff85440575f  ce2450e3edb88f20
+road/demo/RoadCheck.java                                       Zeilenenden     a8060a7cb601eb8a  5c6734822a8f96c2
+road/demo/RoadDemo.java                                        Zeilenenden     070d6712f410af79  da657988749d0978
+road/demo/RoadRenderer.java                                    Zeilenenden     5d89a6bf3eaaa0bb  b6cc6e3bbed0a8a0
+sky/Atmosphere.java                                            gleich          ede9ad146e501e31  ede9ad146e501e31
+sky/Celestial.java                                             gleich          f2e376abb0a967ca  f2e376abb0a967ca
+sky/Droplets.java                                              nur Renderer    ----------------  100d7cf15b347734
+sky/GreenFlash.java                                            nur Renderer    ----------------  dc76be346f6f1f4a
+sky/Halo.java                                                  nur Renderer    ----------------  402fcd29a62c5bcf
+sky/Mie.java                                                   nur Renderer    ----------------  cce4c79dd2172407
+sky/MoonDisc.java                                              gleich          99e3457ab1a049d3  99e3457ab1a049d3
+sky/Planets.java                                               gleich          ad79c896f20491ad  ad79c896f20491ad
+sky/README.md                                                  anders          0bd200fbc6bd4199  8621872f9a041c67
+sky/Scattering.java                                            gleich          0864673ffb0394a8  0864673ffb0394a8
+sky/Sky.java                                                   anders          10b66ec1292affed  a5950163eca63bd7
+sky/StarCatalog.java                                           gleich          1481a5f974ef98e2  1481a5f974ef98e2
+sky/astro/FAngle.java                                          gleich          5185a6ac5c07fc8d  5185a6ac5c07fc8d
+sky/astro/FAstroTime.java                                      gleich          9e4e834139aeb5dc  9e4e834139aeb5dc
+sky/astro/FGeoLocation.java                                    gleich          b08cb1c9aeca1d96  b08cb1c9aeca1d96
+sky/astro/FLibration.java                                      gleich          63e20dee4b49e53a  63e20dee4b49e53a
+sky/astro/FMoonEphemeris.java                                  gleich          ac06b8bb7a9cf035  ac06b8bb7a9cf035
+sky/astro/FMoonPhase.java                                      gleich          965501f6f33d30ea  965501f6f33d30ea
+sky/astro/FMoonPhaseTimes.java                                 gleich          601412fbf19bffde  601412fbf19bffde
+sky/astro/FMoonPosition.java                                   gleich          8f53c2c17c0f36d2  8f53c2c17c0f36d2
+sky/astro/FMoonSurface.java                                    gleich          419f6ea41e12dbd2  419f6ea41e12dbd2
+sky/astro/FRiseSet.java                                        gleich          c5ffc4ce8a9f1008  c5ffc4ce8a9f1008
+sky/astro/FSun.java                                            gleich          0b66cba6c78a48d2  0b66cba6c78a48d2
+sky/demo/GloryDemo.java                                        nur Renderer    ----------------  a6fa7ee424330c8a
+sky/demo/SkyCheck.java                                         anders          464a64b56339c043  d765e0da23366d88
+sky/demo/SkyDemo.java                                          gleich          07bcc18fc7fd183b  07bcc18fc7fd183b
+sky/demo/SkyScene.java                                         gleich          4cf756e185cccbb6  4cf756e185cccbb6
+sky/figures.txt                                                gleich          882b3463bffeac29  882b3463bffeac29
+sky/gl/DropletGl.java                                          nur Renderer    ----------------  e96ec576f695d790
+sky/gl/Glsl.java                                               gleich          2fb61cd8d8aa28dd  2fb61cd8d8aa28dd
+sky/gl/SkyGl.java                                              anders          f74b0877d4587446  dd3bc97198d76881
+sky/gl/fullscreen.vert                                         gleich          a1a3bddac553df60  a1a3bddac553df60
+sky/gl/lines.frag                                              gleich          0446de3528941733  0446de3528941733
+sky/gl/lines.vert                                              gleich          62d6c0f0a5a4ea4d  62d6c0f0a5a4ea4d
+sky/gl/multiscatter.frag                                       gleich          6bac8adea5883915  6bac8adea5883915
+sky/gl/post.frag                                               gleich          b2f16024594b611d  b2f16024594b611d
+sky/gl/sky.frag                                                anders          6febaa0951aeeca5  76c49a3c45dd959c
+sky/gl/sky_common.glsl                                         gleich          41cd18ae4f80fa26  41cd18ae4f80fa26
+sky/gl/sky_view.glsl                                           gleich          784e26c40d6659fa  784e26c40d6659fa
+sky/gl/skyview.frag                                            gleich          52ee6d9677be55ce  52ee6d9677be55ce
+sky/gl/stars.frag                                              gleich          910015453ab320bf  910015453ab320bf
+sky/gl/stars.vert                                              gleich          d4ecf0f836264ec2  d4ecf0f836264ec2
+sky/gl/transmittance.frag                                      gleich          9e0147fbea2e6a9a  9e0147fbea2e6a9a
+sky/milkyway.png                                               gleich          173c7bd9b20f6e2c  173c7bd9b20f6e2c
+sky/stars.bin                                                  gleich          bff6ebb946368024  bff6ebb946368024
+soundscape/Aeolian.java                                        gleich          7488a2c8e8e901a0  7488a2c8e8e901a0
+soundscape/AudioOut.java                                       gleich          3f2d0fe139596b39  3f2d0fe139596b39
+soundscape/Blaze.java                                          gleich          7840bdfbe033018a  7840bdfbe033018a
+soundscape/Calls.java                                          gleich          b75810c0a3368c13  b75810c0a3368c13
+soundscape/Coast.java                                          nur Renderer    ----------------  ed0a4ef0ac4f684f
+soundscape/Crafts.java                                         gleich          0cbb310f110c5c14  0cbb310f110c5c14
+soundscape/Crowd.java                                          gleich          c5a80481c8744a2f  c5a80481c8744a2f
+soundscape/Dsp.java                                            gleich          b8201c101b4936c9  b8201c101b4936c9
+soundscape/Edge.java                                           nur Renderer    ----------------  b8c3c36077834d8d
+soundscape/Glacial.java                                        gleich          413f78df41371887  413f78df41371887
+soundscape/Highland.java                                       nur Renderer    ----------------  ca33ca11fc32a3ad
+soundscape/Hum.java                                            gleich          1e5c924a1537ff36  1e5c924a1537ff36
+soundscape/README.md                                           anders          b8e4639d4d516285  0b4ef5da634e4f48
+soundscape/Room.java                                           gleich          198bf0094a39f2ab  198bf0094a39f2ab
+soundscape/Soundscape.java                                     anders          144606ffd6d9b570  de526d8b8756bfdc
+soundscape/Steam.java                                          nur Renderer    ----------------  cda836ee6df6e820
+soundscape/Stream.java                                         gleich          0c8659ca74f95eb7  0c8659ca74f95eb7
+soundscape/Thunder.java                                        gleich          28478e7b34c7361f  28478e7b34c7361f
+soundscape/Torrent.java                                        gleich          b6e7c4e7ae698418  b6e7c4e7ae698418
+soundscape/Voice.java                                          gleich          8c3f2ab7c13e7a4d  8c3f2ab7c13e7a4d
+soundscape/Wadden.java                                         gleich          87a0e0e83adeecd8  87a0e0e83adeecd8
+soundscape/Walpurgis.java                                      nur Renderer    ----------------  6e755f3d52d90db0
+soundscape/Wav.java                                            gleich          184fbac08e49b21c  184fbac08e49b21c
+soundscape/Wind.java                                           nur Renderer    ----------------  1735e4d937e33ff9
+soundscape/Workshop.java                                       gleich          ae785929acde011a  ae785929acde011a
+soundscape/demo/Analysis.java                                  gleich          d8311c9ffcba8a15  d8311c9ffcba8a15
+soundscape/demo/SoundscapeCheck.java                           anders          3ccdc049530a8204  70f1becc1352e9d4
+soundscape/demo/SoundscapeDemo.java                            gleich          52bd4ef2053d6e30  52bd4ef2053d6e30
+spray/Body.java                                                gleich          572f245a4fe7d0d5  572f245a4fe7d0d5
+spray/Parcel.java                                              gleich          866bbcb0ac5e8ac6  866bbcb0ac5e8ac6
+spray/README.md                                                gleich          c4161e302dbc66a7  c4161e302dbc66a7
+spray/Sea.java                                                 gleich          0e17a1e95a24caa7  0e17a1e95a24caa7
+spray/Spray.java                                               gleich          ca90ac944aa063a8  ca90ac944aa063a8
+spray/demo/SineSea.java                                        gleich          7601539353b701bf  7601539353b701bf
+spray/demo/SprayCheck.java                                     gleich          bef0e52671175709  bef0e52671175709
+spray/demo/SprayDemo.java                                      gleich          105a7061eb86ac43  105a7061eb86ac43
+spray/demo/SprayScene.java                                     gleich          b284c3e6b0d5314b  b284c3e6b0d5314b
+spray/demo/post.frag                                           gleich          37498a17a5a418c5  37498a17a5a418c5
+spray/demo/post.vert                                           gleich          4d113da72c4ab368  4d113da72c4ab368
+spray/demo/scene.frag                                          gleich          d0c63d5e7db412c3  d0c63d5e7db412c3
+spray/demo/scene.vert                                          gleich          250c862b2e2a12ec  250c862b2e2a12ec
+spray/gl/SprayGl.java                                          anders          57c5c507db41437f  20b3c2b2eb5fda7d
+spray/gl/check.frag                                            gleich          1d7edd0cb3ede42a  1d7edd0cb3ede42a
+spray/gl/check.vert                                            gleich          2ddbba34a7873794  2ddbba34a7873794
+spray/gl/spray.frag                                            gleich          deac63190d7e9d06  deac63190d7e9d06
+spray/gl/spray.vert                                            gleich          ddd8b111fe70fb08  ddd8b111fe70fb08
+spray/gl/spray_common.glsl                                     gleich          29c7e7f5fb4ea6c1  29c7e7f5fb4ea6c1
+tide/Flood.java                                                gleich          4521ebd14785e7df  4521ebd14785e7df
+tide/README.md                                                 anders          ff220352ec11caee  bc29ad47b200a3d6
+tide/Tide.java                                                 anders          96aa00f586c5a3e0  f883bdd88711d3fc
+tide/demo/TideCheck.java                                       anders          2e2abfb6b3cdf6f3  448cef5bcfe10c21
+tide/demo/TideDemo.java                                        gleich          131ee6bff31e6c15  131ee6bff31e6c15
+weather/README.md                                              anders          eeac3897b2f59ba0  98efcc11165c1683
+weather/Scenario.java                                          anders          0d4e16e52fde462b  f26efce67a5c901f
+weather/Weather.java                                           anders          f07758b1c82e5433  495d1da882ca62b9
+weather/demo/WeatherChart.java                                 gleich          436b3d80db1584fd  436b3d80db1584fd
+weather/demo/WeatherCheck.java                                 anders          3d92c16fb6447225  b6b1d7f4444e874e
+weather/demo/WeatherDemo.java                                  gleich          bacc6394ca55fc8e  bacc6394ca55fc8e
+weathering/README.md                                           gleich          1b3ddf6119e31cc7  1b3ddf6119e31cc7
+weathering/Weathering.java                                     gleich          638981f6994c3931  638981f6994c3931
+weathering/demo/WeatheringCheck.java                           gleich          5338123f769ede91  5338123f769ede91
+weathering/demo/WeatheringDemo.java                            gleich          58e3ee852e2f869f  58e3ee852e2f869f
+weathering/demo/WeatheringScene.java                           gleich          587ae64e663e842e  587ae64e663e842e
+weathering/demo/scene.frag                                     gleich          9421b67918f7724e  9421b67918f7724e
+weathering/demo/scene.vert                                     gleich          cea1e8df7ce0afa0  cea1e8df7ce0afa0
+weathering/gl/WeatheringGl.java                                gleich          587f336556a2ebf3  587f336556a2ebf3
+weathering/gl/check.frag                                       gleich          9a80cb9fd7e34b2d  9a80cb9fd7e34b2d
+weathering/gl/check.vert                                       gleich          ef9976b51eeace26  ef9976b51eeace26
+weathering/gl/weathering.glsl                                  gleich          e0604ae82fb027df  e0604ae82fb027df
+wetglass/README.md                                             anders          d079eb40b12d0a47  d605980b522aa4ab
+wetglass/Wetglass.java                                         gleich          841607e101a9011f  841607e101a9011f
+wetglass/demo/WetglassCheck.java                               gleich          0eaf1d1915258f9f  0eaf1d1915258f9f
+wetglass/demo/WetglassDemo.java                                gleich          513a7a53de103178  513a7a53de103178
+wetglass/demo/WetglassScene.java                               gleich          2b9880c607481d44  2b9880c607481d44
+wetglass/demo/bg.frag                                          gleich          df9098cffb5b3769  df9098cffb5b3769
+wetglass/demo/pane.frag                                        gleich          cebeae46fe8bf4ad  cebeae46fe8bf4ad
+wetglass/demo/post.frag                                        gleich          4865df34c31de102  4865df34c31de102
+wetglass/demo/post.vert                                        gleich          4d113da72c4ab368  4d113da72c4ab368
+wetglass/demo/tube.frag                                        gleich          2b6885f00f3a46f6  2b6885f00f3a46f6
+wetglass/gl/WetglassGl.java                                    gleich          d2638ae8261a7e54  d2638ae8261a7e54
+wetglass/gl/check.frag                                         gleich          ff212ed733c0fcba  ff212ed733c0fcba
+wetglass/gl/fullscreen.vert                                    gleich          ae37bacb04d9b62c  ae37bacb04d9b62c
+wetglass/gl/wetglass.glsl                                      gleich          47dd4d41c17694d7  47dd4d41c17694d7
+wetglass/gl/wg_drop.vert                                       gleich          eda6adacbe3cb3b4  eda6adacbe3cb3b4
+wetglass/gl/wg_height.frag                                     gleich          b075bef8b72a2e47  b075bef8b72a2e47
+wetglass/gl/wg_normal.frag                                     gleich          773c8c50c89e6415  773c8c50c89e6415

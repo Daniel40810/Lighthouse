@@ -67,6 +67,7 @@ public final class Pruefung {
         leben();
         klang();
         PruefungPersonen.alles();   // Avatar Phase 15
+        PruefungRueckfluss.alles();   // Phase 17: Renderer.jar und Brandung am Sockel
         isolation();
         datenbank();
         PruefungDaten.alles();
@@ -384,7 +385,10 @@ public final class Pruefung {
     static void himmel() {
         System.out.println("Himmel (com.dan.sky)");
         com.dan.sky.demo.SkyCheck sc = new com.dan.sky.demo.SkyCheck();
-        for (String l : sc.run()) check(l.startsWith("  ok"), l.substring(8).trim());
+        for (String l : sc.run()) {
+            if (!l.startsWith("  ")) continue;   // seit Phase 17 (Renderer.jar): Überschriften der Abschnitte
+            check(l.startsWith("  ok"), l.substring(8).trim());
+        }
         // Verdrahtung: Zeit, Ort, Augenhöhe, Sicht und Bedeckung gehen in den Himmel, das Licht kommt zurück
         SceneClock c = new SceneClock(LocalDate.of(2026, 10, 15), 13.0);
         Wiring w = new Wiring(c);
@@ -440,7 +444,7 @@ public final class Pruefung {
         java.lang.reflect.Field pf = com.dan.lighthouse.gl.Renderer.class.getDeclaredField("PASSES");
         pf.setAccessible(true);
         check(java.util.Arrays.asList((String[]) pf.get(null)).contains("Wolken"), "Zeitmessung der Durchgänge enthält „Wolken“");
-        String surf = Files.readString(new File("src/com/dan/ocean/gl/surface.frag").toPath(), StandardCharsets.UTF_8);
+        String surf = ressource("/com/dan/ocean/gl/surface.frag");
         check(surf.contains("uCloudShadow") && surf.contains("uShadowRect"), "Das Meer nimmt die Schattenkarte der Wolken (ohne com.dan.cloud zu kennen)");
     }
 
@@ -459,7 +463,7 @@ public final class Pruefung {
                 && we.windFromDeg == 250 && we.sun == 0.6, "Wasserstand, Gezeitenband, Seegang, Wind und Sonne gehen in die Verwitterung");
         String frag = Shader.source("tower.frag", null).text;
         check(frag.contains("wthApply") && frag.contains("uWthMap") && !frag.contains("#include"), "Der Turm-Shader bindet weathering.glsl aus dem Klassenpfad ein (/com/dan/weathering/gl/)");
-        String surf = Files.readString(new File("src/com/dan/ocean/gl/surface.frag").toPath(), StandardCharsets.UTF_8);
+        String surf = ressource("/com/dan/ocean/gl/surface.frag");
         check(surf.contains("uBodyShadow") && surf.contains("uBodyRect"), "Das Meer nimmt den Schatten eines Körpers (Turm) als zweite Schattenkarte, ohne den Turm zu kennen");
         java.lang.reflect.Field pf = com.dan.lighthouse.gl.Renderer.class.getDeclaredField("PASSES");
         pf.setAccessible(true);
@@ -531,7 +535,7 @@ public final class Pruefung {
                 String.format(Locale.GERMAN, "Landregen (Nimbostratus 8/8) am Turm %.1f von 12 mm/h; unter Gewitterwolken 7/8 regnet es auf %.0f %% der Fläche (Schauer)", ns, 100.0 * wet / n));
         w.feed(rn, c, cs, false, new double[]{0, 10, 0});
         check(rn.curtain == null, "ohne gezeichnete Wolken regnet es überall gleich");
-        String surf = Files.readString(new File("src/com/dan/ocean/gl/surface.frag").toPath(), StandardCharsets.UTF_8);
+        String surf = ressource("/com/dan/ocean/gl/surface.frag");
         check(surf.contains("uDetail") && !surf.contains("rain"), "Das Meer nimmt eine feine Störung (die Ringkarte des Regens) als Textur, ohne den Regen zu kennen");
         java.lang.reflect.Field pf = com.dan.lighthouse.gl.Renderer.class.getDeclaredField("PASSES");
         pf.setAccessible(true);
@@ -586,7 +590,7 @@ public final class Pruefung {
         check(q && Quality.NIEDRIG.wetglass == com.dan.wetglass.Wetglass.Quality.LOW && Quality.ULTRA.wetglass == com.dan.wetglass.Wetglass.Quality.ULTRA,
                 "Qualitätsstufen der App wählen die Stufe der Scheiben");
         String frag = Files.readString(new File("src/com/dan/lighthouse/gl/shader/glass.frag").toPath(), StandardCharsets.UTF_8);
-        String block = Files.readString(new File("src/com/dan/wetglass/gl/wetglass.glsl").toPath(), StandardCharsets.UTF_8);
+        String block = ressource("/com/dan/wetglass/gl/wetglass.glsl");
         check(frag.contains("#include \"/com/dan/wetglass/gl/wetglass.glsl\"") && frag.contains("wgOffset") && !block.contains("lighthouse") && !block.contains("uCam"),
                 "Die Scheibe der App nimmt den Baustein wetglass.glsl; der Baustein kennt die App nicht");
         String sh = Files.readString(new File("src/com/dan/lighthouse/gl/shader/tower_shadow.frag").toPath(), StandardCharsets.UTF_8);
@@ -646,6 +650,17 @@ public final class Pruefung {
                 "Derselbe Baustein auf Scheibe und Handlauf; die Scheibe zeigt Beschlag, Salz und die Wasserhaut");
         check(new com.dan.lighthouse.gl.Renderer(new SceneClock(LocalDate.of(2026, 10, 16), 13.0), w).simThreaded,
                 "Die Tropfen rechnen in einem eigenen Faden (Standbilder schalten ihn ab)");
+    }
+
+    /**
+     * Seit Phase 17: eine Datei der Packages aus {@code lib/Renderer.jar} (Shader, README) über den Klassenpfad; die
+     * Kopien unter {@code src/com/dan} sind fort.
+     */
+    static String ressource(String pfad) throws java.io.IOException {
+        try (java.io.InputStream in = Pruefung.class.getResourceAsStream(pfad)) {
+            if (in == null) throw new java.io.FileNotFoundException(pfad + " (nicht im Klassenpfad, fehlt lib/Renderer.jar?)");
+            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+        }
     }
 
     /** Die Element-Packages: alles unter src/com/dan außer der App. */
@@ -1254,7 +1269,7 @@ public final class Pruefung {
         check(((edge >> 16) & 255) > 150 && ((edge >> 8) & 255) > 100, "Programmsymbol mit Goldkante");
         check((mid >>> 24) > 0, "Symbol deckend gemalt");
         check(new File("tools/PaketPruefung.java").isFile(), "Isolationsprüfung tools/PaketPruefung.java vorhanden (Ant-Target check-packages)");
-        check(new File("src/com/dan/muster/README.md").isFile(), "Muster-Package mit README als Vorlage für neue Packages");
+        check(Pruefung.class.getResource("/com/dan/muster/README.md") != null, "Muster-Package mit README als Vorlage für neue Packages (aus Renderer.jar)");
     }
 
     private Pruefung() { }

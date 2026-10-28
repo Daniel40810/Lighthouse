@@ -52,7 +52,7 @@ final class PruefungSchliff {
             n++;
             if (!new File(p, "README.md").isFile()) ohne.add(p.getName());
         }
-        check(n >= 19 && ohne.isEmpty(), "README.md in allen " + n + " Packages" + (ohne.isEmpty() ? "" : "; fehlt: " + ohne));
+        check(n >= 5 && ohne.isEmpty(), "README.md in allen " + n + " eigenen Packages" + (ohne.isEmpty() ? "" : "; fehlt: " + ohne));
         check(new File("src/com/dan/lighthouse/scene/README.md").isFile() && new File("src/com/dan/lighthouse/wiring/README.md").isFile() && new File("db/README.md").isFile(),
                 "READMEs für scene, wiring und db");
         String readme = Files.readString(new File("README.md").toPath(), StandardCharsets.UTF_8);
@@ -65,7 +65,7 @@ final class PruefungSchliff {
             links++;
             if (!new File(t).isFile()) kaputt.add(t);
         }
-        check(links >= 25 && kaputt.isEmpty(), "GitHub-README: " + links + " Verweise auf Dateien im Projekt, alle vorhanden" + (kaputt.isEmpty() ? "" : "; fehlt: " + kaputt));
+        check(links >= 12 && kaputt.isEmpty(), "GitHub-README: " + links + " Verweise auf Dateien im Projekt, alle vorhanden" + (kaputt.isEmpty() ? "" : "; fehlt: " + kaputt));
         int bilder = 0;
         Matcher b = Pattern.compile("!\\[[^\\]]*\\]\\(docs/bilder/([^)]+)\\)").matcher(readme);
         while (b.find()) bilder++;

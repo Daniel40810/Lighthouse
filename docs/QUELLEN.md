@@ -37,6 +37,13 @@ Je Turm stehen die Quellen auch in der Spalte `QUELLE` von `LH_LIGHTHOUSE`.
 - Few (1969): Donner als Summe der N-Wellen eines gewundenen Kanals
 - Silbermöwe: Rufe nach Tonaufnahmen aus dem Gedächtnis gestaltet [G]
 
+
+## Brandung am Sockel (Phase 17)
+
+- Brechen nach McCowan (γ = 0,78), Brechertyp nach Battjes (1974) aus der Iribarren-Zahl, Shoaling nach Green: aus `com.dan.surf` (Quellen dort, Sylt-Werkbuch Abschnitt 6)
+- Seegrund am Roten Sand 7 m unter dem Mittelwasser der Szene [G: Roter Sand ist eine Sandbank in der Außenweser, Wassertiefe dort einige Meter; nicht gemessen]
+- Böschung der Schüttung 1:2 bis zum Grund [G], tiefenbegrenzte See H_s ≤ 0,55 · Tiefe [G: übliche Faustregel 0,5 bis 0,6 im Flachwasser]
+- Kante einer Schüttung: kein Brecher höher als 1,25 · γ · h [G]
 ## Werkzeuge und Vorbilder
 
 - JOGL 2.6.0 (OpenGL 4.3 mit Compute-Shadern), FStyle (Fenster und Bedienelemente), Oracle 21c mit Spatial (SRID 8307), ojdbc11

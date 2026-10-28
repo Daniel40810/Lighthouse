@@ -51,7 +51,7 @@ public final class ControlPanel extends JPanel implements javax.swing.Scrollable
     final DatenSteuerung daten;
     private final JLabel dateLbl = label(""), timeLbl = label(""), sunLbl = small(""), windLbl = label(""), dirLbl = label(""),
             camLbl = small(""), seaLbl = small(""), seaCheckLbl = small(""), skyLbl = small(""), skyCheckLbl = small(""), visLbl = label(""), coverLbl = label(""),
-            cloudLbl = small(""), cloudCheckLbl = small(""), towerLbl = small(""), innerLbl = small(""), towerCheckLbl = small(""), sprayLbl = small(""), sprayCheckLbl = small(""), sprayStrLbl = label(""), rainLbl = small(""), rainCheckLbl = small(""), rainRateLbl = label(""), rainStrLbl = label(""), glassLbl = small(""), lifeLbl = small(""), personLbl = small(""), soundLbl = small(""), soundVolLbl = label(""), fogLbl = small(""), fogStrLbl = label(""), glassCheckLbl = small(""), glassStrLbl = label(""), beaconLbl = small(""), beaconFeedback = small(""), beaconCheckLbl = small(""), stormLbl = small(""), stormCheckLbl = small(""), beamStrLbl = label(""), levelLbl = label(""), rustLbl = label(""),
+            cloudLbl = small(""), cloudCheckLbl = small(""), towerLbl = small(""), innerLbl = small(""), towerCheckLbl = small(""), sprayLbl = small(""), brandungLbl = small(""), sprayCheckLbl = small(""), sprayStrLbl = label(""), rainLbl = small(""), rainCheckLbl = small(""), rainRateLbl = label(""), rainStrLbl = label(""), glassLbl = small(""), lifeLbl = small(""), personLbl = small(""), soundLbl = small(""), soundVolLbl = label(""), fogLbl = small(""), fogStrLbl = label(""), glassCheckLbl = small(""), glassStrLbl = label(""), beaconLbl = small(""), beaconFeedback = small(""), beaconCheckLbl = small(""), stormLbl = small(""), stormCheckLbl = small(""), beamStrLbl = label(""), levelLbl = label(""), rustLbl = label(""),
             algaeLbl = label(""), saltLbl = label(""), highLbl = label(""), swellLbl = label(""), perfLbl = small(""), computeLbl = small(""), glLbl = small(""), linksLbl = small(""), dbLbl = small("");
     private final FSlider time = new FSlider(0, 24 * 60 - 1, 20 * 60), wind = new FSlider(0, 12, 4), windDir = new FSlider(0, 359, 240),
             swellH = new FSlider(0, 40, 6), swellT = new FSlider(60, 160, 95), swellDir = new FSlider(0, 359, 290),
@@ -60,7 +60,7 @@ public final class ControlPanel extends JPanel implements javax.swing.Scrollable
     private final FCheckBox free = new FCheckBox("Frei fliegen (F)"), orbit = new FCheckBox("Um den Turm kreisen (R)"),
             towerBox = new FCheckBox("Turm"), tideBox = new FCheckBox("Gezeiten rechnen"),
             lampBox = new FCheckBox("Raumlampe im Laternenraum"), turnBox = new FCheckBox("Linse dreht"), beamBox = new FCheckBox("Strahl zeigen"),
-            neighbourBox = new FCheckBox("Nachbarfeuer"), sprayBox = new FCheckBox("Gischt"), rainBox = new FCheckBox("Regen"), glassBox = new FCheckBox("Nasse Scheiben"), fogBox = new FCheckBox("Beschlag innen");
+            neighbourBox = new FCheckBox("Nachbarfeuer"), sprayBox = new FCheckBox("Gischt"), brandungBox = new FCheckBox("Brandung am Sockel (surf)"), rainBox = new FCheckBox("Regen"), glassBox = new FCheckBox("Nasse Scheiben"), fogBox = new FCheckBox("Beschlag innen");
     private boolean fromScene;
     private FComboBox cloudKind, stormBox, lapseBox, qualBox, hudBox;
     private final JLabel hudLbl = small("");
@@ -504,6 +504,12 @@ public final class ControlPanel extends JPanel implements javax.swing.Scrollable
         sr.add(sprayBox);
         sr.add(rainBox);
         put(sr);
+        // Phase 17: Brecher an Caisson und Steinschüttung aus com.dan.surf; aus: der Brandungsring aus ocean wie bis Phase 16
+        brandungBox.setSelected(r.brandung.an);
+        brandungBox.setToolTipText("Brecher an Caisson und Steinschüttung aus com.dan.surf (Surf.sockel()); aus: der Brandungsring aus com.dan.ocean");
+        brandungBox.addActionListener(e -> { r.brandung.an = brandungBox.isSelected(); view.requestFocusInWindow(); });
+        put(brandungBox);
+        put(brandungLbl);
         put(sprayStrLbl);
         put(sprayStr);
         sprayStr.addChangeListener(e -> { r.spray.strength = sprayStr.getValue() / 100.0; labels(); });
@@ -770,6 +776,7 @@ public final class ControlPanel extends JPanel implements javax.swing.Scrollable
         towerLbl.setText("<html><body style='width:215px'>" + Startbild.esc(r.towerLine().replace("Turm · ", "")) + "<br>"
                 + Startbild.esc(r.weathering.describe()) + "</body></html>");
         sprayLbl.setText("<html><body style='width:215px'>" + Startbild.esc(r.spray.describe()) + "</body></html>");
+        brandungLbl.setText("<html><body style='width:215px'>" + Startbild.esc(r.surfDescribe()) + "</body></html>");
         rainLbl.setText("<html><body style='width:215px'>" + Startbild.esc(r.rain.rate > 0 ? r.rain.describe() : "trocken") + "</body></html>");
         rainCheckLbl.setText("<html><body style='width:215px'>" + Startbild.esc(r.rainCheck().isEmpty() ? "Abgleich Grafikkarte/Prozessor folgt, sobald es regnet …" : r.rainCheck()) + "</body></html>");
         if (r.zoom > 1 && !r.insideLantern() && !r.nearRail()) r.zoom = 1;

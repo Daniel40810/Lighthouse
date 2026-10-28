@@ -525,12 +525,20 @@ public final class Wiring {
      * Phase 5: die Körper im Wasser für das Meer. Der Sockel immer; die ovale Manschette nur, solange sie aus dem
      * Wasser ragt (sonst laufen die Wellen über sie hinweg und brechen am Sockel). Gibt zurück, ob sie mitzählt.
      */
-    public boolean feedObstacles(Ocean ocean, boolean plateBefore) {
+    public boolean feedObstacles(Ocean ocean, boolean plateBefore) { return feedObstacles(ocean, plateBefore, true); }
+
+    /**
+     * Wie {@link #feedObstacles(Ocean, boolean)}; seit Phase 17 mit ring = false für Sockel und Manschette: dort kommt
+     * die Brandung aus {@code com.dan.surf} (Brandung am Sockel), der Ring aus {@code ocean} bleibt für den Peilpfahl,
+     * die Tonnen und die Schiffe.
+     */
+    public boolean feedObstacles(Ocean ocean, boolean plateBefore, boolean ring) {
         boolean plate = waterLevel.level() < Turm.PLATE_TOP - 0.1;
-        if (plate == plateBefore && !ocean.obstacles().isEmpty()) return plate;
+        java.util.List<com.dan.ocean.Obstacle> obs = ocean.obstacles();
+        if (plate == plateBefore && !obs.isEmpty() && obs.get(0).ring() == ring) return plate;
         ocean.clearObstacles();
-        ocean.addObstacle(new com.dan.ocean.Obstacle(0, 0, Turm.SOCKEL_R0));
-        if (plate) for (double[] c : Turm.plateCircles()) ocean.addObstacle(new com.dan.ocean.Obstacle(c[0], c[1], c[2]));
+        ocean.addObstacle(new com.dan.ocean.Obstacle(0, 0, Turm.SOCKEL_R0, ring));
+        if (plate) for (double[] c : Turm.plateCircles()) ocean.addObstacle(new com.dan.ocean.Obstacle(c[0], c[1], c[2], ring));
         ocean.addObstacle(new com.dan.ocean.Obstacle(Math.sin(Math.toRadians(Turm.PFAHL_AZ)) * Turm.PFAHL_DIST,
                 -Math.cos(Math.toRadians(Turm.PFAHL_AZ)) * Turm.PFAHL_DIST, 0.35));
         return plate;

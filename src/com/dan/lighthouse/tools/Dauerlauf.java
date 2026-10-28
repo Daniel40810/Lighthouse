@@ -32,7 +32,7 @@ import java.util.Random;
 /**
  * Phase 16: der Dauerlauf. Die ganze Szene läuft ohne Fenster so lange wie angegeben (Vorgabe 30 Minuten) im
  * Zeitraffer 600 : 1 durch Tage und Nächte, mit der freien Regie und den Regiebüchern, allen acht Ansichten, Blitzen,
- * Brechern, Nebelhorn, allen neun Türmen, allen vier Qualitätsstufen, der Regelung der Auflösung, dem Klang (offline
+ * Brechern (seit Phase 17 mit der Brandung am Sockel aus {@code surf}, abwechselnd mit dem Ring aus {@code ocean}), Nebelhorn, allen neun Türmen, allen vier Qualitätsstufen, der Regelung der Auflösung, dem Klang (offline
  * gerechnet) und jede Minute einem Zustand hin und zurück. Gemessen werden Bilder je Sekunde, das schlechteste Bild,
  * der Speicher nach dem Aufräumen und jede Ausnahme in irgendeinem Faden.
  * <p>
@@ -51,7 +51,7 @@ public final class Dauerlauf {
     static final List<String> FEHLER = new ArrayList<>();
     /** Beginn des laufenden Bildes (für den Wächter, der bei langen Bildern den Stapel ins Protokoll schreibt). */
     static volatile long frameStart;
-    static final String[] EREIGNIS = {"Ansicht", "Regiebuch", "Blitz", "Ansicht", "Brecher", "Turmwechsel", "Ansicht", "Stufenwechsel", "freies Wetter", "Ansicht", "Wind von Hand", "Kreisen"};
+    static final String[] EREIGNIS = {"Ansicht", "Regiebuch", "Blitz", "Ansicht", "Brecher, Brandung am Sockel an/aus", "Turmwechsel", "Ansicht", "Stufenwechsel", "freies Wetter", "Ansicht", "Wind von Hand", "Kreisen"};
 
     public static void main(String[] a) throws Exception {
         double minuten = a.length > 0 ? Double.parseDouble(a[0].replace(',', '.')) : 30;
@@ -134,7 +134,7 @@ public final class Dauerlauf {
         double worst = 0, worstAll = 0, worstSwitch = 0;
         long switchUntil = 0;
         long heap5 = -1, heapEnd = -1;
-        int minute = 0, scenes = 0, bolts = 0, zustaende = 0, turmWechsel = 0, stufen = 0;
+        int minute = 0, scenes = 0, bolts = 0, zustaende = 0, turmWechsel = 0, stufen = 0, brandungWechsel = 0;
         double sumFps = 0;
         int fpsN = 0;
         long lastNanos = System.nanoTime();
@@ -168,7 +168,13 @@ public final class Dauerlauf {
                     case 0, 3, 6, 9 -> r.applyView(views[rnd.nextInt(views.length)]);
                     case 1 -> { Scenario sc = rnd.nextBoolean() ? Scenario.stormDay() : Scenario.fogDay(); wiring.weather.start(sc, clock.epochMillis() / 1000.0); }
                     case 2 -> { r.triggerLightning(com.dan.lightning.Bolt.Kind.CLOUD_GROUND, rnd.nextInt(3) == 0); bolts++; }
-                    case 4 -> { r.breaker(); r.soundscape.horn(com.dan.soundscape.Soundscape.Kind.NEBELHORN, 0, 26, 0, 1, 3); }
+                    case 4 -> {
+                        r.breaker();
+                        r.soundscape.horn(com.dan.soundscape.Soundscape.Kind.NEBELHORN, 0, 26, 0, 1, 3);
+                        // Phase 17: die Brandung am Sockel jedes Mal umschalten (Brecher aus surf und Ring aus ocean wechseln sich ab)
+                        r.brandung.an = !r.brandung.an;
+                        brandungWechsel++;
+                    }
                     case 5 -> { Daten.Turm t = tuerme.get(rnd.nextInt(tuerme.size())); TurmWahl.waehlen(r, t, tuerme); turmWechsel++; }
                     case 7 -> { r.setQuality(qs[rnd.nextInt(qs.length)]); stufen++; switchUntil = System.nanoTime() + 2_000_000_000L; }
                     case 8 -> { wiring.resumeRegie(); wiring.weather.startFree(clock.epochMillis() / 1000.0, Weather.Phase.values()[rnd.nextInt(8)]); }
@@ -213,8 +219,8 @@ public final class Dauerlauf {
         }
         double sek = (System.nanoTime() - start) / 1e9;
         say.accept(String.format(Locale.GERMAN, "Ende nach %.1f Minuten: %d Bilder, im Mittel %.1f Bilder/s, schlechtestes Bild %.0f ms, %d Ansichten, %d Regiebücher, %d Blitze, %d Turmwechsel, %d Stufenwechsel, "
-                + "%d× Zustand hin und zurück, Auflösung %d× geregelt, Speicher Minute 5: %d MB, Ende: %d MB, größter Ruck beim Stufenwechsel %.0f ms",
-                sek / 60, frames, fpsN > 0 ? sumFps / fpsN : frames / sek, worstAll, scenes, scenes / 12 + 1, bolts, turmWechsel, stufen, zustaende, r.scaleSteps(), heap5, heapEnd, worstSwitch));
+                + "%d× Brandung am Sockel umgeschaltet, %d× Zustand hin und zurück, Auflösung %d× geregelt, Speicher Minute 5: %d MB, Ende: %d MB, größter Ruck beim Stufenwechsel %.0f ms",
+                sek / 60, frames, fpsN > 0 ? sumFps / fpsN : frames / sek, worstAll, scenes, scenes / 12 + 1, bolts, turmWechsel, stufen, brandungWechsel, zustaende, r.scaleSteps(), heap5, heapEnd, worstSwitch));
         List<String> gruende = new ArrayList<>();
         synchronized (FEHLER) { gruende.addAll(FEHLER); }
         if (heap5 > 0 && heapEnd > heap5 * 1.25 + 64) gruende.add(String.format(Locale.GERMAN, "Speicher wächst: %d MB nach Minute 5, %d MB am Ende", heap5, heapEnd));

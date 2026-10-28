@@ -73,10 +73,18 @@
     <!--
         Phase 1: Isolationsprüfung der Element-Packages (Paketvertrag Punkt 9). Jedes Package unter src/com/dan
         außer der App wird für sich allein übersetzt: Kern nur gegen das JDK, gl/ gegen JOGL, demo/ gegen FStyle.
+        Seit Phase 17 (Sylt F22 A) liegen dort nur noch die eigenen Packages (avatar, gltf, hair, portrait, voice); die
+        übrigen kommen aus lib/Renderer.jar, das tools/JarPruefung.java prüft (wie in Sylt und Brocken).
         Läuft nach jedem Übersetzen; abschalten mit -Dohne.paketpruefung=true.
     -->
-    <target name="check-packages" description="Übersetzt jedes Element-Package einzeln gegen JDK, JOGL und FStyle." unless="ohne.paketpruefung">
+    <target name="check-packages" description="Übersetzt jedes eigene Package einzeln gegen JDK, JOGL und FStyle und prüft lib/Renderer.jar." unless="ohne.paketpruefung">
         <property name="platform.java" value="java"/>
+        <exec executable="${platform.java}" dir="${basedir}" failonerror="true">
+            <arg value="-Dstdout.encoding=UTF-8"/>
+            <arg value="-Dstderr.encoding=UTF-8"/>
+            <arg value="tools/JarPruefung.java"/>
+            <arg value="lib/Renderer.jar"/>
+        </exec>
         <exec executable="${platform.java}" dir="${basedir}" failonerror="true">
             <arg value="-Dstdout.encoding=UTF-8"/>
             <arg value="-Dstderr.encoding=UTF-8"/>

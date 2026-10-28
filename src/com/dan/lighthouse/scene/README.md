@@ -44,6 +44,18 @@ Die Kamera läuft dabei in der Art `FAHRT`. Jede Taste und jedes Ziehen beendet 
   - Regenschutz, Verbindungen und Shader
 - `tools/Treppenbild` rechnet das Statusbild: Innen2 neben dem nachgestellten Blick am Nachmittag und am Abend, dazu sechs Bilder der Fahrt. `--folge datei.png [breite] [bilder]` gibt die ganze Fahrt als Bildfolge, `--blick …` ein einzelnes Bild.
 
+
+## Brandung am Sockel (Phase 17)
+
+`Sockelbrandung` legt ein Stück von 46 × 30 m um den Turm, längs der Laufrichtung der See (30 m Wetterseite, 16 m Lee). Darin läuft ein `com.dan.surf.WaveTrain` mit `Surf.sockel()`: gerade Kämme, je Reihe der eigene Grund aus `Sockelbrandung.grund(x, z)` – Seegrund −7 m [G], Böschung 1:2 [G], Steinschüttung wie `Turm.riprap` (Oberkanten −0,95 bis −2,25 m, gemittelt 0,3 m tiefer), Manschette 0 m, im Sockel die Platte (das Wasser ruht dort unsichtbar im Mauerwerk).
+
+- **Eingänge** je Bild (`Renderer.stepBrandung`): Wasserstand aus der Verdrahtung, H_s, T_p und Richtung aus `ocean`. H_s am Rand ist tiefenbegrenzt: höchstens 0,55 · Tiefe [G].
+- **Neubau** im eigenen Faden, wenn sich Wasserstand (0,4 m), H_s (15 %), T_p (0,9 s), Richtung (12°) oder die Reihen (Stufe: 24, 32, 40, 56) ändern; 20 s Einschwingen, das alte Stück läuft weiter.
+- **Naht** (`naht`): das Netz trägt die See, abgefragt auf einem Raster von 2,5 m. Am Rand (10 m) ist es ganz die See. Innen taucht ruhiges Wasser 0,6 m unter sie, das weiße Wasser (Schaum oder Lippe über 0,12) reitet auf ihr. Über der trockenen Manschette zeichnet nur das Netz.
+- **Ausgänge**: Lippen → `spray.impact` (Gischt), Brecher → `SoundEvent.BRECHER`. Sockel und Manschette verlieren den Ring aus `ocean` (`Wiring.feedObstacles(…, ring)`), der Peilpfahl behält ihn.
+- **Aus** (Haken im Bedienfeld, `brandung.an`): der Ring wie bis Phase 16.
+- **Prüfung**: `test/PruefungRueckfluss` (Grund, Tiefenbegrenzung, ein Stück mit Brechern, Lage, Ring an und aus). **Bild**: `tools/Brandungsbild datei.png [breite] [stufe] [titel] [ring]`.
+- **Grenzen**: Keine Beugung um den Turm und keine Reflexion an der Wand: die Reihen wissen nichts voneinander. Der Schwall an der Wand kommt weiter aus `spray` (Körper, Höhe der See). Die See draußen ist nicht tiefenbegrenzt; im Stück ist sie es, darum mischt die Naht beide fürs Bild [G].
 ## Grenzen
 
 - Die Erker sind innen nicht ausgebaut: Die Wand des Dienstraums läuft glatt durch, Teile des Außennetzes, die in den Innenraum ragen, verwirft der Shader.

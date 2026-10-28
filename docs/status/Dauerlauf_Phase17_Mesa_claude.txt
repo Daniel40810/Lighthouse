@@ -1,0 +1,200 @@
+Lighthouse · Dauerlauf · Phase 16 · 5 Minuten · 640×360 · 2026-10-28T09:42:08
+Rechner: Linux · Java 21.0.12.1 · 2 Kerne · Xmx 5120 MB
+Grafik: llvmpipe (LLVM 20.1.2, 256 bits) · OpenGL 4.5
+  Bild hängt seit 0,8 s in:
+    jogamp.opengl.gl4.GL4bcImpl.dispatch_glGenerateMipmap1(Native Method)
+    jogamp.opengl.gl4.GL4bcImpl.glGenerateMipmap(GL4bcImpl.java:14154)
+    com.dan.lighthouse.gl.Renderer.copyScene(Renderer.java:1562)
+    com.dan.lighthouse.gl.Renderer.drawGlass(Renderer.java:1524)
+    com.dan.lighthouse.gl.Renderer.renderFrame(Renderer.java:2508)
+    com.dan.lighthouse.gl.Renderer.display(Renderer.java:2210)
+    jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
+    jogamp.opengl.GLDrawableHelper.display(GLDrawableHelper.java:674)
+  Bild hängt seit 0,8 s in:
+    jogamp.opengl.gl4.GL4bcImpl.dispatch_glGenerateMipmap1(Native Method)
+    jogamp.opengl.gl4.GL4bcImpl.glGenerateMipmap(GL4bcImpl.java:14154)
+    com.dan.wetglass.gl.WetglassGl.update(WetglassGl.java:184)
+    com.dan.lighthouse.gl.Renderer.drawGlass(Renderer.java:1525)
+    com.dan.lighthouse.gl.Renderer.renderFrame(Renderer.java:2508)
+    com.dan.lighthouse.gl.Renderer.display(Renderer.java:2210)
+    jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
+    jogamp.opengl.GLDrawableHelper.display(GLDrawableHelper.java:674)
+  Bild hängt seit 0,8 s in:
+    jogamp.opengl.gl4.GL4bcImpl.dispatch_glGenerateMipmap1(Native Method)
+    jogamp.opengl.gl4.GL4bcImpl.glGenerateMipmap(GL4bcImpl.java:14154)
+    com.dan.wetglass.gl.WetglassGl.update(WetglassGl.java:184)
+    com.dan.lighthouse.gl.Renderer.drawGlass(Renderer.java:1525)
+    com.dan.lighthouse.gl.Renderer.renderFrame(Renderer.java:2508)
+    com.dan.lighthouse.gl.Renderer.display(Renderer.java:2210)
+    jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
+    jogamp.opengl.GLDrawableHelper.display(GLDrawableHelper.java:674)
+  Bild hängt seit 0,8 s in:
+    jogamp.opengl.gl4.GL4bcImpl.dispatch_glDispatchCompute1(Native Method)
+    jogamp.opengl.gl4.GL4bcImpl.glDispatchCompute(GL4bcImpl.java:18504)
+    com.dan.ocean.gl.OceanGl.update(OceanGl.java:310)
+    com.dan.lighthouse.gl.Renderer.renderFrame(Renderer.java:2343)
+    com.dan.lighthouse.gl.Renderer.display(Renderer.java:2210)
+    jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
+    jogamp.opengl.GLDrawableHelper.display(GLDrawableHelper.java:674)
+    jogamp.opengl.GLAutoDrawableBase$2.run(GLAutoDrawableBase.java:443)
+  langes Bild 1089 ms, 11,8 s nach „Ansicht“
+  Bild hängt seit 0,8 s in:
+    jogamp.opengl.gl4.GL4bcImpl.dispatch_glBlitFramebuffer1(Native Method)
+    jogamp.opengl.gl4.GL4bcImpl.glBlitFramebuffer(GL4bcImpl.java:14167)
+    com.dan.lighthouse.gl.Renderer.copyDepth(Renderer.java:2783)
+    com.dan.lighthouse.gl.Renderer.renderFrame(Renderer.java:2463)
+    com.dan.lighthouse.gl.Renderer.display(Renderer.java:2210)
+    jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
+    jogamp.opengl.GLDrawableHelper.display(GLDrawableHelper.java:674)
+    jogamp.opengl.GLAutoDrawableBase$2.run(GLAutoDrawableBase.java:443)
+  langes Bild 1106 ms, 0,0 s nach „Regiebuch“
+  Bild hängt seit 0,8 s in:
+    jogamp.opengl.gl4.GL4bcImpl.dispatch_glGenerateMipmap1(Native Method)
+    jogamp.opengl.gl4.GL4bcImpl.glGenerateMipmap(GL4bcImpl.java:14154)
+    com.dan.wetglass.gl.WetglassGl.update(WetglassGl.java:184)
+    com.dan.lighthouse.gl.Renderer.drawRail(Renderer.java:1502)
+    com.dan.lighthouse.gl.Renderer.renderFrame(Renderer.java:2507)
+    com.dan.lighthouse.gl.Renderer.display(Renderer.java:2210)
+    jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
+    jogamp.opengl.GLDrawableHelper.display(GLDrawableHelper.java:674)
+  Bild hängt seit 0,8 s in:
+    jogamp.opengl.gl4.GL4bcImpl.dispatch_glBlitFramebuffer1(Native Method)
+    jogamp.opengl.gl4.GL4bcImpl.glBlitFramebuffer(GL4bcImpl.java:14167)
+    com.dan.lighthouse.gl.Renderer.copyDepth(Renderer.java:2783)
+    com.dan.lighthouse.gl.Renderer.renderFrame(Renderer.java:2463)
+    com.dan.lighthouse.gl.Renderer.display(Renderer.java:2210)
+    jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
+    jogamp.opengl.GLDrawableHelper.display(GLDrawableHelper.java:674)
+    jogamp.opengl.GLAutoDrawableBase$2.run(GLAutoDrawableBase.java:443)
+  langes Bild 1040 ms, 11,3 s nach „Regiebuch“
+  Bild hängt seit 0,8 s in:
+    jogamp.opengl.gl4.GL4bcImpl.dispatch_glDrawElements1(Native Method)
+    jogamp.opengl.gl4.GL4bcImpl.glDrawElements(GL4bcImpl.java:6581)
+    com.dan.ocean.gl.OceanGl.draw(OceanGl.java:525)
+    com.dan.lighthouse.gl.Renderer.renderFrame(Renderer.java:2409)
+    com.dan.lighthouse.gl.Renderer.display(Renderer.java:2210)
+    jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
+    jogamp.opengl.GLDrawableHelper.display(GLDrawableHelper.java:674)
+    jogamp.opengl.GLAutoDrawableBase$2.run(GLAutoDrawableBase.java:443)
+  langes Bild 3086 ms, 0,0 s nach „Blitz“
+  Bild hängt seit 0,8 s in:
+    jogamp.opengl.gl4.GL4bcImpl.dispatch_glDrawElements1(Native Method)
+    jogamp.opengl.gl4.GL4bcImpl.glDrawElements(GL4bcImpl.java:6581)
+    com.dan.ocean.gl.OceanGl.draw(OceanGl.java:525)
+    com.dan.lighthouse.gl.Renderer.renderFrame(Renderer.java:2409)
+    com.dan.lighthouse.gl.Renderer.display(Renderer.java:2210)
+    jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
+    jogamp.opengl.GLDrawableHelper.display(GLDrawableHelper.java:674)
+    jogamp.opengl.GLAutoDrawableBase$2.run(GLAutoDrawableBase.java:443)
+  langes Bild 2773 ms, 4,6 s nach „Blitz“
+  Bild hängt seit 0,8 s in:
+    jogamp.opengl.gl4.GL4bcImpl.dispatch_glDrawElements1(Native Method)
+    jogamp.opengl.gl4.GL4bcImpl.glDrawElements(GL4bcImpl.java:6581)
+    com.dan.ocean.gl.OceanGl.draw(OceanGl.java:525)
+    com.dan.lighthouse.gl.Renderer.renderFrame(Renderer.java:2409)
+    com.dan.lighthouse.gl.Renderer.display(Renderer.java:2210)
+    jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
+    jogamp.opengl.GLDrawableHelper.display(GLDrawableHelper.java:674)
+    jogamp.opengl.GLAutoDrawableBase$2.run(GLAutoDrawableBase.java:443)
+  langes Bild 2943 ms, 10,3 s nach „Blitz“
+Minute  1 · 16.10.2026 08:30 MESZ · 3 Bilder/s · Grafikkarte 283,2 ms · Prozessor 370,1 ms · schlechtestes Bild 3086 ms · Auflösung 50 % (Mittel) · Speicher 70 MB · Roter Sand · „Ein Sturmtag“ 1/9 · Morgenstille mit Dunst · Bft 1, Böe 1 m/s · 1013,0 hPa gleichbleibend · 11,8 °C · Klang 5,0 % · 276 Werte
+  Bild hängt seit 0,8 s in:
+    jogamp.opengl.gl4.GL4bcImpl.dispatch_glDispatchCompute1(Native Method)
+    jogamp.opengl.gl4.GL4bcImpl.glDispatchCompute(GL4bcImpl.java:18504)
+    com.dan.ocean.gl.OceanGl.update(OceanGl.java:322)
+    com.dan.lighthouse.gl.Renderer.renderFrame(Renderer.java:2343)
+    com.dan.lighthouse.gl.Renderer.display(Renderer.java:2210)
+    jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
+    jogamp.opengl.GLDrawableHelper.display(GLDrawableHelper.java:674)
+    jogamp.opengl.GLAutoDrawableBase$2.run(GLAutoDrawableBase.java:443)
+  langes Bild 1249 ms, 2,6 s nach „Brecher, Brandung am Sockel an/aus“
+  Bild hängt seit 0,8 s in:
+    jogamp.opengl.gl4.GL4bcImpl.dispatch_glDrawElements1(Native Method)
+    jogamp.opengl.gl4.GL4bcImpl.glDrawElements(GL4bcImpl.java:6581)
+    com.dan.ocean.gl.OceanGl.draw(OceanGl.java:525)
+    com.dan.lighthouse.gl.Renderer.renderFrame(Renderer.java:2409)
+    com.dan.lighthouse.gl.Renderer.display(Renderer.java:2210)
+    jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
+    jogamp.opengl.GLDrawableHelper.display(GLDrawableHelper.java:674)
+    jogamp.opengl.GLAutoDrawableBase$2.run(GLAutoDrawableBase.java:443)
+  langes Bild 1157 ms, 0,0 s nach „Stufenwechsel“
+  Bild hängt seit 0,8 s in:
+    jogamp.opengl.gl4.GL4bcImpl.dispatch_glDrawElements1(Native Method)
+    jogamp.opengl.gl4.GL4bcImpl.glDrawElements(GL4bcImpl.java:6581)
+    com.dan.lighthouse.gl.Gpu$Mesh.drawRange(Gpu.java:50)
+    com.dan.lighthouse.gl.Renderer.drawTower(Renderer.java:3024)
+    com.dan.lighthouse.gl.Renderer.renderFrame(Renderer.java:2438)
+    com.dan.lighthouse.gl.Renderer.display(Renderer.java:2210)
+    jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
+    jogamp.opengl.GLDrawableHelper.display(GLDrawableHelper.java:674)
+  Bild hängt seit 0,8 s in:
+    jogamp.opengl.gl4.GL4bcImpl.dispatch_glDrawArrays1(Native Method)
+    jogamp.opengl.gl4.GL4bcImpl.glDrawArrays(GL4bcImpl.java:6549)
+    com.dan.lighthouse.gl.Renderer.renderFrame(Renderer.java:2527)
+    com.dan.lighthouse.gl.Renderer.display(Renderer.java:2210)
+    jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
+    jogamp.opengl.GLDrawableHelper.display(GLDrawableHelper.java:674)
+    jogamp.opengl.GLAutoDrawableBase$2.run(GLAutoDrawableBase.java:443)
+    jogamp.opengl.GLDrawableHelper.invokeGLImpl(GLDrawableHelper.java:1293)
+  Bild hängt seit 0,8 s in:
+    jogamp.opengl.gl4.GL4bcImpl.dispatch_glDrawElements1(Native Method)
+    jogamp.opengl.gl4.GL4bcImpl.glDrawElements(GL4bcImpl.java:6581)
+    com.dan.lighthouse.gl.Gpu$Mesh.drawRange(Gpu.java:50)
+    com.dan.lighthouse.gl.Renderer.drawTower(Renderer.java:3024)
+    com.dan.lighthouse.gl.Renderer.renderFrame(Renderer.java:2438)
+    com.dan.lighthouse.gl.Renderer.display(Renderer.java:2210)
+    jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
+    jogamp.opengl.GLDrawableHelper.display(GLDrawableHelper.java:674)
+Minute  2 · 16.10.2026 11:52 MESZ · 4 Bilder/s · Grafikkarte 325,3 ms · Prozessor 296,9 ms · schlechtestes Bild 1249 ms · Auflösung 50 % (Hoch) · Speicher 72 MB · Kiel · frei · aufklarend · Bft 4, Böe 6 m/s · 1022,2 hPa gleichbleibend · 10,5 °C · Klang 2,7 % · 274 Werte
+  Bild hängt seit 0,8 s in:
+    jogamp.opengl.gl4.GL4bcImpl.dispatch_glDrawElements1(Native Method)
+    jogamp.opengl.gl4.GL4bcImpl.glDrawElements(GL4bcImpl.java:6581)
+    com.dan.lighthouse.gl.Gpu$Mesh.drawRange(Gpu.java:50)
+    com.dan.lighthouse.gl.Renderer.drawTower(Renderer.java:3024)
+    com.dan.lighthouse.gl.Renderer.renderFrame(Renderer.java:2438)
+    com.dan.lighthouse.gl.Renderer.display(Renderer.java:2210)
+    jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
+    jogamp.opengl.GLDrawableHelper.display(GLDrawableHelper.java:674)
+Minute  3 · 16.10.2026 15:44 MESZ · 4 Bilder/s · Grafikkarte 247,2 ms · Prozessor 268,4 ms · schlechtestes Bild 975 ms · Auflösung 50 % (Hoch) · Speicher 72 MB · Kiel · „Ein Nebeltag“ 1/6 · Klare Morgendämmerung · Bft 10, Böe 26 m/s · 1022,0 hPa gleichbleibend · 15,7 °C · Klang 2,0 % · 278 Werte
+  Bild hängt seit 0,8 s in:
+    jogamp.opengl.gl4.GL4bcImpl.dispatch_glDrawElements1(Native Method)
+    jogamp.opengl.gl4.GL4bcImpl.glDrawElements(GL4bcImpl.java:6581)
+    com.dan.ocean.gl.OceanGl.draw(OceanGl.java:525)
+    com.dan.lighthouse.gl.Renderer.renderFrame(Renderer.java:2409)
+    com.dan.lighthouse.gl.Renderer.display(Renderer.java:2210)
+    jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
+    jogamp.opengl.GLDrawableHelper.display(GLDrawableHelper.java:674)
+    jogamp.opengl.GLAutoDrawableBase$2.run(GLAutoDrawableBase.java:443)
+  langes Bild 2837 ms, 11,4 s nach „Turmwechsel“
+Minute  4 · 16.10.2026 19:00 MESZ · 4 Bilder/s · Grafikkarte 254,1 ms · Prozessor 337,5 ms · schlechtestes Bild 2837 ms · Auflösung 50 % (Hoch) · Speicher 72 MB · Kiel · „Ein Nebeltag“ 1/6 · Klare Morgendämmerung · Bft 10, Böe 27 m/s · 1022,0 hPa gleichbleibend · 15,7 °C · Klang 2,0 % · 278 Werte
+  Bild hängt seit 0,8 s in:
+    jogamp.opengl.gl4.GL4bcImpl.dispatch_glDrawElements1(Native Method)
+    jogamp.opengl.gl4.GL4bcImpl.glDrawElements(GL4bcImpl.java:6581)
+    com.dan.ocean.gl.OceanGl.draw(OceanGl.java:525)
+    com.dan.lighthouse.gl.Renderer.renderFrame(Renderer.java:2409)
+    com.dan.lighthouse.gl.Renderer.display(Renderer.java:2210)
+    jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
+    jogamp.opengl.GLDrawableHelper.display(GLDrawableHelper.java:674)
+    jogamp.opengl.GLAutoDrawableBase$2.run(GLAutoDrawableBase.java:443)
+  langes Bild 2062 ms, 0,0 s nach „freies Wetter“
+  Bild hängt seit 0,8 s in:
+    jogamp.opengl.gl4.GL4bcImpl.dispatch_glGenerateMipmap1(Native Method)
+    jogamp.opengl.gl4.GL4bcImpl.glGenerateMipmap(GL4bcImpl.java:14154)
+    com.dan.beacon.gl.BeaconGl.requestMean(BeaconGl.java:320)
+    com.dan.beacon.gl.BeaconGl.drawBeam(BeaconGl.java:264)
+    com.dan.lighthouse.gl.Renderer.drawBeacon(Renderer.java:2741)
+    com.dan.lighthouse.gl.Renderer.renderFrame(Renderer.java:2482)
+    com.dan.lighthouse.gl.Renderer.display(Renderer.java:2210)
+    jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
+  Bild hängt seit 0,8 s in:
+    jogamp.opengl.gl4.GL4bcImpl.dispatch_glDrawElements1(Native Method)
+    jogamp.opengl.gl4.GL4bcImpl.glDrawElements(GL4bcImpl.java:6581)
+    com.dan.ocean.gl.OceanGl.draw(OceanGl.java:525)
+    com.dan.lighthouse.gl.Renderer.renderFrame(Renderer.java:2409)
+    com.dan.lighthouse.gl.Renderer.display(Renderer.java:2210)
+    jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
+    jogamp.opengl.GLDrawableHelper.display(GLDrawableHelper.java:674)
+    jogamp.opengl.GLAutoDrawableBase$2.run(GLAutoDrawableBase.java:443)
+  langes Bild 2630 ms, 10,5 s nach „freies Wetter“
+Ende nach 5,0 Minuten: 487 Bilder, im Mittel 3,6 Bilder/s, schlechtestes Bild 3086 ms, 24 Ansichten, 3 Regiebücher, 2 Blitze, 2 Turmwechsel, 2 Stufenwechsel, 2× Brandung am Sockel umgeschaltet, 4× Zustand hin und zurück, Auflösung 11× geregelt, Speicher Minute 5: -1 MB, Ende: 72 MB, größter Ruck beim Stufenwechsel 1157 ms
+Dauerlauf bestanden
