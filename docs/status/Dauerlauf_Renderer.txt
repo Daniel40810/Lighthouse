@@ -1,0 +1,360 @@
+Microsoft Windows [Version 10.0.26300.9711]
+(c) Microsoft Corporation. Alle Rechte vorbehalten.
+
+C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse>ant dauerlauf
+Buildfile: C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse\build.xml
+
+-pre-init:
+
+-init-private:
+
+-pre-init-libraries:
+
+-init-private-libraries:
+
+-init-libraries:
+
+-init-user:
+
+-init-project:
+
+-init-macrodef-property:
+
+-init-modules-supported:
+
+-do-init:
+
+-post-init:
+
+-init-check:
+
+-init-ap-cmdline-properties:
+
+-init-macrodef-modulename:
+
+-init-source-module-properties:
+
+-init-macrodef-javac-with-module:
+
+-init-macrodef-javac-with-processors:
+
+-init-macrodef-javac-without-processors:
+
+-init-macrodef-javac:
+
+-init-macrodef-test-impl:
+
+-init-macrodef-junit-init:
+
+-init-test-properties:
+
+-init-macrodef-junit-prototype-with-module:
+
+-init-macrodef-junit-prototype-without-module:
+
+-init-macrodef-junit-single:
+
+-init-macrodef-junit-batch:
+
+-init-macrodef-junit:
+
+-init-macrodef-junit-impl:
+
+-init-macrodef-testng:
+
+-init-macrodef-testng-impl:
+
+-init-macrodef-test:
+
+-init-macrodef-junit-debug-impl:
+
+-init-macrodef-test-debug-junit:
+
+-init-macrodef-testng-debug:
+
+-init-macrodef-testng-debug-impl:
+
+-init-macrodef-test-debug-testng:
+
+-init-macrodef-test-debug:
+
+-init-debug-args:
+
+-init-macrodef-nbjpda:
+
+-init-macrodef-debug:
+
+-init-macrodef-java-with-module:
+
+-init-macrodef-java-with-unnamed-module:
+
+-init-macrodef-java-without-module:
+
+-init-macrodef-java:
+
+-init-presetdef-jar:
+
+-init-ap-cmdline-supported:
+
+-init-ap-cmdline:
+
+init:
+
+-deps-jar-init:
+   [delete] Deleting: C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse\build\built-jar.properties
+
+deps-jar:
+
+-warn-already-built-jar:
+[propertyfile] Updating property file: C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse\build\built-jar.properties
+
+-check-automatic-build:
+
+-clean-after-automatic-build:
+
+-pre-init:
+
+-init-private:
+
+-pre-init-libraries:
+
+-init-private-libraries:
+
+-init-libraries:
+
+-init-user:
+
+-init-project:
+
+-init-macrodef-property:
+
+-init-modules-supported:
+
+-do-init:
+
+-post-init:
+
+-init-check:
+
+-init-ap-cmdline-properties:
+
+-init-macrodef-modulename:
+
+-init-source-module-properties:
+
+-init-macrodef-javac-with-module:
+
+-init-macrodef-javac-with-processors:
+
+-init-macrodef-javac-without-processors:
+
+-init-macrodef-javac:
+
+-init-macrodef-test-impl:
+
+-init-macrodef-junit-init:
+
+-init-test-properties:
+
+-init-macrodef-junit-prototype-with-module:
+
+-init-macrodef-junit-prototype-without-module:
+
+-init-macrodef-junit-single:
+
+-init-macrodef-junit-batch:
+
+-init-macrodef-junit:
+
+-init-macrodef-junit-impl:
+
+-init-macrodef-testng:
+
+-init-macrodef-testng-impl:
+
+-init-macrodef-test:
+
+-init-macrodef-junit-debug-impl:
+
+-init-macrodef-test-debug-junit:
+
+-init-macrodef-testng-debug:
+
+-init-macrodef-testng-debug-impl:
+
+-init-macrodef-test-debug-testng:
+
+-init-macrodef-test-debug:
+
+-init-debug-args:
+
+-init-macrodef-nbjpda:
+
+-init-macrodef-debug:
+
+-init-macrodef-java-with-module:
+
+-init-macrodef-java-with-unnamed-module:
+
+-init-macrodef-java-without-module:
+
+-init-macrodef-java:
+
+-init-presetdef-jar:
+
+-init-ap-cmdline-supported:
+
+-init-ap-cmdline:
+
+init:
+
+-deps-clean-init:
+
+deps-clean:
+
+-do-clean:
+   [delete] Deleting directory C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse\build
+
+-post-clean:
+
+clean:
+
+-verify-automatic-build:
+
+-pre-pre-compile:
+    [mkdir] Created dir: C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse\build\classes
+
+-pre-compile:
+
+-copy-persistence-xml:
+
+-compile-depend:
+
+-do-compile:
+    [mkdir] Created dir: C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse\build\empty
+    [mkdir] Created dir: C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse\build\generated-sources\ap-source-output
+    [javac] Compiling 145 source files to C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse\build\classes
+    [javac] Hinweis: C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse\src\com\dan\lighthouse\ui\DatenSteuerung.java verwendet nicht gepr?fte oder unsichere Vorg?nge.
+    [javac] Hinweis: Wiederholen Sie die Kompilierung mit -Xlint:unchecked, um Details zu erhalten.
+    [javac] Creating empty C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse\build\classes\com\dan\avatar\package-info.class
+    [javac] Creating empty C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse\build\classes\com\dan\gltf\package-info.class
+    [javac] Creating empty C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse\build\classes\com\dan\portrait\package-info.class
+    [javac] Creating empty C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse\build\classes\com\dan\hair\package-info.class
+     [copy] Copying 74 files to C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse\build\classes
+
+check-packages:
+     [exec] check-packages: Renderer.jar mit 40 Packages (Quelle: Projekt Renderer)
+     [exec]   Package        Klassen  README  Java
+     [exec]   beacon         27       ok      21
+     [exec]   buoyancy       35       ok      21
+     [exec]   cloud          16       ok      21
+     [exec]   flock          49       ok      21
+     [exec]   fog            25       ok      21
+     [exec]   forest         40       ok      21
+     [exec]   ground         27       ok      21
+     [exec]   kino           11       ok      21
+     [exec]   lightning      24       ok      21
+     [exec]   muster         7        ok      21
+     [exec]   ocean          27       ok      21
+     [exec]   rain           12       ok      21
+     [exec]   river          16       ok      21
+     [exec]   road           32       ok      21
+     [exec]   sky            44       ok      21
+     [exec]   soundscape     56       ok      21
+     [exec]   spray          16       ok      21
+     [exec]   tide           11       ok      21
+     [exec]   weather        14       ok      21
+     [exec]   weathering     10       ok      21
+     [exec]   wetglass       10       ok      21
+     [exec]   surf           48       ok      21
+     [exec] check-packages: alle 22 gebrauchten Packages in Renderer.jar, dazu die Brecher aus surf (Grund je Reihe), ocean, spray, sky und beacon (seit Sylt F18 im Renderer).
+     [exec] check-packages: 5 Packages, jedes für sich übersetzt
+     [exec]   Package        Kern   gl     demo   Importe  Dateien
+     [exec]   avatar         ok     ok     ?      ok       43
+     [exec]   gltf           ok     ok     ok     ok       8
+     [exec]   hair           ok     ok     ?      ok       5
+     [exec]   portrait       ok     ok     ?      ok       7
+     [exec]   voice          ok     ?      ?      ok       5
+     [exec] check-packages: alle 5 Packages unabhängig.
+
+-post-compile:
+
+compile:
+
+dauerlauf:
+     [java] Lighthouse · Dauerlauf · Phase 17 · 30 Minuten · 1280×720 · 2026-10-28T10:01:52
+     [java] Rechner: Windows 11 · Java 21.0.8 · 16 Kerne · Xmx 4096 MB
+     [java] Lighthouse: ATI Technologies Inc. · AMD Radeon(TM) Graphics · 4.6.0 Core Profile Context 26.10.1.261008
+     [java] Lighthouse: Turm 99.344 Dreiecke, Baustein weathering.glsl, Nässekarte folgt
+     [java] Lighthouse: Compute 4.3: in Ordnung (64×64, 0,006 ms, bis 1024 Fäden, 64 KiB geteilt)
+     [java] Lighthouse: Himmel Tabellen 256×64, 32², 256×128 · 8920 Sterne · 5 Planeten · 27 Figuren
+     [java] Lighthouse: Wolken Rauschen 128³ + 32³, Karte 512², Schatten 256² über 24 km
+     [java] Lighthouse: Brandung am Sockel Brecher-Netz (breaker.vert/frag)
+     [java] Lighthouse: Meer
+     [java] Grafik: AMD Radeon(TM) Graphics · OpenGL 4.6
+     [java] Minute  1 · 16.10.2026 16:01 MESZ · 106 Bilder/s · Grafikkarte 0,0 ms · Prozessor 7,7 ms · schlechtestes Bild 62 ms · Auflösung 85 % (Mittel) · Speicher 86 MB · Roter Sand · ?Ein Sturmtag? 1/9 · Morgenstille mit Dunst · Bft 1, Böe 1 m/s · 1013,0 hPa gleichbleibend · 13,7 °C · Klang 1,6 % · 276 Werte
+     [java] Minute  2 · 17.10.2026 01:54 MESZ · 134 Bilder/s · Grafikkarte 1,8 ms · Prozessor 3,7 ms · schlechtestes Bild 79 ms · Auflösung 100 % (Hoch) · Speicher 84 MB · Kiel · frei · aufklarend · Bft 4, Böe 6 m/s · 1022,2 hPa gleichbleibend · 6,9 °C · Klang 1,8 % · 274 Werte
+     [java] Minute  3 · 17.10.2026 11:53 MESZ · 96 Bilder/s · Grafikkarte 2,5 ms · Prozessor 3,6 ms · schlechtestes Bild 34 ms · Auflösung 100 % (Hoch) · Speicher 100 MB · Kiel · ?Ein Nebeltag? 1/6 · Klare Morgendämmerung · Bft 10, Böe 30 m/s · 1022,0 hPa gleichbleibend · 13,7 °C · Klang 2,5 % · 278 Werte
+     [java] Minute  4 · 17.10.2026 21:42 MESZ · 110 Bilder/s · Grafikkarte 3,7 ms · Prozessor 8,6 ms · schlechtestes Bild 52 ms · Auflösung 100 % (Hoch) · Speicher 96 MB · Kiel · ?Ein Nebeltag? 1/6 · Klare Morgendämmerung · Bft 10, Böe 30 m/s · 1022,0 hPa gleichbleibend · 13,7 °C · Klang 2,1 % · 278 Werte
+     [java] Minute  5 · 18.10.2026 07:42 MESZ · 126 Bilder/s · Grafikkarte 3,9 ms · Prozessor 7,9 ms · schlechtestes Bild 71 ms · Auflösung 100 % (Hoch) · Speicher 84 MB · Kiel · frei · Sturm · Bft 7, Böe 10 m/s · 987,0 hPa gleichbleibend · 10,7 °C · Klang 1,5 % · 276 Werte
+     [java] Minute  6 · 18.10.2026 17:42 MESZ · 110 Bilder/s · Grafikkarte 4,2 ms · Prozessor 4,1 ms · schlechtestes Bild 52 ms · Auflösung 100 % (Hoch) · Speicher 92 MB · Kiel · ?Ein Sturmtag? 1/9 · Morgenstille mit Dunst · Bft 7, Böe 14 m/s · 1013,0 hPa gleichbleibend · 13,5 °C · Klang 2,3 % · 278 Werte
+     [java] Minute  7 · 19.10.2026 03:36 MESZ · 75 Bilder/s · Grafikkarte 4,9 ms · Prozessor 4,7 ms · schlechtestes Bild 55 ms · Auflösung 100 % (Ultra) · Speicher 100 MB · Bülk · frei · aufklarend · Bft 4, Böe 7 m/s · 1022,2 hPa gleichbleibend · 6,8 °C · Klang 1,8 % · 274 Werte
+     [java] Minute  8 · 19.10.2026 13:36 MESZ · 84 Bilder/s · Grafikkarte 5,5 ms · Prozessor 4,4 ms · schlechtestes Bild 73 ms · Auflösung 100 % (Ultra) · Speicher 119 MB · Bülk · ?Ein Sturmtag? 1/9 · Morgenstille mit Dunst · Bft 10, Böe 35 m/s · 1013,0 hPa gleichbleibend · 13,5 °C · Klang 2,5 % · 278 Werte
+     [java]   Bild hängt seit 0,8 s in:
+     [java]     com.dan.wetglass.Wetglass.flood(Wetglass.java:508)
+     [java]     com.dan.lighthouse.wiring.Wiring.feedFlood(Wiring.java:412)
+     [java]     com.dan.lighthouse.gl.Renderer.stepGlass(Renderer.java:1336)
+     [java]     com.dan.lighthouse.gl.Renderer.step(Renderer.java:663)
+     [java]     com.dan.lighthouse.gl.Renderer.display(Renderer.java:2203)
+     [java]     jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
+     [java]     jogamp.opengl.GLDrawableHelper.display(GLDrawableHelper.java:674)
+     [java]     jogamp.opengl.GLAutoDrawableBase$2.run(GLAutoDrawableBase.java:443)
+     [java]   langes Bild 1081 ms, 0,3 s nach ?Ansicht?
+     [java] Minute  9 · 19.10.2026 23:20 MESZ · 119 Bilder/s · Grafikkarte 7,4 ms · Prozessor 8,8 ms · schlechtestes Bild 1081 ms · Auflösung 85 % (Mittel) · Speicher 91 MB · Dahmeshöved · ?Ein Sturmtag? 1/9 · Morgenstille mit Dunst · Bft 10, Böe 26 m/s · 1013,0 hPa gleichbleibend · 13,5 °C · Klang 1,5 % · 278 Werte
+     [java] Minute 10 · 20.10.2026 09:20 MESZ · 184 Bilder/s · Grafikkarte 7,3 ms · Prozessor 4,9 ms · schlechtestes Bild 37 ms · Auflösung 85 % (Mittel) · Speicher 81 MB · Dahmeshöved · frei · Sturm · Bft 6, Böe 11 m/s · 987,0 hPa gleichbleibend · 11,1 °C · Klang 1,0 % · 276 Werte
+     [java] Minute 11 · 20.10.2026 19:17 MESZ · 95 Bilder/s · Grafikkarte 6,9 ms · Prozessor 3,9 ms · schlechtestes Bild 49 ms · Auflösung 85 % (Mittel) · Speicher 94 MB · Westerheversand · ?Ein Nebeltag? 1/6 · Klare Morgendämmerung · Bft 6, Böe 9 m/s · 1022,0 hPa gleichbleibend · 13,3 °C · Klang 1,5 % · 278 Werte
+     [java] Minute 12 · 21.10.2026 05:17 MESZ · 110 Bilder/s · Grafikkarte 7,4 ms · Prozessor 4,4 ms · schlechtestes Bild 38 ms · Auflösung 85 % (Mittel) · Speicher 81 MB · Westerheversand · frei · Sturm · Bft 10, Böe 37 m/s · 987,0 hPa gleichbleibend · 10,1 °C · Klang 1,9 % · 276 Werte
+     [java] Minute 13 · 21.10.2026 15:17 MESZ · 241 Bilder/s · Grafikkarte 7,7 ms · Prozessor 2,2 ms · schlechtestes Bild 25 ms · Auflösung 85 % (Mittel) · Speicher 81 MB · Westerheversand · ?Ein Nebeltag? 1/6 · Klare Morgendämmerung · Bft10, Böe 26 m/s · 1022,0 hPa gleichbleibend · 13,3 °C · Klang 2,0 % · 278 Werte
+     [java]   Bild hängt seit 0,8 s in:
+     [java]     com.dan.wetglass.Wetglass.flood(Wetglass.java:508)
+     [java]     com.dan.lighthouse.wiring.Wiring.feedFlood(Wiring.java:413)
+     [java]     com.dan.lighthouse.gl.Renderer.stepGlass(Renderer.java:1336)
+     [java]     com.dan.lighthouse.gl.Renderer.step(Renderer.java:663)
+     [java]     com.dan.lighthouse.gl.Renderer.display(Renderer.java:2203)
+     [java]     jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
+     [java]     jogamp.opengl.GLDrawableHelper.display(GLDrawableHelper.java:674)
+     [java]     jogamp.opengl.GLAutoDrawableBase$2.run(GLAutoDrawableBase.java:443)
+     [java]   langes Bild 1088 ms, 0,3 s nach ?Ansicht?
+     [java] Minute 14 · 22.10.2026 00:54 MESZ · 30 Bilder/s · Grafikkarte 7,0 ms · Prozessor 14,4 ms · schlechtestes Bild 1088 ms · Auflösung 100 % (Ultra) · Speicher 105 MB · Dahmeshöved · frei · abklingend · Bft 6, Böe 14 m/s · 1004,0 hPa gleichbleibend · 7,6 °C · Klang 5,4 % · 274 Werte
+     [java] Minute 15 · 22.10.2026 10:54 MESZ · 99 Bilder/s · Grafikkarte 7,0 ms · Prozessor 8,7 ms · schlechtestes Bild 83 ms · Auflösung 100 % (Ultra) · Speicher 105 MB · Dahmeshöved · ?Ein Sturmtag? 1/9 · Morgenstille mit Dunst · Bft 7,Böe 13 m/s · 1013,0 hPa gleichbleibend · 13,0 °C · Klang 2,0 % · 278 Werte
+     [java] Minute 16 · 22.10.2026 20:30 MESZ · 33 Bilder/s · Grafikkarte 8,1 ms · Prozessor 8,4 ms · schlechtestes Bild 70 ms · Auflösung 100 % (Ultra) · Speicher 106 MB · Hohe Weg · ?Ein Sturmtag? 1/9 · Morgenstille mit Dunst · Bft 7, Böe 12 m/s · 1013,0 hPa gleichbleibend · 13,0 °C · Klang 2,4 % · 278 Werte
+     [java] Minute 17 · 23.10.2026 06:30 MESZ · 131 Bilder/s · Grafikkarte 8,1 ms · Prozessor 6,7 ms · schlechtestes Bild 67 ms · Auflösung 67 % (Niedrig) · Speicher 89 MB · Hohe Weg · frei · aufklarend · Bft 7, Böe 13 m/s · 1022,2 hPa gleichbleibend · 7,7 °C · Klang 1,3 % · 276 Werte
+     [java] Minute 18 · 23.10.2026 16:30 MESZ · 143 Bilder/s · Grafikkarte 7,9 ms · Prozessor 6,2 ms · schlechtestes Bild 35 ms · Auflösung 67 % (Niedrig) · Speicher 79 MB · Hohe Weg · ?Ein Nebeltag? 1/6 · Klare Morgendämmerung · Bft 7, Böe 14 m/s · 1022,0 hPa gleichbleibend · 12,8 °C · Klang 0,9 % · 278 Werte
+     [java] Minute 19 · 24.10.2026 02:07 MESZ · 168 Bilder/s · Grafikkarte 7,3 ms · Prozessor 5,7 ms · schlechtestes Bild 24 ms · Auflösung 67 % (Niedrig) · Speicher 104 MB · Hohe Weg · frei · abklingend · Bft 6, Böe 15 m/s · 1004,0 hPa gleichbleibend · 7,4 °C · Klang 0,6 % · 274 Werte
+     [java] Minute 20 · 24.10.2026 12:07 MESZ · 172 Bilder/s · Grafikkarte 7,2 ms · Prozessor 5,7 ms · schlechtestes Bild 48 ms · Auflösung 67 % (Niedrig) · Speicher 83 MB · Hohe Weg · ?Ein Sturmtag? 1/9 · Morgenstille mit Dunst · Bft 3, Böe 5 m/s · 1013,0 hPa gleichbleibend · 12,5 °C · Klang 0,5 % · 278 Werte
+     [java] Minute 21 · 24.10.2026 22:01 MESZ · 158 Bilder/s · Grafikkarte 6,6 ms · Prozessor 3,9 ms · schlechtestes Bild 23 ms · Auflösung 85 % (Mittel) · Speicher 98 MB · Dahmeshöved · ?Ein Sturmtag? 1/9 · Morgenstille mit Dunst · Bft 3,Böe 6 m/s · 1013,0 hPa gleichbleibend · 12,5 °C · Klang 1,1 % · 278 Werte
+     [java] Minute 22 · 25.10.2026 07:01 MEZ · 201 Bilder/s · Grafikkarte 6,6 ms · Prozessor 2,3 ms · schlechtestes Bild 60 ms · Auflösung 85 % (Mittel) · Speicher 86 MB · Dahmeshöved · frei · klar · Bft 6, Böe 9 m/s · 1024,0 hPa gleichbleibend · 11,8 °C · Klang 1,6 % · 276 Werte
+     [java] Minute 23 · 25.10.2026 16:56 MEZ · 128 Bilder/s · Grafikkarte 6,6 ms · Prozessor 7,0 ms · schlechtestes Bild 60 ms · Auflösung 85 % (Mittel) · Speicher 86 MB · Bülk · ?Ein Nebeltag? 1/6 · Klare Morgendämmerung · Bft 6, Böe 9 m/s · 1022,0 hPa gleichbleibend · 11,8 °C · Klang 1,3 % · 278 Werte
+     [java] Minute 24 · 26.10.2026 02:56 MEZ · 63 Bilder/s · Grafikkarte 6,6 ms · Prozessor 10,9 ms · schlechtestes Bild 48 ms · Auflösung 100 % (Hoch) · Speicher 104 MB · Bülk · frei · Sturm · Bft 10, Böe 42 m/s · 987,0 hPa gleichbleibend· 10,0 °C · Klang 2,6 % · 276 Werte
+     [java] Minute 25 · 26.10.2026 12:56 MEZ · 131 Bilder/s · Grafikkarte 7,4 ms · Prozessor 7,4 ms · schlechtestes Bild 57 ms · Auflösung 100 % (Hoch) · Speicher 89 MB · Bülk · ?Ein Nebeltag? 1/6 · Klare Morgendämmerung · Bft 10, Böe 26 m/s · 1022,0 hPa gleichbleibend · 11,7 °C · Klang 1,9 % · 278 Werte
+     [java] Minute 26 · 26.10.2026 22:50 MEZ · 148 Bilder/s · Grafikkarte 7,2 ms · Prozessor 3,6 ms · schlechtestes Bild 30 ms · Auflösung 85 % (Mittel) · Speicher 86 MB · Dahmeshöved · frei · aufklarend · Bft 4, Böe 6 m/s · 1022,2 hPa gleichbleibend · 8,0 °C · Klang 1,3 % · 274 Werte
+     [java] Minute 27 · 27.10.2026 08:50 MEZ · 67 Bilder/s · Grafikkarte 7,1 ms · Prozessor 4,6 ms · schlechtestes Bild47 ms · Auflösung 85 % (Mittel) · Speicher 86 MB · Dahmeshöved · ?Ein Sturmtag? 1/9 · Morgenstille mit Dunst · Bft 6, Böe 11 m/s · 1013,0 hPa gleichbleibend · 11,7 °C · Klang 4,0 % · 278 Werte
+     [java] Minute 28 · 27.10.2026 18:44 MEZ · 77 Bilder/s · Grafikkarte 7,9 ms · Prozessor 9,0 ms · schlechtestes Bild34 ms · Auflösung 85 % (Mittel) · Speicher 86 MB · Flügge · ?Ein Sturmtag? 1/9 · Morgenstille mit Dunst · Bft 6, Böe 12m/s · 1013,0 hPa gleichbleibend · 11,7 °C · Klang 1,6 % · 278 Werte
+     [java]   Bild hängt seit 0,8 s in:
+     [java]     com.dan.wetglass.Wetglass.flood(Wetglass.java:508)
+     [java]     com.dan.lighthouse.wiring.Wiring.feedFlood(Wiring.java:412)
+     [java]     com.dan.lighthouse.gl.Renderer.stepGlass(Renderer.java:1336)
+     [java]     com.dan.lighthouse.gl.Renderer.step(Renderer.java:663)
+     [java]     com.dan.lighthouse.gl.Renderer.display(Renderer.java:2203)
+     [java]     jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
+     [java]     jogamp.opengl.GLDrawableHelper.display(GLDrawableHelper.java:674)
+     [java]     jogamp.opengl.GLAutoDrawableBase$2.run(GLAutoDrawableBase.java:443)
+     [java]   langes Bild 1955 ms, 0,3 s nach ?Ansicht?
+     [java] Minute 29 · 28.10.2026 04:26 MEZ · 44 Bilder/s · Grafikkarte 8,2 ms · Prozessor 11,7 ms · schlechtestes Bild 1955 ms · Auflösung 100 % (Hoch) · Speicher 90 MB · Flügge · frei · Sturm · Bft 8, Böe 33 m/s · 987,0 hPa gleichbleibend · 10,0 °C · Klang 5,6 % · 276 Werte
+     [java] Ende nach 30,0 Minuten: 103398 Bilder, im Mittel 116,7 Bilder/s, schlechtestes Bild 1955 ms, 149 Ansichten,13 Regiebücher, 13 Blitze, 12 Turmwechsel, 12 Stufenwechsel, 13× Brandung am Sockel umgeschaltet, 29× Zustand hin und zurück, Auflösung 0× geregelt, Speicher Minute 5: 84 MB, Ende: 90 MB, größter Ruck beim Stufenwechsel 76 ms
+     [java] Dauerlauf bestanden
+
+BUILD SUCCESSFUL
+Total time: 30 minutes 21 seconds
+
+C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse>ö

@@ -1,45 +1,64 @@
-Lighthouse · Dauerlauf · Phase 16 · 30 Minuten · 1280×720 · 2026-10-23T02:46:35
+Lighthouse · Dauerlauf · Phase 17 · 30 Minuten · 1280×720 · 2026-10-28T10:01:52
 Rechner: Windows 11 · Java 21.0.8 · 16 Kerne · Xmx 4096 MB
 Grafik: AMD Radeon(TM) Graphics · OpenGL 4.6
-Minute  1 · 16.10.2026 15:56 MESZ · 30 Bilder/s · Grafikkarte 0,0 ms · Prozessor 8,4 ms · schlechtestes Bild 224 ms · Auflösung 85 % (Mittel) · Speicher 72 MB · Roter Sand · „Ein Sturmtag“ 1/9 · Morgenstille mit Dunst · Bft 1, Böe 1 m/s · 1013,0 hPa gleichbleibend · 13,7 °C · Klang 2,8 % · 256 Werte
-Minute  2 · 17.10.2026 01:21 MESZ · 39 Bilder/s · Grafikkarte 5,1 ms · Prozessor 7,5 ms · schlechtestes Bild 133 ms · Auflösung 100 % (Hoch) · Speicher 83 MB · Kiel · frei · aufklarend · Bft 4, Böe 5 m/s · 1022,2 hPa gleichbleibend · 7,0 °C · Klang 2,2 % · 254 Werte
-Minute  3 · 17.10.2026 11:19 MESZ · 42 Bilder/s · Grafikkarte 10,2 ms · Prozessor 8,2 ms · schlechtestes Bild 142 ms · Auflösung 100 % (Hoch) · Speicher 88 MB · Kiel · „Ein Nebeltag“ 1/6 · Klare Morgendämmerung · Bft 10, Böe 23 m/s · 1022,0 hPa gleichbleibend · 13,3 °C · Klang 3,0 % · 258 Werte
-Minute  4 · 17.10.2026 20:38 MESZ · 19 Bilder/s · Grafikkarte 14,5 ms · Prozessor 8,6 ms · schlechtestes Bild 320 ms · Auflösung 100 % (Hoch) · Speicher 83 MB · Kiel · „Ein Nebeltag“ 1/6 · Klare Morgendämmerung · Bft 10, Böe 30 m/s · 1022,0 hPa gleichbleibend · 13,3 °C · Klang 2,9 % · 258 Werte
-Minute  5 · 18.10.2026 06:30 MESZ · 35 Bilder/s · Grafikkarte 14,5 ms · Prozessor 7,0 ms · schlechtestes Bild 162 ms · Auflösung 100 % (Hoch) · Speicher 83 MB · Kiel · frei · Sturm · Bft 7, Böe 17 m/s · 987,0 hPa gleichbleibend · 10,4 °C · Klang 1,9 % · 256 Werte
-Minute  6 · 18.10.2026 16:28 MESZ · 56 Bilder/s · Grafikkarte 15,6 ms · Prozessor 6,8 ms · schlechtestes Bild 159 ms · Auflösung 100 % (Hoch) · Speicher 90 MB · Kiel · „Ein Sturmtag“ 1/9 · Morgenstille mit Dunst · Bft 7, Böe 19 m/s · 1013,0 hPa gleichbleibend · 12,7 °C · Klang 2,7 % · 258 Werte
-Minute  7 · 19.10.2026 01:46 MESZ · 26 Bilder/s · Grafikkarte 14,2 ms · Prozessor 9,2 ms · schlechtestes Bild 221 ms · Auflösung 100 % (Ultra) · Speicher 99 MB · Bülk · frei · aufklarend · Bft 4, Böe 5 m/s · 1022,2 hPa gleichbleibend · 6,9 °C · Klang 1,9 % · 254 Werte
-Minute  8 · 19.10.2026 11:26 MESZ · 26 Bilder/s · Grafikkarte 14,2 ms · Prozessor 7,6 ms · schlechtestes Bild 189 ms · Auflösung 100 % (Ultra) · Speicher 99 MB · Bülk · „Ein Sturmtag“ 1/9 · Morgenstille mit Dunst · Bft 10, Böe 22 m/s · 1013,0 hPa gleichbleibend · 12,0 °C · Klang 3,0 % · 258 Werte
+Minute  1 · 16.10.2026 16:01 MESZ · 106 Bilder/s · Grafikkarte 0,0 ms · Prozessor 7,7 ms · schlechtestes Bild 62 ms · Auflösung 85 % (Mittel) · Speicher 86 MB · Roter Sand · „Ein Sturmtag“ 1/9 · Morgenstille mit Dunst · Bft 1, Böe 1 m/s · 1013,0 hPa gleichbleibend · 13,7 °C · Klang 1,6 % · 276 Werte
+Minute  2 · 17.10.2026 01:54 MESZ · 134 Bilder/s · Grafikkarte 1,8 ms · Prozessor 3,7 ms · schlechtestes Bild 79 ms · Auflösung 100 % (Hoch) · Speicher 84 MB · Kiel · frei · aufklarend · Bft 4, Böe 6 m/s · 1022,2 hPa gleichbleibend · 6,9 °C · Klang 1,8 % · 274 Werte
+Minute  3 · 17.10.2026 11:53 MESZ · 96 Bilder/s · Grafikkarte 2,5 ms · Prozessor 3,6 ms · schlechtestes Bild 34 ms · Auflösung 100 % (Hoch) · Speicher 100 MB · Kiel · „Ein Nebeltag“ 1/6 · Klare Morgendämmerung · Bft 10, Böe 30 m/s · 1022,0 hPa gleichbleibend · 13,7 °C · Klang 2,5 % · 278 Werte
+Minute  4 · 17.10.2026 21:42 MESZ · 110 Bilder/s · Grafikkarte 3,7 ms · Prozessor 8,6 ms · schlechtestes Bild 52 ms · Auflösung 100 % (Hoch) · Speicher 96 MB · Kiel · „Ein Nebeltag“ 1/6 · Klare Morgendämmerung · Bft 10, Böe 30 m/s · 1022,0 hPa gleichbleibend · 13,7 °C · Klang 2,1 % · 278 Werte
+Minute  5 · 18.10.2026 07:42 MESZ · 126 Bilder/s · Grafikkarte 3,9 ms · Prozessor 7,9 ms · schlechtestes Bild 71 ms · Auflösung 100 % (Hoch) · Speicher 84 MB · Kiel · frei · Sturm · Bft 7, Böe 10 m/s · 987,0 hPa gleichbleibend · 10,7 °C · Klang 1,5 % · 276 Werte
+Minute  6 · 18.10.2026 17:42 MESZ · 110 Bilder/s · Grafikkarte 4,2 ms · Prozessor 4,1 ms · schlechtestes Bild 52 ms · Auflösung 100 % (Hoch) · Speicher 92 MB · Kiel · „Ein Sturmtag“ 1/9 · Morgenstille mit Dunst · Bft 7, Böe 14 m/s · 1013,0 hPa gleichbleibend · 13,5 °C · Klang 2,3 % · 278 Werte
+Minute  7 · 19.10.2026 03:36 MESZ · 75 Bilder/s · Grafikkarte 4,9 ms · Prozessor 4,7 ms · schlechtestes Bild 55 ms · Auflösung 100 % (Ultra) · Speicher 100 MB · Bülk · frei · aufklarend · Bft 4, Böe 7 m/s · 1022,2 hPa gleichbleibend · 6,8 °C · Klang 1,8 % · 274 Werte
+Minute  8 · 19.10.2026 13:36 MESZ · 84 Bilder/s · Grafikkarte 5,5 ms · Prozessor 4,4 ms · schlechtestes Bild 73 ms · Auflösung 100 % (Ultra) · Speicher 119 MB · Bülk · „Ein Sturmtag“ 1/9 · Morgenstille mit Dunst · Bft 10, Böe 35 m/s · 1013,0 hPa gleichbleibend · 13,5 °C · Klang 2,5 % · 278 Werte
   Bild hängt seit 0,8 s in:
     com.dan.wetglass.Wetglass.flood(Wetglass.java:508)
     com.dan.lighthouse.wiring.Wiring.feedFlood(Wiring.java:412)
-    com.dan.lighthouse.gl.Renderer.stepGlass(Renderer.java:1260)
-    com.dan.lighthouse.gl.Renderer.step(Renderer.java:644)
-    com.dan.lighthouse.gl.Renderer.display(Renderer.java:2126)
+    com.dan.lighthouse.gl.Renderer.stepGlass(Renderer.java:1336)
+    com.dan.lighthouse.gl.Renderer.step(Renderer.java:663)
+    com.dan.lighthouse.gl.Renderer.display(Renderer.java:2203)
     jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
     jogamp.opengl.GLDrawableHelper.display(GLDrawableHelper.java:674)
     jogamp.opengl.GLAutoDrawableBase$2.run(GLAutoDrawableBase.java:443)
-  langes Bild 1552 ms, 1,7 s nach „Ansicht“
-Minute  9 · 19.10.2026 19:53 MESZ · 72 Bilder/s · Grafikkarte 19,3 ms · Prozessor 6,0 ms · schlechtestes Bild 1552 ms · Auflösung 50 % (Mittel) · Speicher 87 MB · Dahmeshöved · „Ein Sturmtag“ 1/9 · Morgenstille mit Dunst · Bft 10, Böe 27 m/s · 1013,0 hPa gleichbleibend · 12,0 °C · Klang 2,1 % · 258 Werte
-Minute 10 · 20.10.2026 05:53 MESZ · 111 Bilder/s · Grafikkarte 17,8 ms · Prozessor 4,4 ms · schlechtestes Bild 88 ms · Auflösung 50 % (Mittel) · Speicher 80 MB · Dahmeshöved · frei · Sturm · Bft 6, Böe 9 m/s · 987,0 hPa gleichbleibend · 10,2 °C · Klang 1,6 % · 256 Werte
-Minute 11 · 20.10.2026 15:47 MESZ · 160 Bilder/s · Grafikkarte 15,3 ms · Prozessor 2,5 ms · schlechtestes Bild 76 ms · Auflösung 50 % (Mittel) · Speicher 80 MB · Westerheversand · „Ein Nebeltag“ 1/6 · Klare Morgendämmerung · Bft 6, Böe 12 m/s · 1022,0 hPa gleichbleibend · 11,1 °C · Klang 1,6 % · 258 Werte
-Minute 12 · 21.10.2026 01:47 MESZ · 86 Bilder/s · Grafikkarte 14,6 ms · Prozessor 5,6 ms · schlechtestes Bild 79 ms · Auflösung 85 % (Mittel) · Speicher 80 MB · Westerheversand · frei · Sturm · Bft 10, Böe 44 m/s · 987,0 hPa gleichbleibend · 10,0 °C · Klang 2,0 % · 256 Werte
-Minute 13 · 21.10.2026 11:47 MESZ · 179 Bilder/s · Grafikkarte 14,0 ms · Prozessor 2,8 ms · schlechtestes Bild 28 ms · Auflösung 85 % (Mittel) · Speicher 80 MB · Westerheversand · „Ein Nebeltag“ 1/6 · Klare Morgendämmerung · Bft 10, Böe 22 m/s · 1022,0 hPa gleichbleibend · 11,1 °C · Klang 2,0 % · 258 Werte
-Minute 14 · 21.10.2026 21:33 MESZ · 26 Bilder/s · Grafikkarte 12,4 ms · Prozessor 9,6 ms · schlechtestes Bild 281 ms · Auflösung 100 % (Ultra) · Speicher 104 MB · Dahmeshöved · frei · abklingend · Bft 6, Böe 14 m/s · 1004,0 hPa gleichbleibend · 8,8 °C · Klang 5,3 % · 254 Werte
-Minute 15 · 22.10.2026 07:33 MESZ · 51 Bilder/s · Grafikkarte 12,4 ms · Prozessor 5,6 ms · schlechtestes Bild 93 ms · Auflösung 100 % (Ultra) · Speicher 104 MB · Dahmeshöved · „Ein Sturmtag“ 1/9 · Morgenstille mit Dunst · Bft 7, Böe 12 m/s · 1013,0 hPa gleichbleibend · 11,0 °C · Klang 2,3 % · 258 Werte
-Minute 16 · 22.10.2026 17:10 MESZ · 71 Bilder/s · Grafikkarte 13,1 ms · Prozessor 6,6 ms · schlechtestes Bild 56 ms · Auflösung 100 % (Ultra) · Speicher 106 MB · Hohe Weg · „Ein Sturmtag“ 1/9 · Morgenstille mit Dunst · Bft 7, Böe 14 m/s · 1013,0 hPa gleichbleibend · 11,0 °C · Klang 2,2 % · 258 Werte
-Minute 17 · 23.10.2026 03:10 MESZ · 119 Bilder/s · Grafikkarte 13,2 ms · Prozessor 6,3 ms · schlechtestes Bild 56 ms · Auflösung 67 % (Niedrig) · Speicher 92 MB · Hohe Weg · frei · aufklarend · Bft 7, Böe 14 m/s · 1022,2 hPa gleichbleibend · 6,8 °C · Klang 1,3 % · 256 Werte
-Minute 18 · 23.10.2026 13:10 MESZ · 124 Bilder/s · Grafikkarte 12,7 ms · Prozessor 5,0 ms · schlechtestes Bild 34 ms · Auflösung 67 % (Niedrig) · Speicher 78 MB · Hohe Weg · „Ein Nebeltag“ 1/6 · Klare Morgendämmerung · Bft 7, Böe 15 m/s · 1022,0 hPa gleichbleibend · 10,8 °C · Klang 1,2 % · 258 Werte
-Minute 19 · 23.10.2026 22:46 MESZ · 137 Bilder/s · Grafikkarte 11,7 ms · Prozessor 5,4 ms · schlechtestes Bild 89 ms · Auflösung 67 % (Niedrig) · Speicher 86 MB · Hohe Weg · frei · abklingend · Bft 6, Böe 17 m/s · 1004,0 hPa gleichbleibend · 8,2 °C · Klang 1,2 % · 254 Werte
-Minute 20 · 24.10.2026 08:46 MESZ · 157 Bilder/s · Grafikkarte 11,3 ms · Prozessor 3,8 ms · schlechtestes Bild 59 ms · Auflösung 67 % (Niedrig) · Speicher 88 MB · Hohe Weg · „Ein Sturmtag“ 1/9 · Morgenstille mit Dunst · Bft 3, Böe 7 m/s · 1013,0 hPa gleichbleibend · 10,6 °C · Klang 0,9 % · 258 Werte
-Minute 21 · 24.10.2026 18:32 MESZ · 110 Bilder/s · Grafikkarte 9,9 ms · Prozessor 4,7 ms · schlechtestes Bild 25 ms · Auflösung 85 % (Mittel) · Speicher 98 MB · Dahmeshöved · „Ein Sturmtag“ 1/9 · Morgenstille mit Dunst · Bft 3, Böe 4 m/s · 1013,0 hPa gleichbleibend · 10,6 °C · Klang 1,4 % · 258 Werte
-8 Werte
-Minute 22 · 25.10.2026 05:33 MEZ · 61 Bilder/s · Grafikkarte 9,4 ms · Prozessor 6,0 ms · schlechtestes Bild 108 ms · Auflösung 85 % (Mittel) · Speicher 84 MB · Dahmeshöved · frei · klar · Bft 6, Böe 13 m/s · 1024,0 hPa gleichbleibend · 11,2 °C · Klang 2,0 % · 256 Werte
-Minute 23 · 25.10.2026 15:01 MEZ · 69 Bilder/s · Grafikkarte 9,5 ms · Prozessor 5,4 ms · schlechtestes Bild 337 ms · Auflösung 85 % (Mittel) · Speicher 84 MB · Bülk · „Ein Nebeltag“ 1/6 · Klare Morgendämmerung · Bft 6, Böe 12 m/s · 1022,0 hPa gleichbleibend · 11,0 °C · Klang 2,0 % · 258 Werte
-Minute 24 · 26.10.2026 00:25 MEZ · 14 Bilder/s · Grafikkarte 10,5 ms · Prozessor 11,6 ms · schlechtestes Bild 281 ms · Auflösung 100 % (Hoch) · Speicher 107 MB · Bülk · frei · Sturm · Bft 10, Böe 21 m/s · 987,0 hPa gleichbleibend · 10,2 °C · Klang 4,0 % · 256 Werte
-Minute 25 · 26.10.2026 09:51 MEZ · 73 Bilder/s · Grafikkarte 10,5 ms · Prozessor 5,0 ms · schlechtestes Bild 238 ms · Auflösung 100 % (Hoch) · Speicher 88 MB · Bülk · „Ein Nebeltag“ 1/6 · Klare Morgendämmerung · Bft 10, Böe 28 m/s · 1022,0 hPa gleichbleibend · 10,4 °C · Klang 2,8 % · 258 Werte
-Minute 26 · 26.10.2026 19:20 MEZ · 54 Bilder/s · Grafikkarte 10,0 ms · Prozessor 6,5 ms · schlechtestes Bild 154 ms · Auflösung 85 % (Mittel) · Speicher 85 MB · Dahmeshöved · frei · aufklarend · Bft 4, Böe 6 m/s · 1022,2 hPa gleichbleibend · 9,9 °C · Klang 1,5 % · 254 Werte
-Minute 27 · 27.10.2026 04:57 MEZ · 16 Bilder/s · Grafikkarte 10,5 ms · Prozessor 11,8 ms · schlechtestes Bild 192 ms · Auflösung 85 % (Mittel) · Speicher 85 MB · Dahmeshöved · „Ein Sturmtag“ 1/9 · Morgenstille mit Dunst · Bft 6, Böe 15 m/s · 1013,0 hPa gleichbleibend · 10,3 °C · Klang 4,3 % · 258 Werte
-Minute 28 · 27.10.2026 14:27 MEZ · 29 Bilder/s · Grafikkarte 12,1 ms · Prozessor 7,6 ms · schlechtestes Bild 160 ms · Auflösung 85 % (Mittel) · Speicher 92 MB · Flügge · „Ein Sturmtag“ 1/9 · Morgenstille mit Dunst · Bft 6, Böe 17 m/s · 1013,0 hPa gleichbleibend · 10,3 °C · Klang 1,9 % · 258 Werte
-Minute 29 · 27.10.2026 23:19 MEZ · 16 Bilder/s · Grafikkarte 12,1 ms · Prozessor 13,0 ms · schlechtestes Bild 200 ms · Auflösung 100 % (Hoch) · Speicher 88 MB · Flügge · frei · Sturm · Bft 8, Böe 15 m/s · 987,0 hPa gleichbleibend · 10,4 °C · Klang 6,7 % · 256 Werte
-Ende nach 30,0 Minuten: 63575 Bilder, im Mittel 74,9 Bilder/s, schlechtestes Bild 1345 ms, 149 Ansichten, 13 Regiebücher, 13 Blitze, 12 Turmwechsel, 12 Stufenwechsel, 29× Zustand hin und zurück, Auflösung 0× geregelt, Speicher Minute 5: 83 MB, Ende: 88 MB, größter Ruck beim Stufenwechsel 116 ms
+  langes Bild 1081 ms, 0,3 s nach „Ansicht“
+Minute  9 · 19.10.2026 23:20 MESZ · 119 Bilder/s · Grafikkarte 7,4 ms · Prozessor 8,8 ms · schlechtestes Bild 1081 ms · Auflösung 85 % (Mittel) · Speicher 91 MB · Dahmeshöved · „Ein Sturmtag“ 1/9 · Morgenstille mit Dunst · Bft 10, Böe 26 m/s · 1013,0 hPa gleichbleibend · 13,5 °C · Klang 1,5 % · 278 Werte
+Minute 10 · 20.10.2026 09:20 MESZ · 184 Bilder/s · Grafikkarte 7,3 ms · Prozessor 4,9 ms · schlechtestes Bild 37 ms · Auflösung 85 % (Mittel) · Speicher 81 MB · Dahmeshöved · frei · Sturm · Bft 6, Böe 11 m/s · 987,0 hPa gleichbleibend · 11,1 °C · Klang 1,0 % · 276 Werte
+Minute 11 · 20.10.2026 19:17 MESZ · 95 Bilder/s · Grafikkarte 6,9 ms · Prozessor 3,9 ms · schlechtestes Bild 49 ms · Auflösung 85 % (Mittel) · Speicher 94 MB · Westerheversand · „Ein Nebeltag“ 1/6 · Klare Morgendämmerung · Bft 6, Böe 9 m/s · 1022,0 hPa gleichbleibend · 13,3 °C · Klang 1,5 % · 278 Werte
+Minute 12 · 21.10.2026 05:17 MESZ · 110 Bilder/s · Grafikkarte 7,4 ms · Prozessor 4,4 ms · schlechtestes Bild 38 ms · Auflösung 85 % (Mittel) · Speicher 81 MB · Westerheversand · frei · Sturm · Bft 10, Böe 37 m/s · 987,0 hPa gleichbleibend · 10,1 °C · Klang 1,9 % · 276 Werte
+Minute 13 · 21.10.2026 15:17 MESZ · 241 Bilder/s · Grafikkarte 7,7 ms · Prozessor 2,2 ms · schlechtestes Bild 25 ms · Auflösung 85 % (Mittel) · Speicher 81 MB · Westerheversand · „Ein Nebeltag“ 1/6 · Klare Morgendämmerung · Bft 10, Böe 26 m/s · 1022,0 hPa gleichbleibend · 13,3 °C · Klang 2,0 % · 278 Werte
+  Bild hängt seit 0,8 s in:
+    com.dan.wetglass.Wetglass.flood(Wetglass.java:508)
+    com.dan.lighthouse.wiring.Wiring.feedFlood(Wiring.java:413)
+    com.dan.lighthouse.gl.Renderer.stepGlass(Renderer.java:1336)
+    com.dan.lighthouse.gl.Renderer.step(Renderer.java:663)
+    com.dan.lighthouse.gl.Renderer.display(Renderer.java:2203)
+    jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
+    jogamp.opengl.GLDrawableHelper.display(GLDrawableHelper.java:674)
+    jogamp.opengl.GLAutoDrawableBase$2.run(GLAutoDrawableBase.java:443)
+  langes Bild 1088 ms, 0,3 s nach „Ansicht“
+Minute 14 · 22.10.2026 00:54 MESZ · 30 Bilder/s · Grafikkarte 7,0 ms · Prozessor 14,4 ms · schlechtestes Bild 1088 ms · Auflösung 100 % (Ultra) · Speicher 105 MB · Dahmeshöved · frei · abklingend · Bft 6, Böe 14 m/s · 1004,0 hPa gleichbleibend · 7,6 °C · Klang 5,4 % · 274 Werte
+Minute 15 · 22.10.2026 10:54 MESZ · 99 Bilder/s · Grafikkarte 7,0 ms · Prozessor 8,7 ms · schlechtestes Bild 83 ms · Auflösung 100 % (Ultra) · Speicher 105 MB · Dahmeshöved · „Ein Sturmtag“ 1/9 · Morgenstille mit Dunst · Bft 7, Böe 13 m/s · 1013,0 hPa gleichbleibend · 13,0 °C · Klang 2,0 % · 278 Werte
+Minute 16 · 22.10.2026 20:30 MESZ · 33 Bilder/s · Grafikkarte 8,1 ms · Prozessor 8,4 ms · schlechtestes Bild 70 ms · Auflösung 100 % (Ultra) · Speicher 106 MB · Hohe Weg · „Ein Sturmtag“ 1/9 · Morgenstille mit Dunst · Bft 7, Böe 12 m/s · 1013,0 hPa gleichbleibend · 13,0 °C · Klang 2,4 % · 278 Werte
+Minute 17 · 23.10.2026 06:30 MESZ · 131 Bilder/s · Grafikkarte 8,1 ms · Prozessor 6,7 ms · schlechtestes Bild 67 ms · Auflösung 67 % (Niedrig) · Speicher 89 MB · Hohe Weg · frei · aufklarend · Bft 7, Böe 13 m/s · 1022,2 hPa gleichbleibend · 7,7 °C · Klang 1,3 % · 276 Werte
+Minute 18 · 23.10.2026 16:30 MESZ · 143 Bilder/s · Grafikkarte 7,9 ms · Prozessor 6,2 ms · schlechtestes Bild 35 ms · Auflösung 67 % (Niedrig) · Speicher 79 MB · Hohe Weg · „Ein Nebeltag“ 1/6 · Klare Morgendämmerung · Bft 7, Böe 14 m/s · 1022,0 hPa gleichbleibend · 12,8 °C · Klang 0,9 % · 278 Werte
+Minute 19 · 24.10.2026 02:07 MESZ · 168 Bilder/s · Grafikkarte 7,3 ms · Prozessor 5,7 ms · schlechtestes Bild 24 ms · Auflösung 67 % (Niedrig) · Speicher 104 MB · Hohe Weg · frei · abklingend · Bft 6, Böe 15 m/s · 1004,0 hPa gleichbleibend · 7,4 °C · Klang 0,6 % · 274 Werte
+Minute 20 · 24.10.2026 12:07 MESZ · 172 Bilder/s · Grafikkarte 7,2 ms · Prozessor 5,7 ms · schlechtestes Bild 48 ms · Auflösung 67 % (Niedrig) · Speicher 83 MB · Hohe Weg · „Ein Sturmtag“ 1/9 · Morgenstille mit Dunst · Bft 3, Böe 5 m/s · 1013,0 hPa gleichbleibend · 12,5 °C · Klang 0,5 % · 278 Werte
+Minute 21 · 24.10.2026 22:01 MESZ · 158 Bilder/s · Grafikkarte 6,6 ms · Prozessor 3,9 ms · schlechtestes Bild 23 ms · Auflösung 85 % (Mittel) · Speicher 98 MB · Dahmeshöved · „Ein Sturmtag“ 1/9 · Morgenstille mit Dunst · Bft 3, Böe 6 m/s · 1013,0 hPa gleichbleibend · 12,5 °C · Klang 1,1 % · 278 Werte
+Minute 22 · 25.10.2026 07:01 MEZ · 201 Bilder/s · Grafikkarte 6,6 ms · Prozessor 2,3 ms · schlechtestes Bild 60 ms · Auflösung 85 % (Mittel) · Speicher 86 MB · Dahmeshöved · frei · klar · Bft 6, Böe 9 m/s · 1024,0 hPa gleichbleibend · 11,8 °C · Klang 1,6 % · 276 Werte
+Minute 23 · 25.10.2026 16:56 MEZ · 128 Bilder/s · Grafikkarte 6,6 ms · Prozessor 7,0 ms · schlechtestes Bild 60 ms · Auflösung 85 % (Mittel) · Speicher 86 MB · Bülk · „Ein Nebeltag“ 1/6 · Klare Morgendämmerung · Bft 6, Böe 9 m/s · 1022,0 hPa gleichbleibend · 11,8 °C · Klang 1,3 % · 278 Werte
+Minute 24 · 26.10.2026 02:56 MEZ · 63 Bilder/s · Grafikkarte 6,6 ms · Prozessor 10,9 ms · schlechtestes Bild 48 ms · Auflösung 100 % (Hoch) · Speicher 104 MB · Bülk · frei · Sturm · Bft 10, Böe 42 m/s · 987,0 hPa gleichbleibend · 10,0 °C · Klang 2,6 % · 276 Werte
+Minute 25 · 26.10.2026 12:56 MEZ · 131 Bilder/s · Grafikkarte 7,4 ms · Prozessor 7,4 ms · schlechtestes Bild 57 ms · Auflösung 100 % (Hoch) · Speicher 89 MB · Bülk · „Ein Nebeltag“ 1/6 · Klare Morgendämmerung · Bft 10, Böe 26 m/s · 1022,0 hPa gleichbleibend · 11,7 °C · Klang 1,9 % · 278 Werte
+Minute 26 · 26.10.2026 22:50 MEZ · 148 Bilder/s · Grafikkarte 7,2 ms · Prozessor 3,6 ms · schlechtestes Bild 30 ms · Auflösung 85 % (Mittel) · Speicher 86 MB · Dahmeshöved · frei · aufklarend · Bft 4, Böe 6 m/s · 1022,2 hPa gleichbleibend · 8,0 °C · Klang 1,3 % · 274 Werte
+Minute 27 · 27.10.2026 08:50 MEZ · 67 Bilder/s · Grafikkarte 7,1 ms · Prozessor 4,6 ms · schlechtestes Bild 47 ms · Auflösung 85 % (Mittel) · Speicher 86 MB · Dahmeshöved · „Ein Sturmtag“ 1/9 · Morgenstille mit Dunst · Bft 6, Böe 11 m/s · 1013,0 hPa gleichbleibend · 11,7 °C · Klang 4,0 % · 278 Werte
+Minute 28 · 27.10.2026 18:44 MEZ · 77 Bilder/s · Grafikkarte 7,9 ms · Prozessor 9,0 ms · schlechtestes Bild 34 ms · Auflösung 85 % (Mittel) · Speicher 86 MB · Flügge · „Ein Sturmtag“ 1/9 · Morgenstille mit Dunst · Bft 6, Böe 12 m/s · 1013,0 hPa gleichbleibend · 11,7 °C · Klang 1,6 % · 278 Werte
+  Bild hängt seit 0,8 s in:
+    com.dan.wetglass.Wetglass.flood(Wetglass.java:508)
+    com.dan.lighthouse.wiring.Wiring.feedFlood(Wiring.java:412)
+    com.dan.lighthouse.gl.Renderer.stepGlass(Renderer.java:1336)
+    com.dan.lighthouse.gl.Renderer.step(Renderer.java:663)
+    com.dan.lighthouse.gl.Renderer.display(Renderer.java:2203)
+    jogamp.opengl.GLDrawableHelper.displayImpl(GLDrawableHelper.java:692)
+    jogamp.opengl.GLDrawableHelper.display(GLDrawableHelper.java:674)
+    jogamp.opengl.GLAutoDrawableBase$2.run(GLAutoDrawableBase.java:443)
+  langes Bild 1955 ms, 0,3 s nach „Ansicht“
+Minute 29 · 28.10.2026 04:26 MEZ · 44 Bilder/s · Grafikkarte 8,2 ms · Prozessor 11,7 ms · schlechtestes Bild 1955 ms · Auflösung 100 % (Hoch) · Speicher 90 MB · Flügge · frei · Sturm · Bft 8, Böe 33 m/s · 987,0 hPa gleichbleibend · 10,0 °C · Klang 5,6 % · 276 Werte
+Ende nach 30,0 Minuten: 103398 Bilder, im Mittel 116,7 Bilder/s, schlechtestes Bild 1955 ms, 149 Ansichten, 13 Regiebücher, 13 Blitze, 12 Turmwechsel, 12 Stufenwechsel, 13× Brandung am Sockel umgeschaltet, 29× Zustand hin und zurück, Auflösung 0× geregelt, Speicher Minute 5: 84 MB, Ende: 90 MB, größter Ruck beim Stufenwechsel 76 ms
 Dauerlauf bestanden

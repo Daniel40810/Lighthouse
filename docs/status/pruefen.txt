@@ -1,0 +1,1032 @@
+Microsoft Windows [Version 10.0.26300.9711]
+(c) Microsoft Corporation. Alle Rechte vorbehalten.
+
+C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse>ant pruefung
+Buildfile: C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse\build.xml
+
+-pre-init:
+
+-init-private:
+
+-pre-init-libraries:
+
+-init-private-libraries:
+
+-init-libraries:
+
+-init-user:
+
+-init-project:
+
+-init-macrodef-property:
+
+-init-modules-supported:
+
+-do-init:
+
+-post-init:
+
+-init-check:
+
+-init-ap-cmdline-properties:
+
+-init-macrodef-modulename:
+
+-init-source-module-properties:
+
+-init-macrodef-javac-with-module:
+
+-init-macrodef-javac-with-processors:
+
+-init-macrodef-javac-without-processors:
+
+-init-macrodef-javac:
+
+-init-macrodef-test-impl:
+
+-init-macrodef-junit-init:
+
+-init-test-properties:
+
+-init-macrodef-junit-prototype-with-module:
+
+-init-macrodef-junit-prototype-without-module:
+
+-init-macrodef-junit-single:
+
+-init-macrodef-junit-batch:
+
+-init-macrodef-junit:
+
+-init-macrodef-junit-impl:
+
+-init-macrodef-testng:
+
+-init-macrodef-testng-impl:
+
+-init-macrodef-test:
+
+-init-macrodef-junit-debug-impl:
+
+-init-macrodef-test-debug-junit:
+
+-init-macrodef-testng-debug:
+
+-init-macrodef-testng-debug-impl:
+
+-init-macrodef-test-debug-testng:
+
+-init-macrodef-test-debug:
+
+-init-debug-args:
+
+-init-macrodef-nbjpda:
+
+-init-macrodef-debug:
+
+-init-macrodef-java-with-module:
+
+-init-macrodef-java-with-unnamed-module:
+
+-init-macrodef-java-without-module:
+
+-init-macrodef-java:
+
+-init-presetdef-jar:
+
+-init-ap-cmdline-supported:
+
+-init-ap-cmdline:
+
+init:
+
+-deps-jar-init:
+   [delete] Deleting: C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse\build\built-jar.properties
+
+deps-jar:
+
+-warn-already-built-jar:
+[propertyfile] Updating property file: C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse\build\built-jar.properties
+
+-check-automatic-build:
+
+-clean-after-automatic-build:
+
+-verify-automatic-build:
+
+-pre-pre-compile:
+
+-pre-compile:
+
+-copy-persistence-xml:
+
+-compile-depend:
+
+-do-compile:
+
+check-packages:
+     [exec] check-packages: Renderer.jar mit 40 Packages (Quelle: Projekt Renderer)
+     [exec]   Package        Klassen  README  Java
+     [exec]   beacon         27       ok      21
+     [exec]   buoyancy       35       ok      21
+     [exec]   cloud          16       ok      21
+     [exec]   flock          49       ok      21
+     [exec]   fog            25       ok      21
+     [exec]   forest         40       ok      21
+     [exec]   ground         27       ok      21
+     [exec]   kino           11       ok      21
+     [exec]   lightning      24       ok      21
+     [exec]   muster         7        ok      21
+     [exec]   ocean          27       ok      21
+     [exec]   rain           12       ok      21
+     [exec]   river          16       ok      21
+     [exec]   road           32       ok      21
+     [exec]   sky            44       ok      21
+     [exec]   soundscape     56       ok      21
+     [exec]   spray          16       ok      21
+     [exec]   tide           11       ok      21
+     [exec]   weather        14       ok      21
+     [exec]   weathering     10       ok      21
+     [exec]   wetglass       10       ok      21
+     [exec]   surf           48       ok      21
+     [exec] check-packages: alle 22 gebrauchten Packages in Renderer.jar, dazu die Brecher aus surf (Grund je Reihe), ocean, spray, sky und beacon (seit Sylt F18 im Renderer).
+     [exec] check-packages: 5 Packages, jedes für sich übersetzt
+     [exec]   Package        Kern   gl     demo   Importe  Dateien
+     [exec]   avatar         ok     ok     ?      ok       43
+     [exec]   gltf           ok     ok     ok     ok       8
+     [exec]   hair           ok     ok     ?      ok       5
+     [exec]   portrait       ok     ok     ?      ok       7
+     [exec]   voice          ok     ?      ?      ok       5
+     [exec] check-packages: alle 5 Packages unabhängig.
+
+-post-compile:
+
+compile:
+
+-pre-pre-compile-test:
+    [mkdir] Created dir: C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse\build\test\classes
+
+-pre-compile-test:
+
+-init-test-javac-module-properties-with-module:
+
+-init-test-module-properties-without-module:
+
+-init-test-module-properties:
+
+-compile-test-depend:
+
+-do-compile-test:
+    [javac] Compiling 6 source files to C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse\build\test\classes
+
+-post-compile-test:
+
+compile-test:
+
+pruefung:
+     [java] Matrizen
+     [java]   ok    Projektion·Blick mal Inverse = Einheit (Fehler 1,5e-05)
+     [java]   ok    Umgekehrte Tiefe: Punkt in 100 m hat Tiefe Nahebene/100
+     [java]   ok    Kimm in 16 km liegt zwischen 0 und Nahebene, vor dem Unendlichen
+     [java] Ort und Maßstab
+     [java]   ok    Erdkrümmung: 100 km ? 785 m Absenkung
+     [java]   ok    Kimm aus 20 m Augenhöhe in 17,1 km (mit Brechung rund 17,1 km)
+     [java]   ok    Feuerhöhe 24 m, Auge 5 m: geografische Tragweite 14,8 sm
+     [java]   ok    Lage zurück in Grad, Minuten, Sekunden: 53°51?18? N · 8°04?45? E
+     [java]   ok    Szene ? Breite/Länge hin und zurück
+     [java]   ok    Nord ist ?z, Ost ist +x
+     [java]   ok    Kimmtiefe aus 20 m: 0,144°
+     [java] Sonne am Roten Sand
+     [java]   ok    15.10.2026 Aufgang 07:55 MESZ (erwartet rund 07:56)
+     [java]   ok    15.10.2026 Untergang 18:31 MESZ (erwartet rund 18:31)
+     [java]   ok    Tageslänge 10,60 h (54° N Mitte Oktober: rund 10,6 h)
+     [java]   ok    Wahrer Mittag 13:13 MESZ (Länge 8,08° E, Zeitgleichung +14 min)
+     [java]   ok    Mittagshöhe 27,5° (90° ? Breite ? 8,6° Deklination)
+     [java]   ok    20:00 Uhr: Sonne -13,9° unter der Kimm (Dämmerung, Feuer an)
+     [java]   ok    Sommeranfang: Mittagshöhe 59,6°
+     [java]   ok    Azimut 90° zeigt nach Osten (+x)
+     [java]   ok    Himmelshelligkeit: Tag 1, Sonnenuntergang 0,1, Nacht 0,00005, steigt mit der Sonne
+     [java] Uhr der Szene
+     [java]   ok    Start: heute um 20:00 Uhr Ortszeit (F26)
+     [java]   ok    Anzeige: 15.10.2026 20:00 MESZ
+     [java]   ok    Zeitraffer 600-fach: 10 s ? 100 Minuten
+     [java]   ok    Laufzeit zählt echte Sekunden
+     [java]   ok    Uhr steht bei Zeitraffer 0, die Laufzeit läuft weiter
+     [java]   ok    Winterzeit: 1.12.2026 08:30 MEZ
+     [java]   ok    Zeitraffer ist auf 600-fach begrenzt
+     [java] Kamera
+     [java]   ok    Grundansicht: Auge 14,2 m hoch, 120 m vom Turm
+     [java]   ok    Blick nach Westsüdwest (250°) in die Abenddämmerung
+     [java]   ok    Kreisen: 4 000 zufällige Bewegungen, das Auge bleibt über dem Wasser
+     [java]   ok    Wechsel zu Frei: Ansicht springt nicht
+     [java]   ok    Frei abwärts: bleibt bei 1,50 m über dem Wasser
+     [java]   ok    Frei: W fliegt vorwärts
+     [java]   ok    Zurück zu Kreisen: Drehpunkt vor dem Auge, nicht unter Wasser
+     [java]   ok    R: kreist von selbst um den Turm
+     [java]   ok    Hochwasser +1,5 m: das Auge steigt mit
+     [java] Turm Roter Sand (Phase 5)
+     [java]   ok    Wicklung: alle 99.344 Dreiecke außen gegen den Uhrzeigersinn (Lehre aus RayPhong)
+     [java]   ok    Normalen normiert, alle Indizes zeigen auf Ecken
+     [java]   ok    Mastspitze auf 30,7 m (Roter Sand)
+     [java]   ok    Galerie auf 23 m, Feuerhöhe 24 m liegt in der Verglasung der Laterne
+     [java]   ok    Schaft verjüngt sich vom Sockel (7,5 m) zum Dienstraum (5,9 m)
+     [java]   ok    Dienstraum mit Erkern 8,0 m breit, Galerie 8,6 m
+     [java]   ok    Erker nach Nordwest, Süd und Nordost (der nordöstliche höher, mit Kuppel)
+     [java]   ok    Manschette auf mittlerem Meeresspiegel, Steinschüttung darunter (bei Niedrigwasser frei)
+     [java]   ok    Die Kreise für das Meer liegen ganz in der ovalen Manschette (kein Wasser auf der Platte, aber auchkeins weggeschnitten)
+     [java]   ok    Alte Weser in 3,8 km, Richtung 070°, Fuß 1,1 m unter der Kimmlinie der Erdkrümmung
+     [java]   ok    Meer: bei Ebbe brechen die Wellen an der Manschette, bei Flut am Sockel (Peilpfahl immer)
+     [java] Gezeiten am Roten Sand
+     [java]   ok    17.10.2026 Hochwasser 04:35 MESZ (Bremerhaven laut BSH 05:17, gerechnet 05:35; eine Stunde früher [G])
+     [java]   ok    Hochwasser zu Hochwasser 12,44 h, Ebbe 6,3 h
+     [java]   ok    Tidenhub über einen Monat 2,3 bis 3,8 m (Nipp und Spring wie an der Weser, im Mittel rund 3 m; seitRungholt Phase 17 aus com.dan.tide)
+     [java]   ok    Springtide am 29.10. (Vollmond 26.10., Alter der Gezeit rund zwei Tage)
+     [java]   ok    Die Verdrahtung gibt die Gezeit als Wasserstand weiter
+     [java]   ok    Gezeit abschaltbar: Wasserstand von Hand
+     [java] Compute-Test (Rechnung auf dem Prozessor)
+     [java]   ok    Gruppe 0, letzter Wert = 1 + ? + 64 = 2080
+     [java]   ok    Gruppe 1, erster Wert = 65
+     [java]   ok    Gruppe 3, Stelle 10 stimmt mit der Summe überein
+     [java] Shader-Dateien
+     [java]   ok    fullscreen.vert + sky.frag vollständig
+     [java]   ok    fullscreen.vert + sea.frag vollständig
+     [java]   ok    fullscreen.vert + skypano.frag vollständig
+     [java]   ok    tower.vert + tower.frag vollständig
+     [java]   ok    tower_shadow.vert + tower_shadow.frag vollständig
+     [java]   ok    tower_cast.vert + tower_cast.frag vollständig
+     [java]   ok    fullscreen.vert + post.frag vollständig
+     [java]   ok    fullscreen.vert + overlay.frag vollständig
+     [java]   ok    probe.comp vollständig
+     [java]   ok    Platzhalter-See (Rückfall ohne Compute) schreibt ihre Tiefe und rechnet mit der Erdkrümmung
+     [java]   ok    Himmelspanorama nutzt dieselbe Abbildung wie das Meer (Azimut von Nord, Höhe ±90°)
+     [java] Verdrahtung
+     [java]   ok    Beaufort-Grenzen nach WMO (0,3 · 10,8 · 32,7 m/s)
+     [java]   ok    Beaufort.mid(n) liegt für alle 13 Stufen in der Stufe n
+     [java]   ok    Westwind weht nach Osten (+x)
+     [java]   ok    Collider-Zylinder: Abstand außen, innen negativ, über der Kappe
+     [java]   ok    Verbindungen eingetragen: 104 (Phase 1 bis 4)
+     [java]   ok    Wind und Wasserstand gehen über die Verdrahtung ins Meer
+     [java]   ok    Wind: nur Zahlen und java.*
+     [java]   ok    Clock: nur Zahlen und java.*
+     [java]   ok    Lighting: nur Zahlen und java.*
+     [java]   ok    SpotLight: nur Zahlen und java.*
+     [java]   ok    ScatterField: nur Zahlen und java.*
+     [java]   ok    SurfaceHit: nur Zahlen und java.*
+     [java]   ok    Collider: nur Zahlen und java.*
+     [java]   ok    WaterLevel: nur Zahlen und java.*
+     [java]   ok    Flash: nur Zahlen und java.*
+     [java]   ok    SoundEvent: nur Zahlen und java.*
+     [java] Meer (com.dan.ocean)
+     [java]   ok    FFT 16² gegen die direkte Summe (Fehler 2,8e-13)
+     [java]   ok    Bft 2: H_s 0,20 m im Bild, Tabelle 0,20 m
+     [java]   ok    Bft 6: H_s 3,03 m im Bild, Tabelle 3,00 m
+     [java]   ok    Bft 10: H_s 9,07 m im Bild, Tabelle 9,00 m
+     [java]   ok    Bft 0: Windsee spiegelglatt
+     [java]   ok    Spitzenperiode Bft 6: 7,6 s, Bft 10: 9,9 s (Deutsche Bucht, 150 km Streichlänge)
+     [java]   ok    gleicher seed, gleiche See
+     [java]   ok    anderer seed, andere See
+     [java]   ok    Die See läuft nach 1000 s ohne Sprung in Schleife
+     [java]   ok    Bft 4: heightAt gegen alle Moden, Abweichung 0,9 cm (0,9 % von H_s)
+     [java]   ok    Bft 8: heightAt gegen alle Moden, Abweichung 4,3 cm (0,8 % von H_s)
+     [java]   ok    velocityAt: vy 0,556 m/s, aus der Höhe 0,557 m/s
+     [java]   ok    normalAt ist ein Einheitsvektor nach oben
+     [java]   ok    Bft 3: Schaum 0,5 % der Fläche, Tabelle 0,5 %
+     [java]   ok    Bft 5: Schaum 5,2 % der Fläche, Tabelle 5,0 %
+     [java]   ok    Bft 7: Schaum 18,5 % der Fläche, Tabelle 18,0 %
+     [java]   ok    Bft 10: Schaum 50,1 % der Fläche, Tabelle 50,0 %
+     [java]   ok    Schaum nimmt mit der Windstärke zu
+     [java]   ok    Bft 2: keine Schaumköpfe
+     [java]   ok    Schaumstraßen erst ab Bft 7, dann deutlich
+     [java]   ok    Abstandsraster: am Pfahl 0,21 m, 4 m daneben 3,87 m, außerhalb weit
+     [java]   ok    Watt bei Bft 6: H_s 0,49 m gegen 3,00 m auf offener See
+     [java]   ok    Brandungsring am Pfahl im Noor bei Bft 5: Schaum 27 % gegen 0 % abseits
+     [java]   ok    Rumpf in der Wasserlinie: Mitte -2,6 m innen, 1 m querab 1,00 m außen, Bug am Ende
+     [java]   ok    Dünung: H_s 2,0 m aus vier Zügen
+     [java]   ok    Dünung aus Westen läuft nach Osten (+x)
+     [java]   ok    Wellenlänge bei 10 s im Tiefwasser 156 m (g·T²/2? = 156 m)
+     [java]   ok    Windstille mit Dünung 1,5 m: Spanne 1,79 m
+     [java]   ok    Ringwelle läuft vom Einschlag nach außen
+     [java]   ok    Ringwelle klingt nach 4.0 s ab
+     [java]   ok    addImpulse: Ringwelle nach 1 s 1,2 cm hoch
+     [java]   ok    abgelaufene Einschläge werden entfernt
+     [java]   ok    Brandungsring: Schaum 0,5 m vor dem Sockel 65 %, 25 m davor 0,0 %
+     [java]   ok    Hindernis ohne Radius wird abgelehnt
+     [java]   ok    Ringgitter: alle 102144 Dreiecke von oben gegen den Uhrzeigersinn
+     [java]   ok    Ringgitter reicht 60 km weit (über die Kimm aus 100 m Höhe)
+     [java]   ok    Qualitätsstufen der App wählen die Stufe des Meeres
+     [java]   ok    Sonnenlicht fürs Meer: weiß am Tag, golden tief, aus in der Nacht
+     [java] Himmel (com.dan.sky)
+     [java]   ok    Sonne nach VSOP87 wie Meeus 25.b: L 19,907372° (19,907372), R 0,99760775 AE
+     [java]   ok    Mond wie Meeus 47.a: ? 133,162655°, ? -3,229126°, ? 368409,7 km
+     [java]   ok    Mondphase wie Meeus 48.a: i 69,0756°, k 0,6786
+     [java]   ok    Präzession zu J2000 ist die Einheit (Abweichung 6,1e-17)
+     [java]   ok    Himmelspol wandert in 100 Jahren um 0,5566° (? = 2004,3? ? 0,5567°)
+     [java]   ok    Venus wie Meeus 33.a: ? 316,1743° (316,1727), ? -18,8877° (?18,8880), ? 0,91090 AE
+     [java]   ok    Venus über ihren Zyklus zwischen -4,65 und -3,89 mag (?4,9 ? ?3,8)
+     [java]   ok    Jupiter zwischen -2,68 und -1,78 mag (?2,9 ? ?1,6)
+     [java]   ok    Brechung an der Kimm 34,5? (scheinbar) und 29,0? (wahr)
+     [java]   ok    Brechung hin und zurück (Sæmundsson, Bennett) auf 0,0010° gleich
+     [java]   ok    Mittagshöhe zur Sonnenwende 59,593° (59,592°)
+     [java]   ok    Sonnenaufgang 15.10.2026: Oberrand an der Kimm -0,1 min neben FRiseSet
+     [java]   ok    Polarstern über den Tag höchstens 0,63° neben der Breite
+     [java]   ok    Phasenwinkel aus der Lage 10,96° gegen FMoon 11,09°
+     [java]   ok    Vollmond am 26.10.2026: 99,1 % beleuchtet
+     [java]   ok    Vollmond in 51° Höhe beleuchtet mit 0,20 lx (0,1 ? 0,35)
+     [java]   ok    Durchlässigkeit aus der Tabelle auf 1,28 % wie die genaue Rechnung (absolut ± 0,0019)
+     [java]   ok    Zenit-Durchlässigkeit R 0,856 > G 0,790 > B 0,694
+     [java]   ok    Sicht aus der Auslöschung 20,00 km (20)
+     [java]   ok    Mittag: Zenit blau (B 0,063 > G 0,031 > R 0,018)
+     [java]   ok    Leuchtdichteverteilung abseits der Sonne wie CIE-Normhimmel ?klar? (größte Abweichung 24 %)
+     [java]   ok    Kimm heller als Zenit (0,09 gegen 0,03)
+     [java]   ok    Sonne 1,1° hoch: Licht rot (R/B 164)
+     [java]   ok    Dämmerung wird stetig dunkler (cd/m² im Zenit) -0°:2e+02 -3°:3e+01 -6°:1e+00 -9°:9e-02 -12°:4e-03 -15°:2e-04 -18°:1e-04
+     [java]   ok    Nacht ohne Mond: Zenit 22,26 mag/?² (natürlicher Himmel 22)
+     [java]   ok    Grenzgröße ohne Mond 6,6 mag
+     [java]   ok    Grenzgröße bei Vollmond 4,3 mag (3,5 ? 5,5)
+     [java]   ok    Stäbchensehen nachts 1,00, mittags 0,00
+     [java]   ok    Beleuchtung einer waagerechten Fläche mittags 46132 lx (Oktober, 27,5°)
+     [java]   ok    Anteil des Himmelslichts 21 % (klar: 10 ? 35 %)
+     [java]   ok    Mittag nahe der Bezugshelligkeit (0,111 gegen 0,105)
+     [java]   ok    Blickfeld gegen die Sonne 3,5-mal heller als von ihr weg
+     [java]   ok    Mondscheibe (79 %) bringt 0,999 der Bestrahlung aus der Helligkeitsformel
+     [java]   ok    Blitz leuchtet auf (0,52) und klingt ab (0,0e+00)
+     [java]   ok    Bedeckt: Sonne 10 % der klaren, Zenit grau (B/R 1,07)
+     [java]   ok    Sternkatalog: 8920 Sterne bis 6,5 mag
+     [java]   ok    Hellster Stern Sirius: -1,44 mag bei 101,287° / -16,716°
+     [java]   ok    Beteigeuze rötlich (R/B 1,39, 3794 K), Rigel bläulich (B/R 1,45, 10516 K)
+     [java]   ok    Sternbildfiguren: 27 (23 aus Sternbild, die Plejaden ohne Linien, dazu 4 des Südhimmels), Großer Wagen mit 7 Linien
+     [java]   ok    Südhimmel (seit Glacier Phase 3): Kreuz des Südens mit 2 Balken; Magellansche Wolken in der Milchstraßenkarte (LMC 0,79, SMC 0,50, daneben 0,000)
+     [java]   ok    Alle 340 Linienenden der Figuren treffen einen Stern des Katalogs (0 nicht)
+     [java]   ok    Milchstraße: Zentrum 0,50 > Schwan 0,28, Himmelspol 0,00, abseits 0,00
+     [java]   ok    Alle Uniforms der Shader werden gesetzt
+     [java]   ok    Sternpuffer: 62440 Werte, erster Stern -1,44 mag
+     [java]   ok    Himmelstabelle: u = 0,25 zeigt nach Osten (90,0°)
+     [java]   ok    Mie wie Bohren und Huffman: Q_ext 3,10543, Q_sca 3,10543, Q_back 2,92534 (3,10543 · 3,10543 · 2,92534)
+     [java]   ok    Glorie, erster roter Ring: 5 µm 4,28° (Laven 4,80°), 10 µm 2,18° (Laven 2,40°), 20 µm 1,13° (Laven 1,20°); 5 µm / 20 µm = 3,79 (1/r: 4)
+     [java]   ok    Phasenfunktion auf 4? normiert (1,009), Asymmetrie g 0,87 (Nebel 0,8 bis 0,9)
+     [java]   ok    Glorie 5,4-mal so hell wie 10° daneben; Nebelbogen bei 38,1° (5 µm 36,1°, 20 µm 39,5°), 14-mal so hell wie bei 90°
+     [java]   ok    Farbe der Ringe (Spanne der Rotanteile 1° bis 6°): ? 4 % 0,497, ? 25 % 0,137
+     [java]   ok    Gespenst: Kernschatten eines Menschen 53,7 m; in 20 m Nebel 1,4° breit, in 80 m keins, mit der Sonne unter der Kimm keins; der Gegenpunkt liegt unter der Kimm
+     [java]   ok    Halos: Ring rot 21,65°, blau 22,32°; Nebensonnen bei Sonnenhöhe 0° 21,6°, 20° 24,4°, 40° 36,0°, 65°keine
+     [java]   ok    Halo-Ring und Nebensonnen gehen als Uniforms an sky.frag
+     [java]   ok    an der Kimm steht das rote Bild -0,22? unter dem grünen, das blaue 0,36? darüber
+     [java]   ok    aus (0): alle Kanäle wie bisher
+     [java]   ok    nur Grün über der Kimm: 5,2 s mit Spiegelung (dreifach), 1,8 s ohne
+     [java]   ok    Uhr, Ort, Augenhöhe, Sicht und Bedeckung gehen über die Verdrahtung in den Himmel
+     [java]   ok    Lighting aus dem Himmel: Sonne 27,5° hoch, Dunst 1,56e-04 je m (Sicht 25 km)
+     [java]   ok    Sonne der App-Uhr (Phase 1) und des Himmels stimmen überein (27,473° gegen 27,501° mit Brechung)
+     [java]   ok    Lichtglocke Bremerhaven: 137°, 48 km
+     [java]   ok    App-Shader lesen Himmel und Licht aus com.dan.sky (Rundumbild, Vorbelichtung, Stäbchensehen)
+     [java] Wolken (com.dan.cloud)
+     [java]   ok    Größen 128³, 32³, 512² RGBA (gebaut in 682 ms)
+     [java]   ok    reproduzierbar: Prüfsummen E11F578F 0E705552 E05D4934
+     [java]   ok    kachelbar: Abweichung bei u+1 5,7e-15, Sprung über den Rand höchstens 0,08
+     [java]   ok    Wetterkarte im Mittel R 0,45, G 0,47, B 0,48, A 0,51
+     [java]   ok    Cumulus        0/8?0,00 2/8?2,08 4/8?3,97 6/8?5,94 8/8?7,94 (größte Abweichung 0,08 Achtel)
+     [java]   ok    Stratocumulus  0/8?0,00 2/8?1,97 4/8?4,01 6/8?5,98 8/8?8,00 (größte Abweichung 0,03 Achtel)
+     [java]   ok    Stratus        0/8?0,00 2/8?2,02 4/8?3,85 6/8?5,98 8/8?8,00 (größte Abweichung 0,15 Achtel)
+     [java]   ok    Nimbostratus   0/8?0,00 2/8?1,96 4/8?3,98 6/8?6,03 8/8?8,00 (größte Abweichung 0,04 Achtel)
+     [java]   ok    Cumulonimbus   0/8?0,00 2/8?2,02 4/8?3,94 6/8?5,95 8/8?8,00 (größte Abweichung 0,06 Achtel)
+     [java]   ok    Cumulus: nichts unter 900 m und über 2 500 m, dicht dazwischen (größte Auslöschung 0,023/m)
+     [java]   ok    Cumulonimbus: Amboss in 10,3 km breiter als die Türme in 5 km (27,1 % gegen 8,4 % der Fläche)
+     [java]   ok    Höhen: Stratus ab 300 m, Cumulus ab 900 m, Cumulonimbus bis 11200 m
+     [java]   ok    0/8: keine Wolke
+     [java]   ok    Wind 12 m/s aus West: nach 100 s steht dieselbe Wolke 1 200 m weiter östlich (± 2,0e-15)
+     [java]   ok    step und setTime stimmen überein (Versatz -0,0 / -100,0 m)
+     [java]   ok    Schatten: 8/8 Nimbostratus 0,000, wolkenlos 1,00
+     [java]   ok    Cumulus 4/8: 30 % des Meeres in der Sonne
+     [java]   ok    Hohe Schicht ganz: 0,65 des Sonnenlichts kommt durch
+     [java]   ok    Regen: ohne Niederschlag 0, Gewitter bis 0,61
+     [java]   ok    Helligkeit fürs Auge fällt mit der Bedeckung (8/8 Nimbostratus 0,18)
+     [java]   ok    Linsen auf 15 % der Fläche (obere Lage 6 %, Stapel), ? bis 2,8, ortsfest beim Ziehen der Wolken, aus bei 0
+     [java]   ok    Linsen quer zum Wind gestreckt: 1,5 km weiter noch Linse quer 93 %, längs 44 %
+     [java]   ok    ohne Vorgabe: Basis der Art (900 m), Schattenfläche auf Meereshöhe
+     [java]   ok    Stratus 8/8 auf 500 m gehoben: nichts darunter und über 950 m, dicht dazwischen (0,051/m)
+     [java]   ok    Schatten nach der Höhe: unter der Decke 0,000, über ihr 1,000 (Nebelmeer: der Gipfel in der Sonne)
+     [java]   ok    über der Decke wirft die hohe Schicht noch Schatten (0,69)
+     [java]   ok    Schattenkarte auf der Fläche shadowHeight (700 m) = Schatten am Punkt in 700 m
+     [java]   ok    Alle Uniforms der Shader werden gesetzt
+     [java]   ok    Stufen: Mittel 1/4 bis 72 Schritte, Hoch 1/2 bis 96 Schritte
+     [java]   ok    Bedeckung, Art, hohe Schicht und Wind (in Wolkenhöhe 1,6-fach, 20° rechts gedreht) gehen in die Wolken
+     [java]   ok    Ohne Wolken-Paket graut der Schleier den Himmel, mit Wolken nicht mehr
+     [java]   ok    Qualitätsstufen der App wählen die Stufe der Wolken (Niedrig = 2.5D, Mittel = 1/4 Auflösung)
+     [java]   ok    Zeitmessung der Durchgänge enthält ?Wolken?
+     [java]   ok    Das Meer nimmt die Schattenkarte der Wolken (ohne com.dan.cloud zu kennen)
+     [java] Verwitterung (com.dan.weathering)
+     [java]   ok    Rauschen in 0..1, Mittel 0,498
+     [java]   ok    Rauschen ist glatt (Sprung bei 0,1 mm: 1,5e-04)
+     [java]   ok    gleicher seed, gleiches Rauschen; anderer seed, anderes
+     [java]   ok    auch für negative Koordinaten (Ganzzahl-Hash ohne Vorzeichen)
+     [java]   ok    Algen: um MNW 0,70, Mitte 0,68, MHW 0,00, 4 m 0,00, tief darunter 0,13
+     [java]   ok    am Niedrigwasser grüner Schleim (1,00), darüber (0,00) und tief darunter (0,00) braun
+     [java]   ok    Rostläufer auf Farbe: direkt unter der Kante 0,04, 6 m darunter 0,01
+     [java]   ok    frische Farbe (Anfälligkeit 0) rostet nicht
+     [java]   ok    Salz über dem Auflauf (0,07), nicht unter Wasser und nicht hoch oben
+     [java]   ok    unter Wasser ganz nass
+     [java]   ok    Auflauf 0,7 m nass, 6 m über dem Wasser trocken
+     [java]   ok    Ebbe fällt 1 m in einer Stunde: die nasse Linie hinkt 0,20 m nach (trocknet 0,79 m/h)
+     [java]   ok    bei stehendem Wasser ist die Fläche darüber nach zwei Stunden trocken
+     [java]   ok    Regen aus West: Westseite 1,00 nass, Ostseite 0,35
+     [java]   ok    eine Stunde nach dem Regen fast trocken (0,00)
+     [java]   ok    Brecher auf der Karte: Treffer 0,99, darunter 0,73, darüber 0,22
+     [java]   ok    Karte läuft rundum (u = 1,25 wie 0,25)
+     [java]   ok    nach 30 min hat die Karte mehr als die Hälfte verloren (0,09)
+     [java]   ok    neue Version der Karte, wenn sie sich ändert (Hochladen nur dann)
+     [java]   ok    nass dunkler (0,06 statt 0,50) und glatter (0,25)
+     [java]   ok    Voreinstellungen steigen von calm bis storm
+     [java]   ok    beaufort(n) begrenzt auf 0..12
+     [java]   ok    Auflauf wächst mit dem Seegang, Spritzwasser mit Seegang und Wind
+     [java]   ok    Wasserstand, Gezeitenband, Seegang, Wind und Sonne gehen in die Verwitterung
+     [java]   ok    Der Turm-Shader bindet weathering.glsl aus dem Klassenpfad ein (/com/dan/weathering/gl/)
+     [java]   ok    Das Meer nimmt den Schatten eines Körpers (Turm) als zweite Schattenkarte, ohne den Turm zu kennen
+     [java]   ok    Zeitmessung: ?Schatten? vor dem Meer (das den Turmschatten liest), dann ?Turm?
+     [java]   ok    Qualitätsstufen wählen Turmschatten (1024² bis 4096²), Nieten und die Nässekarte
+     [java] Gischt (com.dan.spray)
+     [java]   ok    Flugbahn nach 2 s wie schrittweise gerechnet (Abweichung 0,4 mm)
+     [java]   ok    Tropfen unter der Wasserhöhe oder nach Ablauf der Lebensdauer sind tot
+     [java]   ok    Grenzgeschwindigkeit: Wind 10 m/s waagerecht, 4,91 m/s Fall (g/k)
+     [java]   ok    Startgeschwindigkeit 24,0 m/s für 20 m trotz Reibung (ohne: 19,8 m/s), Gipfel 20,00 m
+     [java]   ok    gleicher seed und Tropfen, gleiche Lage; anderer Tropfen, andere Lage
+     [java]   ok    Bft 5: Schwälle im Mittel 2,8 m über dem Mittelwasser
+     [java]   ok    Bft 7: im Mittel 6,8 m
+     [java]   ok    Bft 9: jeder zehnte bis 17,3 m, an den Dienstraum (19,6 m)
+     [java]   ok    Bft 11: im Mittel 26,4 m, über die Galerie (23 m)
+     [java]   ok    je mehr Wind, desto höher
+     [java]   ok    Treffer an der Wand: 664 vom Spritzwasser, 611 vom Nebel, alle auf der Wand
+     [java]   ok    900 Bündel fallen zurück ins Meer, alle außerhalb des Körpers (bis 127 m)
+     [java]   ok    ein Klangereignis je Schwall (166)
+     [java]   ok    Bft 8: 741 Gischtfahnen, höchstens 160 Bündel zugleich
+     [java]   ok    Bft 6: keine Gischtfahnen (erst ab Bft 7)
+     [java]   ok    Streudichte im Schwall 0,26, 200 m daneben 0
+     [java]   ok    Weißwasser: Bft 8 keins, Bft 10 3 Ballen am Fuß (bis 6,3 m nach 1,5 s), längstens 4,6 s
+     [java]   ok    gleicher seed, gleiche Gischt; anderer seed, andere
+     [java]   ok    Voreinstellungen steigen von calm bis storm
+     [java]   ok    beaufort(n) begrenzt auf 0..12
+     [java]   ok    Wind und Seegang gehen in die Gischt
+     [java]   ok    Körper der Gischt: bei Ebbe mit Manschette (6), bei Flut Sockel, Schaft und Peilpfahl (3)
+     [java]   ok    Zeitmessung: ?Gischt? nach dem Turm (liest dessen Tiefe), vor der Nachbearbeitung
+     [java]   ok    Qualitätsstufen der App wählen die Stufe der Gischt
+     [java] Regen (com.dan.rain)
+     [java]   ok    Regenmenge aus Verteilung und Fallgeschwindigkeit trifft die Rate auf 18 % (0,3 bis 60 mm/h)
+     [java]   ok    Fallgeschwindigkeit 1/2/5 mm: 4,00/6,55/9,14 m/s (Gunn und Kinzer: 4,03/6,49/9,09)
+     [java]   ok    1 mm/h: 251 Tropfen über 0,5 mm je m³; mehr Regen, mehr und größere Tropfen
+     [java]   ok    Sicht im Regen: 1 mm/h 16 km, 5 mm/h 5,7 km, 60 mm/h 1,2 km
+     [java]   ok    5 mm/h: 729 sichtbare Einschläge je m² und Sekunde (ab 1 mm)
+     [java]   ok    alle 4096 Tropfen im Kasten um das Auge (±12 m, ±9 m hoch)
+     [java]   ok    es leben 36,6 % der gezeichneten Tropfen, erwartet 35,4 %
+     [java]   ok    Größen nach Marshall-Palmer: mittlerer Überschuss über 0,5 mm 0,343 mm, Formel 0,342 mm
+     [java]   ok    Kasten fest in der Welt: Auge 1 m weiter, 856 von 856 Tropfen stehen still
+     [java]   ok    in 0,05 s fällt jeder Tropfen um v(D)·t und treibt mit dem Wind (Abweichung 6,9e-15 m, 972 Tropfen)
+     [java]   ok    Karte der Vorhänge: 96² Zellen zu 167 m, an den Zellmitten genau, dazwischen weich (an der Kante 0,50)
+     [java]   ok    Tropfen nur unter dem Vorhang: 1 km im Regen leben 2562, 1 km daneben im Trockenen 0
+     [java]   ok    Unterstand: im Zylinder (4 m, bis 8 m hoch) kein Tropfen, draußen 2425
+     [java]   ok    Streudichte im Regen 0,46, über der Wolkenuntergrenze und im Trockenen 0
+     [java]   ok    Treffer je m² und s: Dach 729, Unterseite 0, Wand nach West 1073, nach Ost 0
+     [java]   ok    gezogene Tropfen ab 1 mm bis höchstens 6 mm (größter 4,1 mm)
+     [java]   ok    Voreinstellungen steigen von calm bis storm und von Niesel bis Wolkenbruch
+     [java]   ok    beaufort(n) begrenzt auf 0..12
+     [java]   ok    Stufen: 6.000 bis 60.000 Tropfen im Kasten
+     [java]   ok    gleicher seed, gleicher Regen; anderer seed, anderer
+     [java]   ok    Regen, Wind, Wasserstand, Auge und Wolkenuntergrenze gehen in den Regen, der Niederschlag in die Wolken
+     [java]   ok    Landregen (Nimbostratus 8/8) am Turm 12,0 von 12 mm/h; unter Gewitterwolken 7/8 regnet es auf 26 % der Fläche (Schauer)
+     [java]   ok    ohne gezeichnete Wolken regnet es überall gleich
+     [java]   ok    Das Meer nimmt eine feine Störung (die Ringkarte des Regens) als Textur, ohne den Regen zu kennen
+     [java]   ok    Zeitmessung: ?Regen? nach der Gischt, vor der Nachbearbeitung
+     [java]   ok    Qualitätsstufen der App wählen die Stufe des Regens
+     [java] Nasse Scheiben (com.dan.wetglass, Phase 8a)
+     [java]   ok    Kugelkappe mit 60°: ein Tropfen von 2 mm sitzt mit 1,61 mm Halbmesser auf dem Glas, Volumen bleibt
+     [java]   ok    Höhe in der Mitte 0,577 mm bei 1 mm Halbmesser (Kappe 60°: 0,577), daneben trocken
+     [java]   ok    ein Tropfen mit 0,8 mm Halbmesser haftet (nach 5 s 0,00 mm bewegt)
+     [java]   ok    große Tropfen laufen: 3 mm in 1 s 203 mm, 4 mm 393 mm weit
+     [java]   ok    auf einer flach geneigten Scheibe (15°) läuft er langsamer: 0 mm in 1 s
+     [java]   ok    Wind von links schiebt ihn nach rechts: 18 mm zur Seite in 1 s
+     [java]   ok    zwei Tropfen, die sich berühren, verschmelzen; Wasser vorher 1,524 mm³, nachher 1,524 mm³
+     [java]   ok    ein Läufer lässt 23 Resttröpfchen zurück und zieht einen nassen Film; das Wasser bleibt (43,20 ? 43,20 mm³)
+     [java]   ok    5 mm/h mit 10 m/s gegen die Scheibe: 5.990 Einschläge in 10 s (erwartet 5.991); eine liegende Scheibe fängt 2858 statt 2396 je m²s
+     [java]   ok    kleine Tropfen bleiben als Feintropfen: Bedeckung 17 % nach 10 s
+     [java]   ok    Wischen: im Kreis keine Tropfen und Feintropfen mehr, nur ein Film
+     [java]   ok    Kachel: ein Läufer, der unten hinausläuft, kommt oben wieder herein (Wasser bleibt); ist die Scheibe nicht länger als die Kachel, läuft er ab
+     [java]   ok    Beschlag: 1e-8 m/s machen in 60 s 60 %; gewischt 0, nach 40 s in der Spur 17 % (daneben 100 %); beiTrocknung weg
+     [java]   ok    Salz: Sprühnebel legt in 30 s 3,0 g/m² ab, Gischt mehr; ein Läufer löst eine Spur (0,0 g/m²), eine Minute Regen spült ab (1,9 ? 0,0 g/m²)
+     [java]   ok    Überspülung: die Haut von 1 mm nimmt alle 2.614 Tropfen auf (Wasser bleibt), läuft ab und zerreißt nach 10 s in 1.800 Tropfen; Seewasser lässt 3,0 g/m² Salz
+     [java]   ok    liegender Zylinder (Handlauf): oben bleibt ein Tropfen liegen, an der Flanke läuft einer 26 mm um ihn herum nach unten; unten fallen 512 ab; der Regen trifft nur oben
+     [java]   ok    stehender Zylinder im Wind 12 m/s: an der Flanke schiebt die Umströmung einen kleinen Tropfen 51 mmzur Seite; vorn 3 % Feintropfen, hinten trocken
+     [java]   ok    Grenze: höchstens 1.500 Tropfen auf ?LOW? (1.485 nach 30 s Sturm)
+     [java]   ok    Stufen: 1.500 bis 6.000 Tropfen, Karte 512 bis 2048 Texel
+     [java]   ok    Voreinstellungen steigen von calm bis storm, beaufort(n) begrenzt auf 0..12
+     [java]   ok    gleicher seed, gleiche Tropfen; anderer seed, andere
+     [java]   ok    Regen auf die Scheiben: Luv 6694, Seite 1673, Lee 335 Einschläge je m²s (Seite mindestens ¼, Lee mindestens ¹??? von Luv)
+     [java]   ok    Wind schiebt die Läufer auf der Seitenscheibe am stärksten; Tropfengröße und Länge der Scheibe aus Regen und Turm
+     [java]   ok    nach dem Regen keine Einschläge mehr, die Scheiben trocknen schneller
+     [java]   ok    Turm: Teil ?Laternenraum? mit 31.916 Dreiecken (Dielen, Brüstung, Kuppel, Reling, Linse), Wicklung stimmt
+     [java]   ok    Unter der Kuppel regnet es nicht: der Laternenraum ist ein Unterstand für den Regen
+     [java]   ok    Zeitmessung: ?Scheiben? nach dem Regen (und dem Feuer), vor der Nachbearbeitung
+     [java]   ok    Qualitätsstufen der App wählen die Stufe der Scheiben
+     [java]   ok    Die Scheibe der App nimmt den Baustein wetglass.glsl; der Baustein kennt die App nicht
+     [java]   ok    Glas wirft keinen Schatten (sonst läge der Laternenraum im Dunkeln)
+     [java] Phase 8b: Beschlag, Salz, Überspülung, Handlauf
+     [java]   ok    Taupunkt nach Magnus: 20 °C bei 50 % ? 9,3 °C, gesättigt gleich der Temperatur
+     [java]   ok    Beschlag: abends im Regen mit Lampe liegt der Taupunkt im Raum 1,2 K über dem Glas (es beschlägt), mittags in der Sonne 2,2 K darunter (es trocknet); ausgeschaltet trocknet es
+     [java]   ok    Salz: bei 25 m/s setzt sich Seesalz ab (volle Kruste in 1,2 h), Seite ein Drittel, Lee ein Zwanzigstel; bei 8 m/s ohne Gischt nichts
+     [java]   ok    Überspülung: ein Schwall 8 m über den Kamm bleibt unter der Galerie, einer von 26 m legt 1,2 mm Seewasser über Wetterscheibe und Handlauf, die Seite halb, das Lee nichts
+     [java]   ok    Handlauf: Regen quer zum Rohr und der Wind quer zum Ring gehen in den liegenden Zylinder
+     [java]   ok    Turm: runder Handlauf der Galerie als eigener Teil (14.400 Dreiecke, Rohr 70 mm), Wicklung stimmt
+     [java]   ok    Derselbe Baustein auf Scheibe und Handlauf; die Scheibe zeigt Beschlag, Salz und die Wasserhaut
+     [java]   ok    Die Tropfen rechnen in einem eigenen Faden (Standbilder schalten ihn ab)
+     [java] Leuchtfeuer (com.dan.beacon, Phase 9)
+     [java]   ok    Fl(3) W 15s: drei Blitze 0,5 s mit 1 s Pause, Wiederkehr 15 s (0,0?0,5 · 1,5?2,0 · 3,0?3,5)
+     [java]   ok    Oc(3) WRG 12s ergibt den Takt der Tegeler Plate aus dem Verzeichnis: (1)+2+(1)+2+(1)+5
+     [java]   ok    Q(6)+LFl W 15s: sechs Funkel, dann ein langer Blitz von 2 s
+     [java]   ok    Mo(U): zwei Punkte und ein Strich (· · ?)
+     [java]   ok    Wechselfeuer: Al.Fl WR 5s wechselt die Farbe je Blitz (Wiederkehr der Farben 10 s), Al.WR ohne Art = Festfeuer
+     [java]   ok    deutsche Kürzel: Blz(2) W 9s = Fl(2) W 9s
+     [java]   ok    Fehler mit verständlicher Meldung: Fl W ? Wiederkehr fehlt, z. B. ?5s?; Fl(3) X 15s ? Farbe erwartet (W, R, G, Y, Bu); Fl(3 W 15s ? ?)? erwartet; Xy 5s ? Art erwartet (F, Fl, LFl, Q, VQ, Iso, Oc, Mo ?); Fl(6) W 3s ? Takt braucht 8,0 s, passt nicht in 3 s
+     [java]   ok    Lampenträgheit verschiebt nichts: Mittel über eine Wiederkehr 0,1000, Lichtanteil 0,1000
+     [java]   ok    Roter Sand 1985: Peilung 180° weiß, 200° rot, 326° Leitsektor, 335° grün, 10° Schwachlicht
+     [java]   ok    Peilung von See: ein Schiff im Azimut 20° vom Turm peilt 200° und sieht Rot
+     [java]   ok    an der Grenze 185° gehen Weiß und Rot über 0,5° ineinander über
+     [java]   ok    Nenntragweite 9 sm ? 835 cd (IALA E-200-2), zurück 9,00 sm
+     [java]   ok    geografische Tragweite: Feuer 24 m, Auge 5 m ? 14,8 sm
+     [java]   ok    Lichttragweite des weißen Sektors bei 10 sm Sicht 9,0 sm, bei 2 sm Sicht 3,2 sm
+     [java]   ok    Blondel-Rey: Spitzenstärke und wirksame Stärke eines Blitzes passen zusammen
+     [java]   ok    Punktlampe: das Glas macht die Strahlen waagerecht, mittlere Abweichung 0,17° (gekrümmte Außenflächen)
+     [java]   ok    Strahlbreite aus der Lampengröße: 4,70° (2·atan(r/f) = 4,70°)
+     [java]   ok    Energie: 60 % gebündelt, 4 % Streulicht, 36 % an Messing, Sockel und als Reflexion verloren
+     [java]   ok    gleicher seed, gleiche Verfolgung
+     [java]   ok    Fl W 5s: Beobachter im Norden sieht 4 Blitze je Umdrehung (20 s) zur Zeit der Kennung (± 0,003 s), Dauer 0,26 s (aus Strahlbreite 0,26 s)
+     [java]   ok    Fl W 5s: wirksame Stärke 113.693 cd ergibt die Nenntragweite 20,0 sm
+     [java]   ok    Fl(3) W 15s: Beobachter im Norden sieht 3 Blitze je Umdrehung (15 s) zur Zeit der Kennung (± 0,003 s), Dauer 0,19 s (aus Strahlbreite 0,20 s)
+     [java]   ok    Fl(3) W 15s: wirksame Stärke 50.417 cd ergibt die Nenntragweite 18,0 sm
+     [java]   ok    im Osten kommt derselbe Blitz eine Viertelumdrehung später (Drehung im Uhrzeigersinn)
+     [java]   ok    Nahfeld: durch den Zylinder r 1,6 m geht 60 % des Lampenlichts (der Rest bleibt an Messing und Sockel)
+     [java]   ok    Laternenraum: Glas in Linsenhöhe 68 lx, Lichtring auf den Dielen bei r 1,14 m mit 14 lx (Spalt zwischen Linse und Sockel)
+     [java]   ok    Streugitter: gleichmäßiger Regen bleibt überall gleich (trilinear)
+     [java]   ok    Strahl mit 48 gleichwinkligen Schritten gegen 20 000 gleich lange: 0,2 % Abweichung
+     [java]   ok    Festfeuer (Trommel) ebenso: 1,0 % Abweichung
+     [java]   ok    Regen 5 mm/h macht den Strahl 4,4-mal heller als klare Luft (Sicht 20 km)
+     [java]   ok    Dämmerungsschalter: am Tag aus, bei 200 lx noch aus, unter 150 lx an (Hysterese)
+     [java]   ok    7 Voreinstellungen: Roter Sand 1985, Sturmnacht (Fl W 5s), Fl(3) W 15s, Alte Weser, Tegeler Plate, Kampen, Rotes Kliff (bis 1975)
+     [java]   ok    eine unterbrochene Kennung (Oc) kann keine Drehlinse erzeugen, es bleibt die Trommel
+     [java]   ok    Kampen: Iso WR 7s (3,5 s Licht, 3,5 s dunkel), Feuerhöhe 62 m, rot in Peilung 112° (W 120?105° 20 sm · R 105?120° 16 sm (Rotes Kliff))
+     [java]   ok    Rotes Kliff bis 1975: F WRG, Feuerhöhe 23 m, Leitsektor weiß um 90° (G 30?87° 17 sm · W 87?93° 21 sm (Quermarke) · R 93?150° 16 sm)
+     [java]   ok    Voreinstellungen um Kampen und Rotes Kliff erweitert
+     [java] Phase 9 in der App
+     [java]   ok    Verbindungen der Phase 9 eingetragen: 8
+     [java]   ok    Feuer in der Linsenmitte (24,34 m), Dunst aus der Sicht, Helligkeit am Turm für den Dämmerungsschalter
+     [java]   ok    Streudichte aus dem Regen: 5 mm/h ? 6,89e-04 /m (Auslöschung 0,69 /km)
+     [java]   ok    SpotLight: Rundumlicht, 821 cd zum Auge im Norden (Peilung 180°, weißer Sektor)
+     [java]   ok    Gürtellinse im Modell aus den 25 Prismenringen von com.dan.beacon.Lens
+     [java]   ok    Der Turm-Shader bindet beacon.glsl ein: Linse von außen, Lichtflecken im Laternenraum
+     [java]   ok    Das Meer kennt ein Punktlicht mit Rundum-Verteilung (Glitzer des Feuers), ohne das Feuer zu kennen
+     [java]   ok    Qualitätsstufen reichen bis ins Leuchtfeuer
+     [java]   ok    Zeitmessung: ?Feuer? nach dem Regen (seit Phase 13 mit dem Nebel dazwischen), vor den Scheiben
+     [java] Gewitter (com.dan.lightning, Phase 10)
+     [java]   ok    Presets: bis Bft 7 kein Gewitter, 8 Wetterleuchten, 10 kräftig, 12 schwer
+     [java]   ok    gleicher seed, gleicher Blitz (633 Stücke)
+     [java]   ok    anderer seed, anderer Blitz
+     [java]   ok    Hauptkanal zusammenhängend aus 3675 m (über der Untergrenze 900 m) bis aufs Wasser (0,50 m), 157 Stücke, 4,6 km
+     [java]   ok    Windung des Kanals im Mittel 16,4° je Stufe (gemessen rund 16°)
+     [java]   ok    17779 Äste in 40 Blitzen, keiner erreicht das Wasser (alle über der Schlagweite)
+     [java]   ok    im Mittel 3,61 Schläge je Erdblitz, 93 % mit mehreren (gemessen 3?4, rund 80 %)
+     [java]   ok    Median des Stroms: erster Schlag 29,5 kA, folgende 12,0 kA (Berger: 30 und 12)
+     [java]   ok    Median der Pause zwischen Schlägen 45 ms (gemessen 33?60 ms)
+     [java]   ok    40 % der Blitze mit Nachstrom (gemessen 30?50 %)
+     [java]   ok    Schlagweite bei 30 kA 91,2 m (10 · I^0,65)
+     [java]   ok    Turm von 30,7 m fängt Blitze, die in 20/60/120/300 m herunterkommen: 78/53/28/1 % (Anziehungsradiusnach Eriksson rund 80 m)
+     [java]   ok    ?Blitz in den Turm? endet an der Spitze des Blitzableiters
+     [java]   ok    Stufe ?kräftig?: 7,7 Blitze je Minute über 30 min (eingestellt 8)
+     [java]   ok    Anteil der Erdblitze 30 % (eingestellt 28 %; über See gemessen 20?30 %)
+     [java]   ok    Blitze nur dort, wo die Zellen sie zulassen (Osthälfte)
+     [java]   ok    Wetterleuchten (Bft 8): 27 Entladungen, alle weiter als 28 km, ohne Donner
+     [java]   ok    unter der Wolke frei sichtbar (1,00), 400 m darüber verborgen (0,001)
+     [java]   ok    Spinnenblitz waagerecht um die Untergrenze (900?1048 m), 8,2 km weit
+     [java]   ok    Leitblitz: 3,4 km Weg in 17 ms (200 km/s), erreicht das Wasser zum ersten Schlag
+     [java]   ok    Helligkeit: vor dem Schlag nur der Leitblitz (0,0020), beim Schlag 5,95, danach aus
+     [java]   ok    4 Lichtpunkte tragen die ganze Lichtstärke (1,07e+08 cd)
+     [java]   ok    in 5 km: 2,10 lx aus dem Kanal, 2,12 lx aus den Lichtpunkten
+     [java]   ok    Beleuchtungsstärke in 5 km bei einem Schlag von 30 kA 0,35 lx (heller als Vollmond 0,2 lx, dunkler als Dämmerung 10 lx)
+     [java]   ok    jeder Schlag wird genau einmal gemeldet (3)
+     [java]   ok    Donner in 2988 m Abstand nach 8,8 s (Schall 340,3 m/s bei 15 °C), rollt 4,7 s
+     [java]   ok    Pegel in 3 km 88 dB
+     [java]   ok    Einschlag in den Turm vom Fuß aus: Knall nach 0,12 s, 130 dB
+     [java]   ok    in 40 km kein Donner mehr zu hören
+     [java]   ok    Stufen: im Mittel 120/287/743/2481 Stücke je Erdblitz
+     [java] Phase 10 in der App
+     [java]   ok    Verbindungen der Phase 10 eingetragen: 11
+     [java]   ok    Fangpunkt: die Spitze des Masts auf der Galerie (30,7 m), dazu die Alte Weser
+     [java]   ok    Stärke von Hand, Wolkenuntergrenze, Zellen aus dem Regenfeld, Verdeckung durch die Wolken, Ohr am Auge
+     [java]   ok    Kanal unter der Wolke frei (1,000), 1,5 km tief in einer dichten Stelle verborgen (0,000)
+     [java]   ok    Einschlag in den Turm: Donner als SoundEvent (Stärke 0,88)
+     [java]   ok    Turm- und Scheiben-Shader binden lightning.glsl ein (Licht, Glanz, Salz und Beschlag leuchten auf)
+     [java]   ok    Meer und Wolken nehmen einfache Punktlichter, ohne das Gewitter zu kennen
+     [java]   ok    Qualitätsstufen reichen bis in die Blitze
+     [java]   ok    Zeitmessung: ?Blitz? nach dem Feuer, vor den Scheiben
+     [java] Treppenhaus und Innenräume (Phase 11)
+     [java]   ok    59 Stufen von der Tür (8,05 m) in den Dienstraum (19,75 m), Steigung 19,8 cm, 18 je Umlauf
+     [java]   ok    Bullaugen und Tür frei: mindestens 16 cm Luft zu Stufen und Wangen, 63 cm über der Tür
+     [java]   ok    Kopfhöhe unter dem Boden des Dienstraums mindestens 2,16 m; er trägt von 357,5° bis 117,5°
+     [java]   ok    7 Glühlampen: je 2 m über der Stufe, keine vor einem Fenster, die Deckenlampe über festem Boden
+     [java]   ok    Luke 0,62 bis 1,36 m von der Achse (Linsensockel 0,42 m, Reling 1,40 m), Leiter auf festem Boden
+     [java]   ok    Verdeckung: die Stufe darüber verdeckt die Lampe, im Treppenauge ist der Blick frei
+     [java]   ok    Innenraum: 56.430 Dreiecke zum Raum hin gewunden, Sichtbarkeit je Ecke 0..1 (74 % der Ecken sehen die unterste Lampe nicht)
+     [java]   ok    Alles Innere liegt in der Außenhaut (Laibungen enden an ihr)
+     [java]   ok    Lichtbilanz am Nachmittag: Schaft 17,2 cd/m², Dienstraum 65,4 cd/m² (Bogenfenster); nachts nur Lampen 2,8 cd/m²
+     [java]   ok    Dämmerungsschalter in lx: nachmittags 49.671 lx, das Feuer bleibt aus (bis Phase 10: Einheiten der Szene)
+     [java]   ok    Barometer: 1012 hPa bei Bft 3, Zeiger 6°, bei Sturm tiefer
+     [java]   ok    Aufstieg 76 s: ein Schnitt an der Tür, sonst höchstens 13 cm je 1/20 s, Auge 1,55 m über der Stufe,0,46 m von der Wand, durch die Luke, Ende im Laternenraum
+     [java]   ok    Kamera: Fahrt läuft in Echtzeit, eine Taste beendet sie, am Ende steht sie frei im Laternenraum
+     [java]   ok    Regen: im Schaft und im Dienstraum fällt keiner, draußen schon
+     [java]   ok    Verbindungen der Phase 11 eingetragen: 5
+     [java]   ok    Shader: Sichtbarkeit je Ecke, Verdeckung durch die Stufen und Sonnenflecken wie in Java, Weißabgleich drinnen
+     [java] Wetterregie (com.dan.weather, Phase 12)
+     [java]   ok    ?Ein Sturmtag?: 9 Schritte, 28 h, im Zeitraffer 420 : 1 = 4,0 min
+     [java]   ok    Regiebuch als Text: hin und zurück gleich; Fehler mit Zeilennummer (?Zeile 2: unbekannte Lage STURMFLUT?)
+     [java]   ok    gleicher seed, gleicher Tag; anderer seed: andere Böen, aber dasselbe Regiebuch
+     [java]   ok    07:00 Morgenstille: Bft 1, Sicht 5,3 km (Dunst), 1,0/8
+     [java]   ok    Bft 9 am Nachmittag: erstmals um 16:10
+     [java]   ok    Barometer fällt vor dem Sturm: ?11,2 hPa in den 6 h davor, 3 h davor -10,9 hPa/3 h (sehr rasch fallend)
+     [java]   ok    Luftdruck zwischen 987,2 und 1022,8 hPa (Tief über der Deutschen Bucht)
+     [java]   ok    Dünung vor dem Wind: halbe Höhe um 12:05, halber Wind erst um 13:55
+     [java]   ok    Cirren vor der Front: hohe Schicht um 08:05, Regen ab 12:00
+     [java]   ok    Gewitter in der Dämmerung: ab 18:30
+     [java]   ok    weiche Übergänge: je 5 min höchstens 0,56 m/s, 0,52 hPa, 0,33 Achtel
+     [java]   ok    Regen nur unter Wolken (ab 1 mm/h mindestens 3,5/8; im Schauer bricht die Decke schon auf)
+     [java]   ok    Aufklaren: Regenbogen-Lage 0,96 nach dem letzten Schauer, am Ende 0,0 mm/h, 2,9/8, 1023 hPa rasch steigend
+     [java]   ok    Wind dreht mit der Front von 181° (vormittags) auf 289° (nach dem Sturm)
+     [java]   ok    Böen in Echtzeit: Mittel 1,031 · Wind, stärkste in 10 min 1,63 · Wind (Böigkeit 0,21, Böe nach WMO bis 1,53 · Wind)
+     [java]   ok    Handregler hält Wind 30 m/s zwei Stunden; nach ?Regie weiter? in 4 h zurück: 10,9 gegen 10,7 m/s
+     [java]   ok    Regie angehalten: 3 h lang 992,0 hPa, Front; danach geht es dort weiter
+     [java]   ok    Uhr springt 11 h vor: sofort 23,5 m/s, Sturm (durchgerechnet 23,2 m/s)
+     [java]   ok    ?Ein Nebeltag?: 06:30 Nebel 0,00, 11:30 0,95 (Bft 2, Seenebel), 15:00 flach 0,50, 19:20 0,03; Regiebuch als Text hin und zurück
+     [java]   ok    ?Ein Nebelmorgen im Herbst?: 06:00 Nebel 0,90 (Bft 1, 2,6 °C), 09:00 0,67, 13:00 0,03 (12,1 °C); als Text hin und zurück
+     [java]   ok    Freie Regie, 60 Tage: alle 8 Lagen der Kette (Föhnsturm, Orkan und die Lagen des Mittelgebirges nurmit eigenem Klima), 211 Wechsel nur entlang der Kette, Sturm und Gewitter 11 %, Seenebel 4 % der Zeit
+     [java]   ok    Eigenes Klima: Föhnsturm erreicht (425 von 1440 Proben), Wind bis 21,0 m/s aus der eigenen Zielzeile
+     [java]   ok    Orkan: Wind bis 33,0 m/s aus 295°, Druck 965 hPa, danach abklingend (mit einer alten Tabelle aus neun Zeilen)
+     [java]   ok    Tagesgang bei klarem Wetter: 15 Uhr 13,9 °C, 4 Uhr 10,8 °C
+     [java]   ok    Inversion: 7,0 °C in 550 m, 10,8 °C in 900 m, 9,2 °C in 1 134 m; Hochnebel 250?600 m, Sicht darin 60 m, darüber 20 km
+     [java]   ok    Westlage mit Stau: der Gipfel in der Wolke (Basis 400 m, Sicht 60 m), 1 000 m tiefer 5,5 K wärmer
+     [java]   ok    Klar: Wolkenbasis aus dem Taupunkt 1742 m (Spread 4,9 K)
+     [java]   ok    ohne Bezugshöhe ist alles wie bisher (Temperatur in jeder Höhe gleich, keine Wolke in der Höhe)
+     [java]   ok    Raueislage fast nur im Winter: Januar 477 h, Juli 30 h
+     [java]   ok    Beaufort nach WMO (Grenzen 0,3 ? 32,7 m/s), Mitten liegen in ihrer Stufe
+     [java]   ok    Taupunkt nach Magnus: 20 °C, 50 % ? 9,3 °C
+     [java]   ok    Barometer um 16 Uhr: 990 hPa, Feld ?Regen?, Tendenz langsam fallend
+     [java]   ok    Wind über das Jahr (seit Brocken Phase 5): gleiche Folge der Lagen, Faktor 2 im Mittel 2,03, Streuung von Abschnitt zu Abschnitt 0,8 bis 5,6
+     [java]   ok    Szenario nach einem Sprung der Uhr zurück (seit Brocken Phase 16): alle Abschnitte bleiben, die Lagen folgen dem Szenario
+     [java] Phase 12 in der App
+     [java]   ok    Sturmtag im Zeitraffer 420 : 1 (4 min): alle Eingänge folgen; Bft 9, Regen bis 14 mm/h, 987 hPa, Gewitter ?STRONG?, Wolkenart über den Namen
+     [java]   ok    Das Meer baut in den 4 Minuten nur 74-mal neu (Wind und Dünung in Stufen)
+     [java]   ok    Handregler überschreiben (Wind, Dünung, Regenbogen); ?Regie weiter? löst alle
+     [java]   ok    Ohne Regie (Werkzeuge, Prüfungen) bleiben die Felder von Hand
+     [java]   ok    Verbindungen der Phase 12 eingetragen: 8
+     [java]   ok    Version: Phase 17
+     [java] Seenebel (com.dan.fog, Phase 13)
+     [java]   ok    Koschmieder: geschlossener Nebel 70 m ? Sicht 70,0 m, Durchlässigkeit über die Sicht 0,050 (5 %)
+     [java]   ok    Obergrenze am Ort 101 m (Mittel 90 m, ±25 %): darüber klare Luft, darunter Nebel
+     [java]   ok    Obergrenze wellt sich: 68 bis 112 m an 400 Orten
+     [java]   ok    Bedeckung nach Eichtabelle (gewollt ? gemessen über 24 km): 20 ? 24 %, 45 ? 47 %, 70 ? 71 %
+     [java]   ok    Ränder der Bänke weich: größter Sprung der Bank auf 5 m 0,06
+     [java]   ok    Bänke ziehen mit 80 % des Winds: nach 100 s bei 5 m/s aus West 400 m weiter östlich dieselbe Bank (0,000 / 0,000)
+     [java]   ok    gleicher seed, gleiche Bänke; anderer seed, andere
+     [java]   ok    Presets nach Beaufort: Nebel bis Bft 3, Fetzen bis 5, ab 7 reißt ihn der Wind auf
+     [java]   ok    flacher Seenebel bis 21 m: am Fuß eines Turms dicht (Sicht 120 m), an der Laterne in 28 m klar
+     [java]   ok    Untergrenze 30 m: am Wasser klar (vorher Sicht 70 m), in 40 m unverändert, weicher Übergang darunter
+     [java]   ok    Kennung Horn Mo(R) 30s: kurz-lang-kurz, 5 s Ton je 30 s
+     [java]   ok    Horn(2) 20s: kurz-kurz, 4 s Ton je 20 s; Tyfon 120s: lang, 5 s Ton je 120 s
+     [java]   ok    falsche Kennungen werden gemeldet (?Nebelsignal: Die Töne (27 s) passen nicht in die Periode von 10s?)
+     [java]   ok    Nebelhorn tönt nur im Nebel: klar 0 Töne, in 120 s dichtem Nebel 12 Töne mit zusammen 20 s (4 × kurz-lang-kurz)
+     [java]   ok    Takt: Ton bei 0,5 s und 2,5 s, Pause bei 1,5 s und 9 s
+     [java]   ok    mit Wind von außen ziehen die Bänke mit dem Wind am Anker (4,0 m/s nach Süden statt 5,4 nach Osten)
+     [java]   ok    Nebelmeer 450?850 m: in 650 m Sicht 120 m, in 950 m klar, die Kuppe (1 140 m) ragt heraus (Vorland 303 m)
+     [java]   ok    nach zwei Stunden Sonne (Erwärmung 0,4): Untergrenze 658 m, Obergrenze 836 m ? unten klar, oben noch Nebel
+     [java]   ok    nach vier Stunden ist das Meer fort (4 %)
+     [java]   ok    in der Nacht sinkt die Untergrenze zurück (464 m) und das Meer schließt sich
+     [java]   ok    Talnebel: im Tal (Kaltluft 75 m) 10 m über Grund Nebel, darüber und auf der Kuppe klar
+     [java]   ok    Stau ab 980 m bei Westwind: am Luvhang in 900 m Nebel (Gürtel), am Leehang in 900 m klar, über der Decke nichts (die zeichnen die Wolken)
+     [java]   ok    Karte: Boden 300?1124 m, Gürtel bis 260 m
+     [java]   ok    ohne Gelände liegt das Nebelmeer trotzdem (Karte auf 0 m)
+     [java]   ok    Schatten eines Menschen im Sonnenlicht: 5 m dahinter am Kopf 0,00, 30 m dahinter 0,00, 200 m dahinter 0,95 (Kernschatten 54 m), vor ihm 1, 1 m neben der Achse 1
+     [java]   ok    ohne Schattenwerfer volles Licht; ein Mensch sind zwei Körper (Rumpf und Kopf)
+     [java]   ok    Auflösung je Stufe: 3, 3, 2, 1 (Mittel in drittel, Ultra in voller Auflösung)
+     [java] Tonnen und Schiffe (com.dan.buoyancy, Phase 13)
+     [java]   ok    Tiefgang: Tonne 5,1 t schwimmt auf 1,10 m (nach 30 s 0,0 mm daneben), Kümo 4277 t auf 4,46 m (0,0 mm)
+     [java]   ok    Anfangsstabilität GM: Tonne 0,52 m (Ballast tief), Kümo 0,86 m
+     [java]   ok    Tonne: Tauchen 2,62 s (von Hand 2,58 s), Rollen 3,24 s (von Hand 3,19 s)
+     [java]   ok    Kümo: Tauchen 5,8 s (von Hand 5,7 s), Stampfen 5,4 s, Rollen 12,2 s (von Hand 11,7 s)
+     [java]   ok    Dünung 2 m, 12 s: die Tonne geht mit (Hub 1,05 der Welle); Kabbelsee 1 m, 2,6 s quer: der Kümo hebtsich nur 4 % davon
+     [java]   ok    Bft 10, H_s 9 m, 10 min: 8 Tonnen bleiben an der Kette (größte Auslenkung 19,9 m), krängen bis 6°
+     [java]   ok    Kümo fährt sein Fahrwasser: in 15 min 5,8 km (12,6 kn), höchstens 0,0 m neben der Linie
+     [java]   ok    Sektoren: voraus TTSB, querab Steuerbord TTS, querab Backbord TTB, achteraus H, 30° achterlicher als querab H (T Topplicht, S grün, B rot, H Heck)
+     [java]   ok    Lichtstärken nach KVR Anhang I: 6 sm 94 cd, 3 sm 12,1 cd
+     [java]   ok    Kennungen: Fl G 4s 12,5 % an, Q R jede Sekunde, Iso 8s halb an, Fl(2) R 6s zwei Blitze, Mo(A) 6s kurz-lang
+     [java]   ok    unmögliche Kennung gemeldet (?Tonnenfeuer: ?Fl(9) G 2s? passt nicht in 2.0 s?)
+     [java]   ok    Tonnenfeuer: nachts blitzen bis zu 3 gleichzeitig, am Tag keines
+     [java]   ok    Wischer: schwingt 110° in 1,6 s, parkt nach dem Ausschalten links, wischt 1,51 m breit
+     [java]   ok    gleicher seed, gleiche Bewegung und gleiche Schiffe; anderer seed, andere
+     [java]   ok    Bft 12, H_s 14 m, 5 min: alles bleibt endlich; der Kümo stampft bis 8°, rollt bis 26°
+     [java]   ok    Kogge 23,3 × 7,6 m: schwimmt bei NHN +1,0 m mit mittlerem Tiefgang 2,10 m, GM 0,7 m, 301 t
+     [java]   ok    Ebbe bis NHN ?2 m: sie sitzt aufrecht auf dem flachen Boden (Kiel auf dem Grund, 0,0° Schlagseite)
+     [java]   ok    die Flut hebt sie wieder (Wasserlinie bei NHN +1,00 m)
+     [java]   ok    Fahrt mit gesetztem Segel über zwei Wegpunkte, am Ziel 3,4 m daneben, Segel wieder aufgetucht
+     [java]   ok    Netz der Kogge: 1068 Dreiecke aufgetucht, 1376 mit Segel
+     [java] Möwen (com.dan.flock, Phase 13)
+     [java]   ok    Aufwind bei 9,4 m/s aus West: Luv 2,5 m vor der Wand 5,3 m/s, Lee 0,0, querab 0,00, 36 m vor der Wand 0,01, 17 m über der Kuppel 0,011
+     [java]   ok    Fluggeschwindigkeit gegen die Luft 8,0 bis 17,0 m/s (Grenzen 8 und 17)
+     [java]   ok    nie im Turm (kleinster Abstand zur Wand 0,23 m) und nie im Wasser (tiefste Höhe 2,99 m)
+     [java]   ok    im Aufwind stehen bis zu 5 Möwen zugleich, 62 % der Zeit davon mit weniger als 2,5 m/s über Grund
+     [java]   ok    Flügelschlag 3,10 Hz (Silbermöwe rund 3,1 Hz)
+     [java]   ok    nach 10 min sitzen 7 auf dem Geländer, alle mit dem Kopf im Wind und still; 254 Rufe
+     [java]   ok    nachts nach 10 min: 0 fliegen, 10 schlafen am Turm, 6 sind zur Küste geflogen; danach still
+     [java]   ok    Bft 9 aus West: nach 5 min sitzen 2 im Lee auf dem Geländer (Ostseite), 14 sind zur Küste, keine steht im Aufwind
+     [java]   ok    Bft 11: nach 10 min sind alle 16 weg
+     [java]   ok    gleicher seed, gleicher Flug; anderer seed, anderer
+     [java]   ok    Flügel: ausgebreitet reicht die Spitze 0,67 m zur Seite (Spannweite gut 1,4 m), angelegt liegt sie 0,57 m hinter der Schulter am Rumpf
+     [java]   ok    Netze: Spannweite und Länge je Art ? Silbermöwe 1,40/0,70 m; Nebelkrähe 0,98/0,56 m; Rauchschwalbe 0,33/0,27 m; Stockente 0,90/0,67 m; Höckerschwan 2,30/1,95 m; Kormoran 1,40/1,18 m; Andenkondor 3,00/1,40 m
+     [java]   ok    Schwimmer bleiben auf dem Wasser (nie über Land), Enten gründeln (29977 Bilder mit Kopf unter Wasser)
+     [java]   ok    Kormorane tauchen (6654 Bilder unter Wasser) und trocknen auf den Pfählen die Flügel (7604 Bilder)
+     [java]   ok    Krähen gehen auf der Wiese (77445 Bilder), Schwalben fliegen tief über dem Wasser (im Mittel 2,9 m)
+     [java]   ok    Ein Boot fährt auf die Enten zu: sie fliegen auf (Fluchtdistanz 25 m) und landen woanders wieder
+     [java]   ok    Ein Schwan fliegt nicht auf, er schwimmt weg (von 9 auf 13 m)
+     [java]   ok    Im Januar sind keine Schwalben da; liegt Eis auf dem ganzen See, sind Enten und Schwäne fort
+     [java]   ok    Nachts: Krähen und Schwalben sind fort, die Enten schlafen auf dem Wasser
+     [java]   ·      6 Möwen: 4 fliegen, 0 stehen im Aufwind, 1 sitzen, 1 schwimmen, 0 weg · 657 Rufe · 6 Krähen oder Kolkraben, 4 am Boden · 8 Schwalben · 10 Enten, 10 auf dem Wasser · 2 Schwäne, 2 auf dem Wasser · 3 Kormorane, 1 auf dem Wasser, 2 sitzen
+     [java]   ok    Kondore: 110 bis 697 m über Grund, 52 % der Zeit im Kreis (steigen dort 1,7 m/s), schlagen 0,0 % der Zeit
+     [java]   ok    Eine Möwe sitzt auf dem treibenden Eisberg und treibt mit (531 s)
+     [java]   ok    Dominikanermöwen: eigenes Netz mit schwarzem Mantel (408 Dreiecke)
+     [java]   ok    Nachts sind die Kondore an ihren Felsen (außerhalb der Szene)
+     [java]   ok    mit Wind von außen gilt das Feld (8 m/s statt 6,4)
+     [java]   ok    Aufwind aus dem Feld: am Hang 2,5 m/s, abseits -0,2 m/s
+     [java]   ok    sechs Kolkraben statt Krähen
+     [java]   ok    nach 5 min kreisen die Kolkraben meist im Aufwind am Hang (98 % der Zeit, Fläche 13 % des Reviers)
+     [java]   ok    sie tragen sich ohne Schlag: mittlere Höhe 353 m (am Anfang 133 m)
+     [java]   ok    Kolkrabe als eigenes Netz (schwarz, größer)
+     [java]   ok    ohne ravens bleiben Krähen Krähen, ohne Wind von außen alles wie bisher
+     [java]   ok    Westwind 9 m/s: Aufwind 12 m vor der Wand 5,8 m/s, 10 m über der Kante 4,0 m/s, hinter der Kante 0,0, neben dem Ende 0,0
+     [java]   ok    nach 5 min stehen im Mittel 12,9 Möwen im Aufwind vor der Kante, 94 % davon fast still, 86 % über der Oberkante
+     [java]   ok    Ostwind (vom Land): kein Aufwind vor der Wand, keine steht
+     [java] Phase 13 in der App
+     [java]   ok    Nebel aus der Regie: 0 ? keiner; 1 ? Sicht 60 m, bis 88 m, Bedeckung 100 %; bei 13 m/s Wind reißt er auf
+     [java]   ok    Sicht in der Bank: Nebel 0,2 ? 808 m, 0,42 (flach) ? 330 m
+     [java]   ok    Nebelhorn ?Horn Mo(R) 30s? am Turm (einmal eingetragen): in 70 s dichtem Nebel 9 Töne als SoundEvent, im klaren keiner
+     [java]   ok    Streugitter des Strahls nimmt den Nebel: 0,050 /m in der Bank (vorher 0)
+     [java]   ok    Fahrwasser 1,5 km in 065° mit 8 Tonnen; das Wasser ist das Meer der App (Höhe und senkrechte Geschwindigkeit, ± 0e+00)
+     [java]   ok    Bft 6 auf dem Meer der App: Tonnen folgen den Wellen (Wasserlinie höchstens 1,02 m neben der Oberfläche), Kümo rollt bis 4,1°
+     [java]   ok    Typhon ?Tyfon 120s? je Schiff als Nebelsignal, mit dem Schiff wieder fort
+     [java]   ok    Revier der Möwen: Turm und Pfahl als Hindernis, 26 Sitzplätze (12 auf dem Handlauf, Knauf, Pfahl, Platte, Tonnen)
+     [java]   ok    Bft 5, 3 min: keine Möwe im Schaft (kleinster Abstand 0,4 m), 8 sitzen
+     [java]   ok    Qualitätsstufen reichen bis in Nebel, Schwimmkörper und Möwen
+     [java]   ok    Zeitmessung: ?Leben? nach dem Turm, ?Nebel? nach dem Regen und vor dem Feuer
+     [java]   ok    Kamera folgt (Möwenflug, Brücke) mit Querneigung 20°; eine Taste gibt sie frei
+     [java]   ok    Kamerawünsche des Nebeltags (Möwenflug, Schiffsbrücke, ?) kennt die App
+     [java]   ok    Befund Phase 12 (Gischt 9 ms bei Bft 10): große Nebel- und Weißwasserbälle werden im Bild ausgedünnt
+     [java]   ok    Wischerstrich (wipeStroke) wischt wie einzelne Kreise: 2170 Tropfen bleiben
+     [java]   ok    Verbindungen der Phase 13 eingetragen: 15
+     [java]   ok    Version: Phase 17
+     [java] Klang (com.dan.soundscape, Phase 14)
+     [java]   ok    Rauschen: rosa -3,2 dB je Oktave (?3), braun -6,2 (?6)
+     [java]   ok    Filter: Bandpass 0 dB in der Mitte, -17,7 dB eine Oktave daneben; Tiefpass ?3,0 dB an der Grenze
+     [java]   ok    Wind am Ohr: Bft 2 34 dB, Bft 6 70 dB, Bft 10 87 dB
+     [java]   ok    Äolston am Stab 25 mm: 120 Hz bei 15,0 m/s (Strouhal: 120 Hz), doppelter Wind 241 Hz
+     [java]   ok    Nebelhorn: Grundton 175 Hz, am Ende 153 Hz (Diaphon fällt ab), Ton mit Ausklingen 2,10 s für 2 s
+     [java]   ok    Typhon: Grundton 220 Hz (KVR für 75 bis 200 m: 130 bis 350 Hz), 137 dB in 1 m (138)
+     [java]   ok    Laufzeit: Brecher in 686 m hört man nach 2,020 s (686 m / 337,9 m/s = 2,030 s)
+     [java]   ok    Abstand: Typhon in 200 m und 2 km, 20,4 dB leiser (1/r: 20 dB, dazu die Luft)
+     [java]   ok    Richtung: Quelle rechts, rechts 12 dB lauter, linkes Ohr 0,66 ms später (Kopf: 0,66 ms)
+     [java]   ok    Luft nimmt die Höhen: Schwerpunkt eines Brechers in 50 m 4139 Hz, in 2 km 615 Hz
+     [java]   ok    Steinturm: Sturm draußen 36 dB leiser und dumpf (Schwerpunkt 79 statt 202 Hz)
+     [java]   ok    Hall im Steinturm: Nachhallzeit 2,28 s (eingestellt 2,2 s, aus der Rückwärtsintegration nach Schroeder)
+     [java]   ok    Regen 8 mm/h auf dem Wasser: 53 dB, Tropfen zwischen 1,5 und 6 kHz 15 dB über dem Bass
+     [java]   ok    Regen auf Glas: 404 Ticks in 10 s für 40 je s, 41 dB
+     [java]   ok    Donner: Kanal von 1 bis 4 km rollt 9,9 s (3000 m / c = 8,9 s); naher Knall Schwerpunkt 284 Hz, ferner Donner 157 Hz
+     [java]   ok    Möwe: Grundton 791 bis 1080 Hz (Silbermöwe), längster Ruf 0,4 s
+     [java]   ok    Diesel an Bord: Zündfrequenz 37,5 Hz (750 U/min, 6 Zylinder: 37,5 Hz), 64 dB im Steuerhaus
+     [java]   ok    19 Rufe und Klänge der Siedlung in 10 m: lauteste 100 ms wie angegeben (größte Abweichung -2,0 dB, HAMMER)
+     [java]   ok    Ziege meckert mit 7,3 Hz, Hahn kräht 2,0 s; Schwerpunkt Schwalbe 6,0 kHz, Schwein 377 Hz, Hund 1,1 kHz
+     [java]   ok    Schmied: 45 Schläge in 60 s (Reihen, längste Pause 8 s), Säger 47 Striche; abgestellt still (0)
+     [java]   ok    Ruderschlag: 12 Blätter 63,7 dB, 6 Blätter 60,7 dB in 10 m (+3 dB je Verdopplung)
+     [java]   ok    Feuer in 10 m: Herd 32 dB, Esse 41 dB, brennendes Haus 74 dB; der Herd im Haus in 3 m: drinnen 43 dB, draußen nichts
+     [java]   ok    Stimmengewirr in 15 m: 120 Leute 51,7 dB (gerechnet 52,7), 12 Leute 41,2 dB
+     [java]   ok    Schilf im Wind: Band 2 bis 8 kHz +20 dB gegen ohne Schilf (6 m/s), bei 11 m/s noch +12 dB
+     [java]   ok    Pfähle: bei 30 cm Wellen 121 Glucksen in 20 s, bei glattem Wasser 0
+     [java]   ok    Langhaus: ein Hund in 20 m draußen klingt drinnen 17 dB leiser und dumpf; über Land 4 dB je 100 m: eine Krähe in 210 m 8,5 dB leiser
+     [java]   ok    Siedlung mit 6 Werkstätten, 2 Mengen, 6 Feuern, 60 Pfählen, Schilf und Reet (32 kHz): 26 ms Rechnenje s Ton
+     [java]   ok    Begrenzer: Typhon in 1,5 m (über 130 dB) bleibt unter Vollaussteuerung (Spitze 0,946)
+     [java]   ok    Ohr passt sich an: stille See +18 dB, Orkan -8 dB
+     [java]   ok    gleicher seed, gleicher Ton; anderer seed, anderer
+     [java]   ok    Stufen von 22 bis 48 kHz; Sturm mit drei Äolskörpern, Brandung, Regen auf Glas und Dach: 13 ms Rechnen je s Ton
+     [java]   ok    Knacken: hell (Schwerpunkt 1572 Hz), stark 123 dB in 1 m (wie ein Schuss)
+     [java]   ok    Ächzen: tief (Schwerpunkt 190 Hz), 105 dB in 1 m
+     [java]   ok    Aufschlag von 20 000 m³: 92 % der Energie unter 100 Hz, 130 dB in 1 m
+     [java]   ok    Auflaufen der Welle: Rauschen mit Schwerpunkt 2380 Hz, 89 dB in 1 m
+     [java]   ok    Kondor: Luft in den Schwingen (Schwerpunkt 3779 Hz), leise (67 dB in 1 m)
+     [java]   ok    Donner der Kalbung aus 400 m: kommt nach 1,19 s (Laufzeit 1,18 s), 85 dB am Ohr
+     [java]   ok    Austernfischer: hell (Schwerpunkt 2912 Hz), laut 97 dB in 1 m
+     [java]   ok    Alpenstrandläufer im Trupp: dünn und hoch (4663 Hz), 85 dB in 1 m
+     [java]   ok    Ringelgänse murmeln tiefer (932 Hz), 89 dB in 1 m
+     [java]   ok    Seehund tief (519 Hz), der Heuler höher (1115 Hz)
+     [java]   ok    Rind tief und laut (600 Hz, 97 dB), Schaf leiser (82 dB)
+     [java]   ok    Glocke: Prime 311 Hz, 114 dB in 1 m, nach 3 s noch 16 dB unter der Spitze
+     [java]   ok    Glocken aus dem Watt: dumpf wie unter Wasser (Schwerpunkt 358 Hz gegen 424 Hz)
+     [java]   ok    Priel: bei 1 m/s 15 dB lauter als bei 0,25 m/s, heller (586 gegen 461 Hz); 30 m breit bei 1 m/s 61 dB in 1 m
+     [java]   ok    Knistern im Watt: 33 Knackse in 4 s, 36 dB am Ohr (ohne: 9 dB)
+     [java]   ok    Wind aus West 20 m/s, Quelle 2 km entfernt: mit dem Wind +5 dB, gegen den Wind -24 dB, in 30 m und ohne Windtragen 0
+     [java]   ok    13 Klänge des Gebirges (8 Vögel) in 10 m: lauteste 100 ms wie angegeben (größte Abweichung -0,1 dB,WINTERGOLDHAEHNCHEN); das Watt bleibt bei 13
+     [java]   ok    Dampfpfeife: Grundton 563 Hz (560), ein Ton von 2,5 s klingt 2,6 s
+     [java]   ok    Rabe tief (875 Hz), Ringdrossel flötet um 3246 Hz, Wiesenpieper 4703 Hz, Goldhähnchen 6901 Hz, Raufußkauz 691 Hz, Trommel 97 % unter 250 Hz
+     [java]   ok    Eis: 3 kg 96 dB, 0,1 kg 81 dB in 1 m; dumpfer (Schwerpunkt 482 gegen 1190 Hz)
+     [java]   ok    Dampflok: Auspuff unter Volllast 112 dB in 1 m (112), ohne Dampf 16 dB leiser (16); Rollen bei 30 km/h 83 dB (83)
+     [java]   ok    Auspuffschläge: 3,81 je s gehört, 3,82 je s gefahren (3 m/s, Treibrad 1 m, vier je Umdrehung)
+     [java]   ok    Schienenstöße: 81 Schläge der Räder nahe am Ohr in 7 s (Schienen 15 m, 30 km/h: gut 20 Achsen je knapp 4 Stöße)
+     [java]   ok    Bremsen quietschen (96 dB in 1 m), Spurkränze kreischen in der Kurve (98 dB); die stehende Lok zischt und pumpt (91 dB)
+     [java]   ok    Kante im Sturm: Spalt von 1 cm bei 20 m/s heult um 425 Hz (400), 63 dB in 3 m (65), bei 4 m/s still
+     [java]   ok    Walpurgisnacht in 60 s: 19 Rufe des Winds, 12 Takte der Trommeln, 5 mal Gelächter, 5 Schreie; 48 dBam Ohr; ohne sie nichts
+     [java]   ok    Gebirge mit drei Zügen, acht Kanten und der Walpurgisnacht im Sturm (32 kHz): 18 ms Rechnen je s Ton
+     [java]   ok    7 Klänge der Küste in 10 m: lauteste 100 ms wie angegeben (größte Abweichung -0,7 dB, RIESELN)
+     [java]   ok    Sturzbrecher dumpfer als Schwallbrecher: Anteil unter 150 Hz 82 % gegen 9 %, Schwerpunkt 371 gegen 1964 Hz
+     [java]   ok    Rücklauf über Sand zischt hell (Schwerpunkt nach 2,4 s 9062 Hz)
+     [java]   ok    Sanderling: kurzes ?plit? um 4531 Hz
+     [java]   ok    Abbruch grollt (95 % unter 150 Hz), Erdbrocken dumpf (93 %), Rieseln hell (7176 Hz)
+     [java]   ok    ferne Brandung: Linie mit H 1 m in 30 m 72,3 dB am Ohr (Linienquelle P'/2d: 73,5 dB, Anzeige 70,5 dB)
+     [java]   ok    nah atmet sie im Takt der Wellen: 6 dB zwischen leisester und lautester halber Sekunde
+     [java]   ok    in 1 km 18 dB leiser und dumpfer (Schwerpunkt 360 gegen 1439 Hz): man hört das Rollen
+     [java]   ok    Sturzbrecher: Anteil unter 160 Hz 55 % (Schwallbrecher 37 %)
+     [java]   ok    Brandung im Westen, Blick nach Norden: links 73 dB, rechts 66 dB
+     [java]   ok    Flugsand 0,05 kg/(m·s) am Ohr: 58 dB, hell (7503 Hz); ohne Sand still
+     [java]   ok    Strandhafer im Wind (12 m/s): über 3 kHz 21 dB mehr als ohne
+     [java]   ok    Küste mit 200 Stücken Brandung, Sand und Halmen (32 kHz, Bft 6): 8 ms Rechnen je s Ton
+     [java]   ok    Wind von außen: am Ohr im Sturm 78 dB, im Lee 39 dB (Bft 2 vorgegeben)
+     [java] Phase 14 in der App
+     [java]   ok    Wind, Seegang, Regen, Ohr an den Klang; Handlauf (70 mm), Stäbe, Mast singen, der nächste Punkt desHandlaufs liegt 0,37 m neben dem Ohr; Brandung am Sockel
+     [java]   ok    Handlauf bei Bft 8 singt mit 53 Hz (0,2 · U / 0,07 m)
+     [java]   ok    Ereignisse gehen nur in den laufenden Klang: still -76 dB, Brecher am Sockel 81 dB
+     [java]   ok    Donner aus dem Kanal: Blitz in 2,1 km mit 497 Stücken: der Donner rollt 6,9 s (der Blitz meldet 6,3s), 96 dB
+     [java]   ok    Diesel je Schiff (37,5 Hz), an Bord im Steuerhaus; mit dem Schiff wieder fort
+     [java]   ok    Ohr drinnen: Turm (Steinturm), Laternenraum (Glashaus, Tropfen auf Scheiben und Kuppel), Brücke (Steuerhaus)
+     [java]   ok    Qualitätsstufen reichen bis in den Klang
+     [java]   ok    Verbindungen der Phase 14 eingetragen: 9
+     [java]   ok    Version: Phase 17
+     [java] Personen auf der Galerie (Avatar Phase 15)
+     [java]   ok    Galerie: Boden auf 23,0 m, Weg 2,6 m um die Achse, Luv bei 250°
+     [java]   ok    Wege: zwischen Nachbarorten (30°) frei, nicht durch die Laterne und nicht durch den hohen Erker (45°; G30 rückt auf 12°)
+     [java]   ok    Reling: nicht über den Solarpaneelen (150°?210°) und nicht am Mast (75°)
+     [java]   ok    Windschatten der Laterne: Luv 21,0 m/s und 6,0 mm/h, Lee 8,0 m/s und 2,7 mm/h
+     [java]   ok    Orte nach dem Wind: See in 250°, Feuer in Höhe der Linse
+     [java]   ok    Kamera: Einstellungen Halbtotale bis Groß, Halbnah mit 26° (Vergrößerung 2,1)
+     [java]   ok    Wärter: seed 19 ist ?Mann, 56 · 19? (kurzes Haar, Bart 0,79, grau 0,57)
+     [java]   ok    Regiebuch ?Sturmnacht auf der Galerie?: 45 Zeilen, 5 Zeilen Abspann, alle Befehle bekannt
+     [java]   ok    rund: Kreis um die Laterne von Lee nach Luv, am hohen Erker vorbei (7,8 m Bogen), endet 0 mm vom Ziel
+     [java]   ok    Packages gltf, avatar, hair, portrait als Kopie aus dem Projekt Avatar (mit Grundkörper)
+     [java]   ok    Renderer: Personen nach dem Leben, vor Gischt, Regen und Nebel (sie schreiben Tiefe)
+     [java]   ok    Schattenkarte der Person mit Tiefe ?1..1, die Szene bleibt bei umgekehrter Tiefe
+     [java] Phase 17: Renderer.jar statt der Kopien (Sylt F22 A)
+     [java]   ok    src/com/dan hat nur noch die eigenen Packages [avatar, gltf, hair, lighthouse, portrait, voice]
+     [java]   ok    lib/Renderer.jar liegt bei
+     [java]   ok    Renderer.jar steht in javac.classpath vor FStyle (Klassenpfad von Bau, Lauf und Prüfung)
+     [java]   ok    com.dan.ocean kommt aus dem Jar (Renderer.jar)
+     [java]   ok    check-packages prüft lib/Renderer.jar (JarPruefung) und die eigenen Packages einzeln (PaketPruefung)
+     [java]   ok    Prüfsummen vorher: docs/status/Pruefsummen_Phase17.txt (21 Packages, keine Datei nur in Lighthouse)
+     [java]   ok    Rückgeführt: SprayGl.selfCheckStart/selfCheckPoll (Abgleich über Pufferspeicher mit Zaun, Avatar-Phase 19)
+     [java]   ok    Milchstraße (sky/milkyway.png) im Jar
+     [java] Phase 17: der Brandungsring bleibt für Pfahl, Tonnen und Schiffe
+     [java]   ok    Obstacle(x, z, r) mit Ring wie bisher, Obstacle(?, false) ohne
+     [java]   ok    surface.frag: der Ring je Körper mit seinem Schalter (uObst.w)
+     [java]   ok    Sockel und Manschette ohne Ring (4), der Peilpfahl mit (1)
+     [java]   ok    Brandung am Sockel aus: alle Körper wieder mit Ring (wie bis Phase 16)
+     [java] Phase 17: Brandung am Sockel (com.dan.surf, Surf.sockel())
+     [java]   ok    Surf.sockel(): Nordsee draußen 2 m, 9 s, aus 300° (Vorgabe, die App setzt die See)
+     [java]   ok    Grund: im Sockel und auf der Manschette 0,0 m, Steinschüttung -1,48 m, Seegrund -7,0 m
+     [java]   ok    Grund fällt von der Manschette über Schüttung und Böschung stetig zum Seegrund
+     [java]   ok    H_s am Rand des Stücks tiefenbegrenzt (Bft 10: 9 m draußen ? 4,0 m in 7,3 m Wasser), kleine See unverändert
+     [java]   ok    WaveTrain: Grund je Reihe gleich dem gemeinsamen gibt dieselben Wellen (Abweichung 7,0e-05 m, die Walze merkt sich die flachste Stelle)
+     [java]   ok    Reihe über einer Schüttung bricht (9 Brecher), dahinter bleibt sie niedrig (0,45 m gegen 4,42 m in der freien Reihe)
+     [java]   ok    Stück gebaut und 20 s eingeschwungen in 27 ms: 3648 Ecken
+     [java]   ok    Auf der steilen Schüttung brechen die Wellen stürzend oder als Reflexion, kaum schäumend: Brandung am Sockel: 24 Reihen, See aus 240°, H_s 4,0 m (am Rand 3,9 m), T_p 8,3 s · 0 Wellen · gebrochen 0 Schwall, 0 Sturz, 6 Reflexion · 0 Aufschläge
+     [java]   ok    Die Mitte des Stücks liegt im Turm
+     [java]   ok    Lage im Stück hin und zurück; die See aus 240° läuft nach 60° (x Ost, z Süd)
+     [java]   ok    Loch für die See beschrieben (die App zeichnet ohne Loch, das Netz zeigt sein weißes Wasser über der See)
+     [java]   ok    Brandung am Sockel aus: kein Stück, der Ring aus ocean übernimmt
+     [java]   ok    Verdrahtung: Ring aus, Lippen werfen Gischt, Brecher klingen, Reihen je Stufe (24, 32, 40, 56)
+     [java] Isolation der Packages (Kurzform von check-packages: nur Importe)
+     [java]   ok    com.dan.avatar (43 Dateien) hält den Paketvertrag ein (Importe)
+     [java]   ok    com.dan.gltf (8 Dateien) hält den Paketvertrag ein (Importe)
+     [java]   ok    com.dan.hair (5 Dateien) hält den Paketvertrag ein (Importe)
+     [java]   ok    com.dan.portrait (7 Dateien) hält den Paketvertrag ein (Importe)
+     [java]   ok    com.dan.voice (5 Dateien) hält den Paketvertrag ein (Importe)
+     [java] Datenbank-Zugang (ohne Verbindung)
+     [java]   ok    Vorlage db/db.properties.example vorhanden
+     [java]   ok    Konfig gelesen: Lighthouse@localhost:1521/PDBORCL
+     [java]   ok    Passwort gespeichert, Kommentare bleiben
+     [java]   ok    .gitignore schützt db/db.properties
+     [java] Datenbank: Skripte in db/sql
+     [java]   ok    01_tabellen.sql legt die 13 Tabellen aus Abschnitt 8 an (13)
+     [java]   ok    12 Sequenzen und 11 Trigger (LH_SCHEMA ohne, LH_LOG mit Sequence, ohne Trigger): 12/11
+     [java]   ok    Jeder Trigger hat seine Tabelle und Sequence (Sequence + Trigger, nie IDENTITY)
+     [java]   ok    Keine Anweisung mit GENERATED AS IDENTITY
+     [java]   ok    Spalten aus den CREATE TABLE gelesen: 162 in 13 Tabellen
+     [java]   ok    Jede Tabelle außer LH_SCHEMA hat die Spalte ID
+     [java]   ok    LH_WEATHER_PRESET und LH_SCENARIO_STEP haben alle 14 Wetterspalten (Weather.Var)
+     [java]   ok    LH_LIGHTHOUSE.LAGE ist SDO_GEOMETRY
+     [java]   ok    02_spatial.sql: Metadaten als PL/SQL-Block (SRID 8307), dann der räumliche Index
+     [java]   ok    03_sichten.sql: drei Sichten, wiederholbar
+     [java]   ok    04_startdaten.sql: 1044 Anweisungen, ohne PL/SQL
+     [java]   ok    Zerlegen: Strichpunkt am Ende abgelöst, PL/SQL-Blöcke bis zur Zeile /
+     [java]   ok    Der Einrichter führt 01 bis 04 aus, nie 99_entfernen.sql
+     [java]   ok    04_startdaten.sql ist aktuell (erzeugt aus Startdaten; sonst tools.StartdatenSql laufen lassen)
+     [java]   ok    Alle mitgelieferten Texte passen in ihre Spalten
+     [java]   ok    Kein & in den Skripten außer den Quellen, und dort SET DEFINE OFF
+     [java] Datenbank: Startdaten
+     [java]   ok    Neun Türme: [Roter Sand, Alte Weser, Hohe Weg, Westerheversand, Kiel, Bülk, Flügge, Dahmeshöved, Tegeler Plate]
+     [java]   ok    Jede Kennung liest com.dan.beacon
+     [java]   ok    Jede Sektortafel liest com.dan.beacon, jedes Feuer lässt sich bauen
+     [java]   ok    Jeder Turm hat seine Quellen (F41)
+     [java]   ok    Alle Lagen in der Deutschen Bucht und der westlichen Ostsee
+     [java]   ok    Roter Sand aus den Startdaten = Beacon.roterSand1985 (Kennung, alle Sektoren je halbes Grad)
+     [java]   ok    Roter Sand liegt in den Daten, wo er in der Szene steht
+     [java]   ok    Roter Sand ? Alte Weser 3,31 km (Karte rund 3,4 km)
+     [java]   ok    Kiel ? Bülk 7,01 km (quer über die Außenförde)
+     [java]   ok    Vier Türme in der Ostsee, fünf in der Nordsee
+     [java]   ok    Zehn Wetterlagen, je 14 Größen
+     [java]   ok    ?Sturm? ist Bft 9 wie die Lage STURM der Regie
+     [java]   ok    Drei Regiebücher, Text hin und zurück gleich
+     [java]   ok    Presets calm, breeze, gale, storm von zehn Packages: 40
+     [java]   ok    Felder der Presets: 704
+     [java]   ok    Aufstieg als Datensatz und zurück: größte Abweichung 0,006 (m oder Grad), Schnitte bleiben
+     [java]   ok    Rundflug kreist um den Turm und läuft im Kreis
+     [java] Datenbank: Felder und Textformat
+     [java]   ok    Ocean.gale(): 17 Felder gelesen, in ein neues Ocean geschrieben, gleich
+     [java]   ok    Unbekanntes Feld und falscher Wert werden gemeldet, nicht geschrieben
+     [java]   ok    Textformat: Zeilenumbruch, Rückstrich und = im Wert hin und zurück
+     [java]   ok    Feldarten wie in LH_PACKAGE_SETTING.TYP; Arrays bleiben außen vor
+     [java] Datenbank: Zustand der Szene
+     [java]   ok    Zustand erfasst: 278 Werte
+     [java]   ok    Zustand auf eine frische Szene angewandt, nichts abgelehnt
+     [java]   ok    Zweimal erfasst, gleich: Szene, Uhr, Kamera, Regiebuch mit Stelle, Handregler, Kennung
+     [java]   ok    Einzelne Werte stimmen (Meer, Gischt, Möwen, Zeitraffer)
+     [java]   ok    Das Regiebuch läuft weiter, an derselben Stelle (2 Stunden nach Beginn)
+     [java]   ok    Die Kennung kommt mit
+     [java]   ok    Die Kamera steht wieder am selben Ort mit demselben Blick
+     [java] Datenbank: Leuchtturm-Auswahl
+     [java]   ok    Kiel gewählt: Feuer von Kiel (Iso WRG 6s) am Turm Roter Sand · Ostsee, ohne Gezeiten · 1 Nachbar bis 40 km
+     [java]   ok    Ostsee: keine Gezeiten
+     [java]   ok    Sonne, Mond und Sterne für 54,5° N
+     [java]   ok    Nachbarn aus den Daten (1), keine Lichtglocken der Weserorte
+     [java]   ok    Bülk liegt im richtigen Abstand südlich von Kiel
+     [java]   ok    Zurück zum Roten Sand: Alte Weser und Tegeler Plate, Gezeiten, Lichtglocken, F WRG
+     [java] Datenbank: Speichern und Laden ohne Datenbank (daten/)
+     [java]   ok    Leerer Ordner: die mitgelieferten Daten sind da, keine Sitzung
+     [java]   ok    Wetterlage gespeichert und gelesen, leere Größe bleibt leer
+     [java]   ok    Eine mitgelieferte Wetterlage wird nicht überschrieben
+     [java]   FEHLER Regiebuch gespeichert und gelesen, Text gleich
+     [java]   ok    Kamerafahrt gespeichert und gelesen, 37 Stützpunkte gleich
+     [java]   ok    Ansicht mit Zustand und Vorschau gespeichert und gelesen
+     [java]   ok    Preset gespeichert und gelesen (4 mitgelieferte + 1 eigenes)
+     [java]   ok    Abgebrochene Sitzung: ?Weiter wie zuletzt? findet ihren Zustand
+     [java]   ok    Geordnet beendete Sitzung ist die letzte
+     [java]   ok    Protokoll geschrieben und gelesen
+     [java]   ok    Alles wieder gelöscht
+     [java] Schliff: Programmsymbol und Verknüpfung
+     [java]   ok    icon/lighthouse.ico vorhanden
+     [java]   ok    ICO mit PNG-Einträgen in den Größen [16, 24, 32, 48, 64, 128, 256]
+     [java]   ok    PNGs des Symbols im Jar, AppIcon.load liefert jede Größe
+     [java]   ok    Goldkante am Rand des Symbols
+     [java]   ok    Verknuepfung.ps1 legt die Verknüpfung auf das Jar mit Symbol und Arbeitsordner
+     [java]   ok    Verknuepfung.bat ruft das Skript (CRLF)
+     [java]   ok    Lighthouse.bat startet das Jar
+     [java] Schliff: READMEs, Bilder, Quellen
+     [java]   ok    README.md in allen 5 eigenen Packages
+     [java]   ok    READMEs für scene, wiring und db
+     [java]   ok    GitHub-README: 18 Verweise auf Dateien im Projekt, alle vorhanden
+     [java]   ok    12 Bilder in der README aus docs/bilder (15 Dateien, 1,9 MB)
+     [java]   ok    Alle 14 Element-Packages stehen in der README
+     [java]   ok    docs/QUELLEN.md mit 31 Einträgen
+     [java] Schliff: Qualitätsstufen durchgängig
+     [java]   ok    Jede Stufe hebt die Stufe aller zwölf Packages (Meer, Wolken, Verwitterung, Gischt, Regen, Scheiben, Feuer, Blitz, Nebel, Schwimmkörper, Möwen, Klang)
+     [java]   ok    setQuality reicht die Stufe bis in Meer, Nebel, Möwen, Schwimmkörper und Klang
+     [java]   ok    Quality.summary nennt alle Teile: Hoch: 100 % der Auflösung, Meer 4 × 256², Wolken 1/2 mit bis ?
+     [java] Schliff: Auflösung regelt sich selbst
+     [java]   ok    Grafikkarte 30 ms bei Ziel 60: Auflösung sinkt von 100 auf 85 % (höchstens 15 Punkte je Schritt)
+     [java]   ok    Innerhalb von 1,5 s wird nicht noch einmal geregelt
+     [java]   ok    Bei dauerhaft 40 ms bleibt sie bei 50 % stehen, nie darunter
+     [java]   ok    Mit 6 ms steigt sie in Schritten von 5 % wieder auf die Stufe (100 %)
+     [java]   ok    Bei 14 ms (im Budget) bleibt sie stehen; 14 Änderungen gezählt
+     [java]   ok    Ausgeschaltet regelt nichts, der Regler gilt
+     [java] Schliff: Befunde aus den Statusbildern
+     [java]   ok    Brandungsring am Sockel: Hs 0,3 m ? 1 %, 1 m ? 30 %, 3 m ? 52 % (Bft 1 nur ein Saum)
+     [java]   ok    Rechenzeit des Klangs als gleitendes Mittel über die letzten Sekunden: 0,2 % eines Kerns (vorher der Mittelwert seit dem Start samt Aufwärmen)
+     [java]   ok    docs/status/Dauerlauf_claude.txt endet mit ?Dauerlauf bestanden? (45 Zeilen)
+     [java] Sonstiges
+     [java]   ok    Qualitätsstufen steigen von Niedrig bis Ultra
+     [java]   ok    Programmsymbol mit Goldkante
+     [java]   ok    Symbol deckend gemalt
+     [java]   ok    Isolationsprüfung tools/PaketPruefung.java vorhanden (Ant-Target check-packages)
+     [java]   ok    Muster-Package mit README als Vorlage für neue Packages (aus Renderer.jar)
+     [java]
+     [java] 786 Prüfungen, 1 Verstöße, 66,6 s
+     [java] ERGEBNIS: 1 Verstöße
+
+BUILD FAILED
+C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse\build.xml:101: Java returned: 1
+
+Total time: 1 minute 15 seconds
+
+C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse>
