@@ -2440,10 +2440,14 @@ public final class Renderer implements GLEventListener {
                 }
                 if (light.pointSigma <= 0) light.pointSigma = air[0];
             }
-            // Rückfluss aus Timmendorf (Phase 18): die Leuchten als Punktlichter auf der See (in freie Plätze nach den Blitzen)
+            // Rückfluss aus Timmendorf (Phase 18): Leuchten, die rundum strahlen, als Punktlichter auf der See (in freie Plätze
+            // nach den Blitzen). Die See kennt keine Verteilung: die Arbeitsleuchte (nach unten, cos²) ginge mit ihrer Spitze
+            // nach allen Seiten und machte die See weit hinaus hell (Befund im Vergleichsbild, Nacht 20:30); ihr Licht am Fuß
+            // rechnet der Turm-Shader mit lamp.glsl.
             if (showRueckfluss && aussen.an()) {
                 double u = skyOk ? pre * beaconUnit : 300 * beaconUnit;
                 for (com.dan.lamp.Lamp lp : aussen.lampen.all()) {
+                    if (lp.distribution != com.dan.lamp.Lamp.Distribution.GLOBE) continue;
                     int i = light.flashCount;
                     if (i >= 8) break;
                     double cd = lp.candela(0, -1, 0);

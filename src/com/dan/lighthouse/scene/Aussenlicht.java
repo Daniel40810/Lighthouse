@@ -15,7 +15,7 @@ import java.util.Locale;
  * <li><b>Hindernisfeuer</b> an der Spitze des Masts: rot, rundum, rund 32 cd [G nach ICAO Anhang 14, Typ B: mindestens 32 cd].</li>
  * </ul>
  * Alle schalten mit dem Dämmerungsschalter aus {@code lamp} (an unter 35 lx, aus über 70 lx), das Licht fällt im Turm-Shader
- * über {@code lamp.glsl} auf Mauer und Stahl (ohne Schatten) und als Punktlicht auf die See.
+ * über {@code lamp.glsl} auf Mauer und Stahl (ohne Schatten); das Hindernisfeuer (rundum) leuchtet auch als Punktlicht auf die See.
  * <p>
  * <b>Flagge:</b> Bundesflagge 1,2 × 0,72 m (3 : 5) am Mast unter dem Querträger, Tuch nach XPBD, Wind 10 m über dem
  * Wasser mit dem Höhenprofil der See (Exponent 0,11) und Böen nach der Böigkeit [G].
