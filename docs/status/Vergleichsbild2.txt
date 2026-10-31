@@ -1,0 +1,180 @@
+
+C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse>ant vergleichsbild -Dstand=nachher
+Buildfile: C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse\build.xml
+
+-pre-init:
+
+-init-private:
+
+-pre-init-libraries:
+
+-init-private-libraries:
+
+-init-libraries:
+
+-init-user:
+
+-init-project:
+
+-init-macrodef-property:
+
+-init-modules-supported:
+
+-do-init:
+
+-post-init:
+
+-init-check:
+
+-init-ap-cmdline-properties:
+
+-init-macrodef-modulename:
+
+-init-source-module-properties:
+
+-init-macrodef-javac-with-module:
+
+-init-macrodef-javac-with-processors:
+
+-init-macrodef-javac-without-processors:
+
+-init-macrodef-javac:
+
+-init-macrodef-test-impl:
+
+-init-macrodef-junit-init:
+
+-init-test-properties:
+
+-init-macrodef-junit-prototype-with-module:
+
+-init-macrodef-junit-prototype-without-module:
+
+-init-macrodef-junit-single:
+
+-init-macrodef-junit-batch:
+
+-init-macrodef-junit:
+
+-init-macrodef-junit-impl:
+
+-init-macrodef-testng:
+
+-init-macrodef-testng-impl:
+
+-init-macrodef-test:
+
+-init-macrodef-junit-debug-impl:
+
+-init-macrodef-test-debug-junit:
+
+-init-macrodef-testng-debug:
+
+-init-macrodef-testng-debug-impl:
+
+-init-macrodef-test-debug-testng:
+
+-init-macrodef-test-debug:
+
+-init-debug-args:
+
+-init-macrodef-nbjpda:
+
+-init-macrodef-debug:
+
+-init-macrodef-java-with-module:
+
+-init-macrodef-java-with-unnamed-module:
+
+-init-macrodef-java-without-module:
+
+-init-macrodef-java:
+
+-init-presetdef-jar:
+
+-init-ap-cmdline-supported:
+
+-init-ap-cmdline:
+
+init:
+
+-deps-jar-init:
+   [delete] Deleting: C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse\build\built-jar.properties
+
+deps-jar:
+
+-warn-already-built-jar:
+[propertyfile] Updating property file: C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse\build\built-jar.properties
+
+-check-automatic-build:
+
+-clean-after-automatic-build:
+
+-verify-automatic-build:
+
+-pre-pre-compile:
+
+-pre-compile:
+
+-copy-persistence-xml:
+
+-compile-depend:
+
+-do-compile:
+
+check-packages:
+     [exec] check-packages: Renderer.jar mit 50 Packages (Quelle: Projekt Renderer)
+     [exec]   Package        Klassen  README  Java
+     [exec]   beacon         28       ok      21
+     [exec]   buoyancy       37       ok      21
+     [exec]   cloud          16       ok      21
+     [exec]   flock          49       ok      21
+     [exec]   fog            25       ok      21
+     [exec]   forest         40       ok      21
+     [exec]   ground         27       ok      21
+     [exec]   kino           11       ok      21
+     [exec]   lightning      24       ok      21
+     [exec]   muster         7        ok      21
+     [exec]   ocean          27       ok      21
+     [exec]   rain           12       ok      21
+     [exec]   river          16       ok      21
+     [exec]   road           32       ok      21
+     [exec]   sky            44       ok      21
+     [exec]   soundscape     62       ok      21
+     [exec]   spray          16       ok      21
+     [exec]   tide           11       ok      21
+     [exec]   weather        14       ok      21
+     [exec]   weathering     10       ok      21
+     [exec]   wetglass       10       ok      21
+     [exec]   surf           48       ok      21
+     [exec]   lamp           17       ok      21
+     [exec]   cloth          16       ok      21
+     [exec] check-packages: alle 24 gebrauchten Packages in Renderer.jar, dazu die Brecher aus surf (Grund je Reihe), ocean, spray, sky und beacon (seit Sylt F18 im Renderer).
+     [exec] check-packages: 5 Packages, jedes für sich übersetzt
+     [exec]   Package        Kern   gl     demo   Importe  Dateien
+     [exec]   avatar         ok     ok     ?      ok       43
+     [exec]   gltf           ok     ok     ok     ok       8
+     [exec]   hair           ok     ok     ?      ok       5
+     [exec]   portrait       ok     ok     ?      ok       7
+     [exec]   voice          ok     ?      ?      ok       5
+     [exec] check-packages: alle 5 Packages unabhängig.
+
+-post-compile:
+
+compile:
+
+vergleichsbild:
+     [java] Lighthouse: ATI Technologies Inc. · AMD Radeon(TM) Graphics · 4.6.0 Core Profile Context 26.10.1.261008
+     [java] Lighthouse: Turm 99.344 Dreiecke, Baustein weathering.glsl, Nässekarte folgt
+     [java] Lighthouse: Compute 4.3: in Ordnung (64×64, 0,047 ms, bis 1024 Fäden, 64 KiB geteilt)
+     [java] Lighthouse: Himmel Tabellen 256×64, 32², 256×128 · 8920 Sterne · 5 Planeten · 27 Figuren
+     [java] Lighthouse: Wolken Rauschen 128³ + 32³, Karte 512², Schatten 256² über 24 km
+     [java] Lighthouse: Brandung am Sockel Brecher-Netz (breaker.vert/frag)
+     [java] Lighthouse: Meer
+     [java] Grafikkarte = Prozessor: Verwitterung Median ± 0,000, größte 0,000, 0 von 4096 über 0,01
+     [java] Bild: docs\rueckfluss\Vergleich_nachher.png
+
+BUILD SUCCESSFUL
+Total time: 17 seconds
+
+C:\Users\Dan40810\Documents\NetBeansProjects\Lighthouse>
