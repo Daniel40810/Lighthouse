@@ -19,13 +19,15 @@ import java.util.zip.ZipFile;
 public final class JarPruefung {
     /** Was Lighthouse aus Renderer.jar braucht: die 21 Packages, die bis Phase 16 als Kopie in src lagen, und surf. */
     static final String[] GEBRAUCHT = {"beacon", "buoyancy", "cloud", "flock", "fog", "forest", "ground", "kino", "lightning", "muster", "ocean",
-            "rain", "river", "road", "sky", "soundscape", "spray", "tide", "weather", "weathering", "wetglass", "surf"};
+            "rain", "river", "road", "sky", "soundscape", "spray", "tide", "weather", "weathering", "wetglass", "surf", "lamp", "cloth"};
     static final String[][] SHADER = {
             {"surf", "Surf.class", "WaveTrain.class", "WaveTrain$RowProfile.class", "BreakerMesh.class", "gl/BreakerGl.class", "gl/breaker.vert", "gl/breaker.frag", "demo/SurfCheck.class"},
             {"ocean", "Obstacle.class", "gl/OceanGl.class", "gl/surface.frag"},
             {"spray", "gl/SprayGl.class"},
             {"sky", "milkyway.png", "stars.bin"},
-            {"beacon", "Beacon.class", "Characteristic.class", "SectorTable.class", "gl/BeaconGl.class", "gl/beacon.glsl", "gl/beam.frag", "demo/BeaconCheck.class"}};
+            {"beacon", "Beacon.class", "Characteristic.class", "SectorTable.class", "gl/BeaconGl.class", "gl/beacon.glsl", "gl/beam.frag", "demo/BeaconCheck.class"},
+            {"lamp", "Lamp.class", "Lamps.class", "gl/LampGl.class", "gl/lamp.glsl"},
+            {"cloth", "Cloth.class", "gl/ClothGl.class", "gl/cloth.vert", "gl/cloth.frag"}};
 
     public static void main(String[] a) throws Exception {
         File jar = new File(a.length > 0 ? a[0] : "lib/Renderer.jar");

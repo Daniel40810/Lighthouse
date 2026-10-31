@@ -141,6 +141,13 @@ public final class Renderer implements GLEventListener {
     private long scaleNanos;
     private int scaleSteps;
     public volatile boolean showHud = true, showTower = true;
+    /** Rückfluss aus Timmendorf (Phase 18): Flagge am Mast (cloth) und Leuchten außen (lamp); -Drueckfluss=aus schaltet ab. */
+    public volatile boolean showRueckfluss = !"aus".equals(System.getProperty("rueckfluss"));
+    public final com.dan.lighthouse.scene.Aussenlicht aussen = new com.dan.lighthouse.scene.Aussenlicht();
+    private final com.dan.lamp.gl.LampGl lampGl = new com.dan.lamp.gl.LampGl();
+    private final com.dan.cloth.gl.ClothGl flaggeGl = new com.dan.cloth.gl.ClothGl();
+    private boolean lampOk, flaggeOk;
+    private double lampK;
     /**
      * Phase 16: das HUD ist in der Regel kurz (drei Zeilen oben links: Tempo, Zeit und Wetter, Kamera) und verdeckt
      * die Szene nicht mehr; {@code hudFull} zeigt alle Zeilen wie bisher. H schaltet kurz → voll → aus → kurz. Alle
@@ -486,6 +493,19 @@ public final class Renderer implements GLEventListener {
         // Phase 11: das Innere (mit der Sichtbarkeit je Ecke, gut eine Sekunde) im Hintergrund bauen
         innerFuture = java.util.concurrent.CompletableFuture.supplyAsync(Turm::interior);
         try {
+            lampGl.init(gl);
+            lampOk = true;
+        } catch (RuntimeException e) {
+            System.err.println("Lighthouse: Leuchten (lamp) nicht verfügbar: " + e.getMessage());
+        }
+        try {
+            flaggeGl.init(gl);
+            flaggeGl.setCloths(gl, java.util.List.of(aussen.flagge));
+            flaggeOk = true;
+        } catch (RuntimeException e) {
+            System.err.println("Lighthouse: Flagge (cloth) nicht verfügbar: " + e.getMessage());
+        }
+        try {
             weatheringGl.init(gl);
             weatheringOk = true;
         } catch (RuntimeException e) {
@@ -662,6 +682,9 @@ public final class Renderer implements GLEventListener {
         stepRain(dt);
         stepGlass(dt);
         stepBeacon(st, dt);
+        if (showRueckfluss && wiring != null)
+            aussen.schritt(dt, wiring.regie ? wiring.gustNow : wiring.wind.speed(), wiring.wind.fromDeg(), wiring.wind.gustiness(),
+                    rainOk && showRain ? Math.min(1, rain.rate / 4) : 0);
         stepLightning(dt);
         stepLife(st, dt);
         stepPersonen(dt);   // Avatar Phase 15
@@ -1254,6 +1277,7 @@ public final class Renderer implements GLEventListener {
         // dadurch auch mittags nur 2 bis 3 „lx“ und das Feuer brannte den ganzen Tag)
         double lux = daylightLux(st, cloudShade);
         beaconLux = lux;
+        aussen.schalten(dt, lux, clock.hour());
         if (wiring != null) wiring.feed(beacon, lux);
         beacon.step(Math.max(dt, sceneDt));
         for (Beacon n : neighbours) {
@@ -1969,8 +1993,20 @@ public final class Renderer implements GLEventListener {
     /** Lichtpunkte der Tonnen und Schiffe am Auge (lx), durch Dunst und Nebel. */
     java.util.List<BeaconGl.Glare> lifeGlare() {
         java.util.List<BeaconGl.Glare> out = new java.util.ArrayList<>();
-        if (!showShips) return out;
         double[] e = camera.eye;
+        if (showRueckfluss && aussen.an()) {
+            // Rückfluss aus Timmendorf (Phase 18): die Leuchten außen am Turm als Lichtpunkte (Lichtstärke zum Auge, Dunst)
+            double sg = beacon.hazePerM + (rainOk && showRain ? rain.scatter(e[0], e[1], e[2]) * 3e-3 : 0);
+            for (com.dan.lamp.Lamp lp : aussen.lampen.all()) {
+                double dx = e[0] - lp.x, dy = e[1] - lp.y, dz = e[2] - lp.z, d2 = Math.max(1, dx * dx + dy * dy + dz * dz), d = Math.sqrt(d2);
+                double cd = lp.candela(dx / d, dy / d, dz / d);
+                if (cd <= 0) continue;
+                double k = cd * Math.exp(-sg * d) * fogT(lp.x, lp.y, lp.z) / d2;
+                double[] c = lp.rgb();
+                out.add(new BeaconGl.Glare(lp.x, lp.y, lp.z, new double[]{c[0] * k, c[1] * k, c[2] * k}, 1, 1.0));
+            }
+        }
+        if (!showShips) return out;
         double sigma = beacon.hazePerM + (rainOk && showRain ? rain.scatter(e[0], e[1], e[2]) * 3e-3 : 0);
         double eyeH = Math.max(0.5, e[1] - (wiring != null ? wiring.waterLevel.level() : 0));
         Ship br = onBridge();
@@ -2404,6 +2440,24 @@ public final class Renderer implements GLEventListener {
                 }
                 if (light.pointSigma <= 0) light.pointSigma = air[0];
             }
+            // Rückfluss aus Timmendorf (Phase 18): die Leuchten als Punktlichter auf der See (in freie Plätze nach den Blitzen)
+            if (showRueckfluss && aussen.an()) {
+                double u = skyOk ? pre * beaconUnit : 300 * beaconUnit;
+                for (com.dan.lamp.Lamp lp : aussen.lampen.all()) {
+                    int i = light.flashCount;
+                    if (i >= 8) break;
+                    double cd = lp.candela(0, -1, 0);
+                    if (cd <= 0) continue;
+                    double[] c = lp.rgb();
+                    light.flashPos[i * 4] = (float) lp.x;
+                    light.flashPos[i * 4 + 1] = (float) lp.y;
+                    light.flashPos[i * 4 + 2] = (float) lp.z;
+                    light.flashPos[i * 4 + 3] = 0.3f;
+                    for (int k = 0; k < 3; k++) light.flashRgb[i * 4 + k] = (float) (c[k] * cd * u);
+                    light.flashCount = i + 1;
+                }
+                if (light.flashCount > 0 && light.pointSigma <= 0) light.pointSigma = air[0];
+            }
             // Phase 17: kein Loch – die See bleibt, die Brandung legt ihr weißes Wasser darüber (Sockelbrandung.naht)
             double[][] loch = brandungAn() ? brandung.loch() : null;
             oceanGl.draw(gl, ocean, view, light);
@@ -2437,6 +2491,7 @@ public final class Renderer implements GLEventListener {
             common(gl, tower, vp, inv, sun, level);
             drawTower(gl, st, key);
             gl.glDisable(GL.GL_CULL_FACE);
+            drawFlagge(gl, st, vp, sun, pre);
             if (weatheringOk && weatheringCheck.isEmpty() && frame > 50) weatheringCheck = weatheringGl.selfCheck(gl, weathering.snapshot());
             gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, hdrFbo);
             gl.glViewport(0, 0, w, h);
@@ -3017,6 +3072,7 @@ public final class Renderer implements GLEventListener {
             tower.set(gl, "uBeaconOn", 0f);
         }
         bindLightning(gl, tower);
+        bindLamps(gl, tower);
         bindStair(gl, tower);
         tower.set(gl, "uInterior", 0);
         // Phase 15: die Alte Weser am Horizont nur beim Roten Sand selbst (sie ist der letzte Teil des Netzes)
@@ -3033,6 +3089,51 @@ public final class Renderer implements GLEventListener {
             innerMesh.draw(gl);
             tower.set(gl, "uInterior", 0);
         }
+    }
+
+    /**
+     * Rückfluss aus Timmendorf (Phase 18): die Leuchten außen an den Turm-Shader ({@code lamp.glsl}): Puffer, Zahl,
+     * Vorbelichtung (lx → Einheiten der Szene); ohne Rückfluss oder bei Tag keine.
+     */
+    private void bindLamps(GL4 gl, Shader s) {
+        lampK = 0;
+        int n = 0;
+        if (lampOk && showRueckfluss && aussen.an()) {
+            lampGl.prepare(aussen.lampen, camera.eye.clone());
+            lampGl.upload(gl);
+            n = lampGl.count();
+            lampK = skyOk ? exposure() * beaconUnit : 300 * beaconUnit;
+        }
+        if (n > 0) lampGl.bind(gl, s.id());
+        else s.set(gl, "uLampCount", 0);
+        s.set(gl, "uLampK", (float) lampK);
+    }
+
+    /** Rückfluss aus Timmendorf (Phase 18): die Flagge am Mast mit dem Licht von Sonne oder Mond und Himmel. */
+    private void drawFlagge(GL4 gl, Sky.State st, float[] vp, double[] sun, double pre) {
+        if (!flaggeOk || !showRueckfluss) return;
+        double[][] L = lifeLight(st, sun, pre);
+        boolean sunKey = !skyOk || st.sunAlt > -2;
+        com.dan.cloth.gl.ClothGl.View v = new com.dan.cloth.gl.ClothGl.View();
+        v.viewProj = vp;
+        v.eye = camera.eye.clone();
+        v.tonemap = false;
+        v.exposure = 1;
+        com.dan.cloth.gl.ClothGl.Light l = new com.dan.cloth.gl.ClothGl.Light();
+        l.sunDir = sunKey || st == null ? sun : st.moonDir;
+        l.sunColor = scale(sunKey ? L[0] : L[1], 1 / Math.PI);
+        l.skyColor = L[2];
+        l.groundColor = scale(L[3], 0.25);
+        l.fogColor = L[3];
+        l.fogDistance = skyOk ? fogDistance(st) : 40_000;
+        gl.glEnable(GL.GL_DEPTH_TEST);
+        gl.glDepthMask(true);
+        gl.glDepthFunc(reversedZ ? GL.GL_GREATER : GL.GL_LESS);
+        gl.glDisable(GL.GL_BLEND);
+        gl.glDisable(GL.GL_CULL_FACE);
+        flaggeGl.upload(gl);
+        flaggeGl.draw(gl, v, l);
+        gl.glBindVertexArray(emptyVao);
     }
 
     /** Maße der Treppe für den Turm-Shader (Verdeckung, Innenraum). */
@@ -3273,6 +3374,7 @@ public final class Renderer implements GLEventListener {
                 sprayLine(),
                 rainLine(),
                 beaconLine(),
+                showRueckfluss ? aussen.zeile() + (lampOk ? "" : " · !ohne LampGl") + (flaggeOk ? "" : " · !ohne ClothGl") : "Rückfluss aus Timmendorf aus",
                 lightningLine(),
                 glassLine(),
                 fogLine(),
@@ -3372,6 +3474,8 @@ public final class Renderer implements GLEventListener {
         for (Shader s : all) s.dispose(gl);
         towerMesh.dispose(gl);
         innerMesh.dispose(gl);
+        if (lampOk) lampGl.dispose(gl);
+        if (flaggeOk) flaggeGl.dispose(gl);
         if (sprayOk) sprayGl.dispose(gl);
         Gpu.deleteFbos(gl, sprayDepthFbo);
         Gpu.deleteTextures(gl, sprayDepthTex);

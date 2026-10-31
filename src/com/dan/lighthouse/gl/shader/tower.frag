@@ -8,6 +8,8 @@
 #include "/com/dan/weathering/gl/weathering.glsl"
 #include "/com/dan/beacon/gl/beacon.glsl"
 #include "/com/dan/lightning/gl/lightning.glsl"
+#include "/com/dan/lamp/gl/lamp.glsl"
+uniform float uLampK;       // Timmendorf Phase 18: Leuchten außen (lamp.glsl), lx → vorbelichtet; 0 = aus
 in vec3 vPos;
 in vec3 vNormal;
 in vec3 vColor;
@@ -355,6 +357,9 @@ void main() {
         float through = inside ? 0.75 : 1.0;
         col += (albedo * groove * ltgIrradiance(vPos, N) / PI + ltgSpecular(vPos, N, V, max(rough, 0.04)) * tint) * through;
     }
+    // Timmendorf Phase 18 (Rückfluss): die Leuchten außen am Turm (com.dan.lamp): Licht und Glanz, ohne Schatten
+    if (uLampK > 0.0 && uLampCount > 0 && !inside)
+        col += (albedo * groove * lampIrradiance(vPos, N) / PI + lampSpecular(vPos, N, V, max(rough, 0.04), F0) * tint) * uLampK;
     vec3 R = reflect(-V, N);
     float ndv = max(dot(N, V), 0.0);
     float Fe = F0 + (1.0 - F0) * pow(1.0 - ndv, 5.0);

@@ -68,6 +68,7 @@ public final class Pruefung {
         klang();
         PruefungPersonen.alles();   // Avatar Phase 15
         PruefungRueckfluss.alles();   // Phase 17: Renderer.jar und Brandung am Sockel
+        PruefungTimmendorf.alles();   // Rückfluss aus Timmendorf Phase 18: Flagge und Leuchten
         isolation();
         datenbank();
         PruefungDaten.alles();

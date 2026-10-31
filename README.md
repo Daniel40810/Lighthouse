@@ -100,6 +100,14 @@ Mit Rungholt (Phase 17, 20.10.2026) kamen zurück:
 
 Dabei fiel ein alter Fehler auf: `db.Startdaten.wetterlagen()` lief seit dem Föhnsturm aus Glacier über das Feld der acht Namen hinaus. Die Schleife nimmt jetzt nur die Lagen mit Namen.
 
+## Rückfluss aus Timmendorf (Phase 18)
+
+Mit Timmendorf (Phase 18, 31.10.2026, F29 A) kamen zwei Packages neu dazu:
+
+- `cloth`: die **Bundesflagge** (1,2 × 0,72 m) am Mast auf der Galerie, Tuch nach XPBD im Wind 10 m über dem Wasser mit Höhenprofil und Böen, nass im Regen (`scene.Aussenlicht`).
+- `lamp`: **Leuchten außen** mit Dämmerungsschalter (an unter 35 lx): eine Arbeitsleuchte über der Tür (LED 4 000 K, 1 500 lm nach unten, rund 110 lx auf dem Podest) und das rote **Hindernisfeuer** an der Mastspitze (32 cd rundum). Ihr Licht fällt über `lamp.glsl` im Turm-Shader auf Mauer, Stahl und Leiter (ohne Schatten), als Punktlicht auf die See und als Lichtpunkt mit Dunst und Nebel ins Bild [G: der Rote Sand hatte außen nur das Feuer].
+- `ant renderer` holt das neue `Renderer.jar`; mit `-Drueckfluss=aus` bleibt alles wie in Phase 17 (`ant vergleichsbild -Dstand=zwischen -Drueckfluss=aus`).
+
 ## Bilder
 
 | | |
